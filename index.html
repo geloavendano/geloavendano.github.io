@@ -506,7 +506,6 @@ footer{border-top:1px solid var(--border);padding:24px 28px;text-align:center;
     <div class="m-section"><div class="m-label">What I Built</div><ul class="m-bullets" id="mBuilt"></ul></div>
     <div class="m-section"><div class="m-label">Impact</div><div class="m-metrics" id="mMetrics"></div></div>
     <div class="m-section"><div class="m-label">Key Projects</div><div class="m-projects" id="mProjects"></div></div>
-    <div class="m-section"><div class="m-label">Media</div><div class="m-media" id="mMedia"></div></div>
   </div>
 </div>
 
@@ -787,9 +786,6 @@ function openModal(idx) {
   }).join('');
   document.getElementById('mProjects').innerHTML = d.projects.map(function(p) {
     return '<div class="m-proj"><div><div class="m-proj-name">' + p.name + '</div><div class="m-proj-desc">' + p.desc + '</div></div><span class="m-proj-arrow">↗</span></div>';
-  }).join('');
-  document.getElementById('mMedia').innerHTML = d.media.map(function(m, i) {
-    return '<div class="m-media-item"><span style="font-size:36px">' + m + '</span><span class="m-media-label">Media ' + (i+1) + '</span></div>';
   }).join('');
   modal.classList.add('open');
   modal.scrollTop = 0;
