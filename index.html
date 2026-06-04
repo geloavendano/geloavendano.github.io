@@ -213,6 +213,29 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   font-size:36px;position:relative}
 .m-media-label{position:absolute;bottom:8px;left:10px;font-size:10px;color:var(--text3)}
 
+/* ── SIDE PROJECTS ── */
+#projects{position:relative;z-index:1;padding:80px 0 60px}
+.projects-intro{padding:0 28px;max-width:1100px;margin:0 auto 48px}
+.projects-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:0 28px;max-width:1100px;margin:0 auto}
+@media(max-width:900px){.projects-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:580px){.projects-grid{grid-template-columns:1fr}}
+.proj-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;
+  display:flex;flex-direction:column;
+  transition:transform 0.3s cubic-bezier(0.16,1,0.3,1),border-color 0.3s,box-shadow 0.3s}
+.proj-card:hover{transform:translateY(-6px);border-color:rgba(233,69,96,0.35);box-shadow:0 20px 50px rgba(0,0,0,0.4)}
+.proj-preview{width:100%;aspect-ratio:16/9;overflow:hidden;background:var(--c1);display:block}
+.proj-preview img{width:100%;height:100%;object-fit:cover;object-position:top;display:block;
+  transition:transform 0.5s cubic-bezier(0.16,1,0.3,1)}
+.proj-card:hover .proj-preview img{transform:scale(1.04)}
+.proj-body{padding:20px;display:flex;flex-direction:column;flex:1}
+.proj-tag{font-size:10px;font-weight:700;padding:3px 10px;border-radius:100px;letter-spacing:0.06em;
+  text-transform:uppercase;align-self:flex-start;margin-bottom:10px}
+.proj-name{font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px;line-height:1.3}
+.proj-desc{font-size:13px;color:var(--text2);line-height:1.65;flex:1;margin-bottom:16px}
+.proj-link{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;
+  color:var(--red);text-decoration:none;transition:gap 0.2s}
+.proj-link:hover{gap:10px}
+
 /* ── TESTIMONIALS ── */
 #testimonials{padding:80px 0;position:relative;z-index:1}
 .testi-header{padding:0 28px;max-width:1100px;margin:0 auto 40px}
@@ -487,6 +510,55 @@ footer{border-top:1px solid var(--border);padding:24px 28px;text-align:center;
       </div>
 
     </div>
+  </div>
+</section>
+
+<!-- SIDE PROJECTS -->
+<section id="projects">
+  <div class="projects-intro">
+    <div class="sec-eyebrow">Side Hustles</div>
+    <h2 class="sec-title">Things I've <em>built outside work.</em></h2>
+    <p class="career-intro-body">Products and tools I built on the side — from pet services to dance class discovery.</p>
+  </div>
+
+  <div class="projects-grid">
+
+    <div class="proj-card">
+      <div class="proj-preview">
+        <img src="projects-barkhauswebsite.png" alt="Barkhaus Website">
+      </div>
+      <div class="proj-body">
+        <span class="proj-tag t-tech">Website</span>
+        <div class="proj-name">Barkhaus Website</div>
+        <p class="proj-desc">Customer-facing website for Barkhaus Pet Services — a premium pet boarding, grooming, and daycare brand in Metro Manila.</p>
+        <a href="https://barkhaus.ph" target="_blank" class="proj-link">Visit Site <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
+    </div>
+
+    <div class="proj-card">
+      <div class="proj-preview">
+        <img src="projects-barkhausadmin.png" alt="Barkhaus Booking System">
+      </div>
+      <div class="proj-body">
+        <span class="proj-tag t-tech">Web App</span>
+        <div class="proj-name">Barkhaus Booking System</div>
+        <p class="proj-desc">End-to-end booking system with a multi-step flow for customers and an administrator dashboard for managing reservations across branches.</p>
+        <a href="https://barkhaus.ph/booking" target="_blank" class="proj-link">Visit Site <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
+    </div>
+
+    <div class="proj-card">
+      <div class="proj-preview">
+        <img src="projects-sansayaw.png" alt="Sansayaw">
+      </div>
+      <div class="proj-body">
+        <span class="proj-tag t-mktg">Directory</span>
+        <div class="proj-name">sa'nsayaw.org</div>
+        <p class="proj-desc">Dance class aggregator for Metro Manila — browse studios, instructors, and schedules across the city in one place.</p>
+        <a href="https://sansayaw.org" target="_blank" class="proj-link">Visit Site <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      </div>
+    </div>
+
   </div>
 </section>
 
