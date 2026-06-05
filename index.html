@@ -924,15 +924,11 @@ function updateActiveTab() {
   }
 
   if (!bestCard) return;
-  var tags = bestCard.getAttribute('data-tags').split(',');
+  // Use the card's first tag as its primary category
+  var primaryTag = bestCard.getAttribute('data-tags').split(',')[0];
 
-  // Find which tab matches — prefer most specific (first tab that matches)
-  var matched = false;
   for (var b = 0; b < catBtns.length; b++) {
-    var btnTag = catBtns[b].getAttribute('data-tag');
-    var isMatch = tags.indexOf(btnTag) !== -1;
-    catBtns[b].classList.toggle('active', isMatch && !matched);
-    if (isMatch && !matched) matched = true;
+    catBtns[b].classList.toggle('active', catBtns[b].getAttribute('data-tag') === primaryTag);
   }
 }
 
