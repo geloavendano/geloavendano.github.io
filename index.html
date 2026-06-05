@@ -569,7 +569,7 @@ footer{border-top:1px solid var(--border);padding:24px 28px;text-align:center;
     <div class="m-header">
       <div class="m-logo-row">
         <div class="m-logo" id="mLogo"></div>
-        <div><div class="m-company" id="mCompany"></div><div class="m-years" id="mYears"></div></div>
+        <div><div class="m-company" id="mCompany"></div><div class="m-years" id="mYears"></div><a id="mUrl" href="#" target="_blank" style="display:none;margin-top:6px;font-size:12px;font-weight:600;color:var(--red);text-decoration:none;opacity:0.85;transition:opacity 0.2s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">Visit Website ↗</a></div>
       </div>
       <div class="m-role" id="mRole"></div>
       <div id="mTags" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"></div>
@@ -644,6 +644,7 @@ footer{border-top:1px solid var(--border);padding:24px 28px;text-align:center;
 var modalData = [
   {
     logo:'UNO', company:'UNO Digital Bank', role:'Product Manager', years:'2025 – Present',
+    url:'https://www.uno.bank/',
     tags:['Tech'],
     context:'UNO Digital Bank is a licensed digital bank in the Philippines. I lead product across core banking experiences — working on complex, regulated systems that power onboarding, transactions, and customer engagement at scale.',
     built:[
@@ -682,6 +683,7 @@ var modalData = [
   },
   {
     logo:'MY', company:'Maya', role:'Product Manager', years:'2021 – 2024',
+    url:'https://www.maya.ph/business',
     tags:['Tech'],
     context:"Maya is one of the Philippines' leading fintech platforms. I led enterprise product development across remittances, disbursements, and the Maya Business App — building systems used by businesses and partners nationwide.",
     built:[
@@ -702,6 +704,7 @@ var modalData = [
   },
   {
     logo:'GS', company:'Growsari', role:'Growth Product Manager', years:'2018 – 2021',
+    url:'https://growsari.com/',
     tags:['Tech'],
     context:"Growsari is a B2B e-commerce platform enabling sari-sari stores across the Philippines. I led growth and product initiatives to scale sales, improve adoption, and expand new revenue streams.",
     built:[
@@ -742,6 +745,7 @@ var modalData = [
   },
   {
     logo:'PC', company:'Potato Corner', role:'Franchise Owner', years:'2016 – Present',
+    url:'https://potatocorner.com/',
     tags:['Business'],
     context:"Potato Corner is a leading food kiosk franchise brand in the Philippines. I co-own and operate 10 franchise locations — sustaining operations through the pandemic while managing alongside full-time tech roles.",
     built:[
@@ -760,6 +764,7 @@ var modalData = [
   },
   {
     logo:'PC', company:'Potato Corner', role:'Brand Manager', years:'2015 – 2016',
+    url:'https://potatocorner.com/',
     tags:['Marketing','Business'],
     context:"Potato Corner is a leading food kiosk franchise brand in the Philippines. I led marketing and brand initiatives to drive store traffic, franchise growth, and operational alignment.",
     built:[
@@ -780,6 +785,7 @@ var modalData = [
   },
   {
     logo:'NA', company:'NutriAsia', role:'Brand Assistant', years:'2013 – 2015',
+    url:'https://nutriasia.com/',
     tags:['Marketing'],
     context:"NutriAsia is a leading FMCG company in the Philippines. I worked on core brands, driving growth, campaigns, and early digital initiatives.",
     built:[
@@ -798,6 +804,7 @@ var modalData = [
   },
   {
     logo:'MZ', company:'Mondelez', role:'Marketing Intern', years:'2012',
+    url:'https://www.mondelezinternational.com/',
     tags:['Marketing'],
     context:"Mondelez is a global FMCG company with leading confectionery brands. I supported trade marketing initiatives across nationwide activations.",
     built:[
@@ -845,6 +852,9 @@ function openModal(idx) {
   document.getElementById('mCompany').textContent = d.company;
   document.getElementById('mRole').textContent = d.role;
   document.getElementById('mYears').textContent = d.years;
+  var mUrl = document.getElementById('mUrl');
+  if (d.url) { mUrl.href = d.url; mUrl.style.display = 'inline-block'; }
+  else { mUrl.style.display = 'none'; }
   document.getElementById('mTags').innerHTML = d.tags.map(function(t) {
     var cls = t==='Tech' ? 't-tech' : t==='Business' ? 't-biz' : 't-mktg';
     return '<span class="co-tag ' + cls + '">' + t + '</span>';
