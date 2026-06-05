@@ -208,10 +208,11 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .m-proj-desc{font-size:12px;color:var(--text3)}
 .m-proj-arrow{color:var(--red);font-size:16px;flex-shrink:0}
 .m-media{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.m-media-item{aspect-ratio:16/9;border-radius:12px;background:var(--surface2);
-  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
-  font-size:36px;position:relative}
-.m-media-label{position:absolute;bottom:8px;left:10px;font-size:10px;color:var(--text3)}
+.m-media-img{aspect-ratio:16/9;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:var(--surface2)}
+.m-media-img img{width:100%;height:100%;object-fit:cover;display:block}
+.m-media-yt{grid-column:1/-1;border-radius:12px;overflow:hidden;border:1px solid var(--border);aspect-ratio:16/9}
+.m-media-yt iframe{width:100%;height:100%;display:block;border:none}
+@media(max-width:768px){.m-media{grid-template-columns:1fr}.m-media-yt{grid-column:1}}
 
 /* ── SIDE PROJECTS ── */
 #projects{position:relative;z-index:1;padding:80px 0 60px}
@@ -578,6 +579,7 @@ footer{border-top:1px solid var(--border);padding:24px 28px;text-align:center;
     <div class="m-section"><div class="m-label">What I Built</div><ul class="m-bullets" id="mBuilt"></ul></div>
     <div class="m-section"><div class="m-label">Impact</div><div class="m-metrics" id="mMetrics"></div></div>
     <div class="m-section"><div class="m-label">Key Projects</div><div class="m-projects" id="mProjects"></div></div>
+    <div class="m-section" id="mMediaSection" style="display:none"><div class="m-label">Media</div><div class="m-media" id="mMedia"></div></div>
   </div>
 </div>
 
@@ -734,7 +736,10 @@ var modalData = [
       {name:'Sign-up Flow Optimization',desc:'Improved onboarding conversion'},
       {name:'VPS Campaign',desc:'Segmented CRM to increase purchase frequency and basket size'}
     ],
-    media:['🛒','📈']
+    media:[
+      {type:'image',src:'jobs/growsari01.jpg'},
+      {type:'image',src:'jobs/growsari02.jpg'}
+    ]
   },
   {
     logo:'ST', company:'STORM Technologies', role:'Product Marketing Manager', years:'2016 – 2018',
@@ -773,7 +778,11 @@ var modalData = [
       {name:'Ops Improvements',desc:'Waste reduction and margin optimization'},
       {name:'Team Structure',desc:'Store manager framework across 10 locations'}
     ],
-    media:['🍟','📊']
+    media:[
+      {type:'image',src:'jobs/potatocorner-franchise01.jpg'},
+      {type:'image',src:'jobs/potatocorner-franchise03.jpeg'},
+      {type:'image',src:'jobs/potatocorner-franchise04.JPG'}
+    ]
   },
   {
     logo:'PC', company:'Potato Corner', role:'Brand Manager', years:'2015 – 2016',
@@ -794,7 +803,12 @@ var modalData = [
       {name:'Franchise Expo & Roadshows',desc:'Drove franchise acquisition'},
       {name:'Operating Plan & Reporting',desc:'Improved planning and visibility'}
     ],
-    media:['📣','📍']
+    media:[
+      {type:'image',src:'jobs/potatocorner-brandmanager01.jpg'},
+      {type:'image',src:'jobs/potatocorner-brandmanager02.jpg'},
+      {type:'image',src:'jobs/potatocorner-brandmanager03.jpg'},
+      {type:'image',src:'jobs/potatocorner-brandmanager04.jpg'}
+    ]
   },
   {
     logo:'NA', company:'NutriAsia', role:'Brand Assistant', years:'2013 – 2015',
@@ -813,7 +827,13 @@ var modalData = [
       {name:'Sinigang Growth Initiative',desc:'Drove double-digit category growth'},
       {name:'Integrated Campaigns',desc:'Delivered high-impact activations'}
     ],
-    media:['🧴','📦']
+    media:[
+      {type:'image',src:'jobs/nutriasia01.jpg'},
+      {type:'image',src:'jobs/nutriasia02.jpg'},
+      {type:'image',src:'jobs/nutriasia03.jpg'},
+      {type:'youtube',id:'4CbjfYf77lM'},
+      {type:'youtube',id:'XXWlvPkEoDk'}
+    ]
   },
   {
     logo:'MZ', company:'Mondelez', role:'Marketing Intern', years:'2012',
@@ -882,6 +902,18 @@ function openModal(idx) {
   document.getElementById('mProjects').innerHTML = d.projects.map(function(p) {
     return '<div class="m-proj"><div><div class="m-proj-name">' + p.name + '</div><div class="m-proj-desc">' + p.desc + '</div></div><span class="m-proj-arrow">↗</span></div>';
   }).join('');
+  var mediaSection = document.getElementById('mMediaSection');
+  var mediaEl = document.getElementById('mMedia');
+  if (d.media && d.media.length) {
+    mediaEl.innerHTML = d.media.map(function(m) {
+      if (m.type === 'image') return '<div class="m-media-img"><img src="' + m.src + '" alt="" loading="lazy"></div>';
+      if (m.type === 'youtube') return '<div class="m-media-yt"><iframe src="https://www.youtube.com/embed/' + m.id + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>';
+      return '';
+    }).join('');
+    mediaSection.style.display = '';
+  } else {
+    mediaSection.style.display = 'none';
+  }
   modal.classList.add('open');
   modal.scrollTop = 0;
   document.body.style.overflow = 'hidden';
