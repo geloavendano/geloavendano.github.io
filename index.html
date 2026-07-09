@@ -251,20 +251,20 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   border:1px solid var(--border2);background:linear-gradient(145deg,rgba(15,52,96,0.72),rgba(22,33,62,0.95));
   box-shadow:0 24px 70px rgba(0,0,0,0.42)}
 .edu-slide{position:absolute;inset:0;padding:28px;display:flex;flex-direction:column;justify-content:space-between;
-  opacity:0;animation:eduRotate 16s infinite;background-size:cover;background-position:center}
-.edu-slide:nth-child(1){opacity:1;background:
-  radial-gradient(circle at 25% 15%,rgba(233,69,96,0.26),transparent 38%),
-  linear-gradient(145deg,rgba(15,52,96,0.88),rgba(26,26,46,0.98));animation-delay:0s}
-.edu-slide:nth-child(2){background:
-  radial-gradient(circle at 78% 20%,rgba(251,191,36,0.22),transparent 36%),
-  linear-gradient(145deg,rgba(22,33,62,0.94),rgba(15,52,96,0.86));animation-delay:4s}
-.edu-slide:nth-child(3){background:
-  radial-gradient(circle at 22% 78%,rgba(126,184,247,0.25),transparent 42%),
-  linear-gradient(145deg,rgba(26,26,46,0.97),rgba(22,33,62,0.9));animation-delay:8s}
-.edu-slide:nth-child(4){background:
-  radial-gradient(circle at 80% 78%,rgba(233,69,96,0.18),transparent 40%),
-  linear-gradient(145deg,rgba(15,52,96,0.92),rgba(26,26,46,0.96));animation-delay:12s}
-@keyframes eduRotate{0%,20%{opacity:1;transform:scale(1)}25%,95%{opacity:0;transform:scale(1.04)}100%{opacity:1;transform:scale(1)}}
+  opacity:0;animation:eduRotate 20s infinite;background:var(--c1);overflow:hidden}
+.edu-slide::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(to bottom,rgba(10,15,32,0.22),rgba(10,15,32,0.32) 36%,rgba(10,15,32,0.88));
+  z-index:1}
+.edu-slide:nth-child(1){opacity:1;animation-delay:0s}
+.edu-slide:nth-child(2){animation-delay:4s}
+.edu-slide:nth-child(3){animation-delay:8s}
+.edu-slide:nth-child(4){animation-delay:12s}
+.edu-slide:nth-child(5){animation-delay:16s}
+.edu-slide > div{position:relative;z-index:2}
+.edu-slide-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;transform:scale(1.02)}
+.edu-slide-img.top{object-position:top center}
+.edu-slide-img.right{object-position:68% center}
+@keyframes eduRotate{0%,16%{opacity:1;transform:scale(1)}21%,95%{opacity:0;transform:scale(1.04)}100%{opacity:1;transform:scale(1)}}
 .edu-kicker{font-size:10px;font-weight:800;letter-spacing:0;text-transform:uppercase;color:rgba(249,249,249,0.62)}
 .edu-big{font-size:clamp(44px,7vw,76px);font-weight:800;line-height:0.9;letter-spacing:0;color:#fff}
 .edu-big em{font-style:normal;color:var(--red)}
@@ -616,6 +616,7 @@ footer{border-top:1px solid var(--border);padding:24px 28px;text-align:center;
     <div class="edu-visual" aria-hidden="true">
       <div class="edu-orbit-card">
         <div class="edu-slide">
+          <img class="edu-slide-img right" src="education/2020-06-09.jpg" alt="">
           <div>
             <div class="edu-kicker">University</div>
             <div class="edu-big">UP<br><em>Diliman</em></div>
@@ -626,6 +627,7 @@ footer{border-top:1px solid var(--border);padding:24px 28px;text-align:center;
           </div>
         </div>
         <div class="edu-slide">
+          <img class="edu-slide-img" src="education/17675_10151517980485953_933317496_n.jpg" alt="">
           <div>
             <div class="edu-kicker">Leadership</div>
             <div class="edu-slide-title">Led a 200-member student-run advertising agency.</div>
@@ -636,6 +638,7 @@ footer{border-top:1px solid var(--border);padding:24px 28px;text-align:center;
           </div>
         </div>
         <div class="edu-slide">
+          <img class="edu-slide-img" src="education/2020-06-08.jpg" alt="">
           <div>
             <div class="edu-kicker">Marketing</div>
             <div class="edu-slide-title">Competed in national brand and IMC cases.</div>
@@ -646,6 +649,18 @@ footer{border-top:1px solid var(--border);padding:24px 28px;text-align:center;
           </div>
         </div>
         <div class="edu-slide">
+          <img class="edu-slide-img" src="education/2020-06-08%20(1).jpg" alt="">
+          <div>
+            <div class="edu-kicker">Brand Cases</div>
+            <div class="edu-slide-title">Built campaigns under real brand constraints.</div>
+          </div>
+          <div>
+            <div class="edu-slide-copy">Practiced market insight, product concepting, and communication strategy in national competitions.</div>
+            <div class="edu-card-meta"><span class="edu-pill">L'Oreal</span><span class="edu-pill">National Finals</span></div>
+          </div>
+        </div>
+        <div class="edu-slide">
+          <img class="edu-slide-img top" src="education/580427_10152203249430454_1680034626_n_10152203249430454.jpg" alt="">
           <div>
             <div class="edu-kicker">Recognition</div>
             <div class="edu-slide-title">Selected for national student leadership programs.</div>
