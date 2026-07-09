@@ -243,6 +243,47 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   color:var(--red);text-decoration:none;transition:gap 0.2s}
 .proj-link:hover{gap:10px}
 
+/* ── EDUCATION ── */
+#education{position:relative;z-index:1;padding:80px 28px 70px}
+.edu-wrap{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:minmax(300px,420px) 1fr;gap:48px;align-items:center}
+.edu-visual{position:relative;min-height:430px;display:flex;align-items:center;justify-content:center}
+.edu-orbit-card{position:relative;width:min(100%,360px);aspect-ratio:4/5;border-radius:24px;overflow:hidden;
+  border:1px solid var(--border2);background:linear-gradient(145deg,rgba(15,52,96,0.72),rgba(22,33,62,0.95));
+  box-shadow:0 24px 70px rgba(0,0,0,0.42)}
+.edu-slide{position:absolute;inset:0;padding:28px;display:flex;flex-direction:column;justify-content:space-between;
+  opacity:0;animation:eduRotate 16s infinite;background-size:cover;background-position:center}
+.edu-slide:nth-child(1){opacity:1;background:
+  radial-gradient(circle at 25% 15%,rgba(233,69,96,0.26),transparent 38%),
+  linear-gradient(145deg,rgba(15,52,96,0.88),rgba(26,26,46,0.98));animation-delay:0s}
+.edu-slide:nth-child(2){background:
+  radial-gradient(circle at 78% 20%,rgba(251,191,36,0.22),transparent 36%),
+  linear-gradient(145deg,rgba(22,33,62,0.94),rgba(15,52,96,0.86));animation-delay:4s}
+.edu-slide:nth-child(3){background:
+  radial-gradient(circle at 22% 78%,rgba(126,184,247,0.25),transparent 42%),
+  linear-gradient(145deg,rgba(26,26,46,0.97),rgba(22,33,62,0.9));animation-delay:8s}
+.edu-slide:nth-child(4){background:
+  radial-gradient(circle at 80% 78%,rgba(233,69,96,0.18),transparent 40%),
+  linear-gradient(145deg,rgba(15,52,96,0.92),rgba(26,26,46,0.96));animation-delay:12s}
+@keyframes eduRotate{0%,20%{opacity:1;transform:scale(1)}25%,95%{opacity:0;transform:scale(1.04)}100%{opacity:1;transform:scale(1)}}
+.edu-kicker{font-size:10px;font-weight:800;letter-spacing:0;text-transform:uppercase;color:rgba(249,249,249,0.62)}
+.edu-big{font-size:clamp(44px,7vw,76px);font-weight:800;line-height:0.9;letter-spacing:0;color:#fff}
+.edu-big em{font-style:normal;color:var(--red)}
+.edu-slide-title{font-size:24px;font-weight:800;line-height:1.05;color:#fff;letter-spacing:0}
+.edu-slide-copy{font-size:13px;color:rgba(249,249,249,0.72);line-height:1.6;max-width:250px}
+.edu-card-meta{display:flex;gap:8px;flex-wrap:wrap}
+.edu-pill{font-size:10px;font-weight:800;letter-spacing:0;text-transform:uppercase;padding:6px 10px;border-radius:100px;
+  color:#fff;background:rgba(255,255,255,0.09);border:1px solid rgba(255,255,255,0.14)}
+.edu-content .sec-title{max-width:640px}
+.edu-school{font-size:19px;font-weight:800;color:var(--text);margin:22px 0 4px}
+.edu-degree{font-size:14px;color:var(--text2);margin-bottom:20px}
+.edu-highlights{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:28px}
+.edu-highlight{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px}
+.edu-highlight-num{font-size:20px;font-weight:800;color:var(--red);margin-bottom:4px}
+.edu-highlight-label{font-size:12px;color:var(--text2);line-height:1.55}
+.edu-summary{font-size:15px;color:var(--text2);line-height:1.8;max-width:650px}
+@media(max-width:900px){.edu-wrap{grid-template-columns:1fr;gap:28px}.edu-visual{min-height:360px}.edu-orbit-card{width:min(100%,320px)}}
+@media(max-width:580px){#education{padding:70px 28px 60px}.edu-highlights{grid-template-columns:1fr}.edu-visual{min-height:330px}.edu-orbit-card{width:min(100%,290px)}}
+
 /* ── TESTIMONIALS ── */
 #testimonials{padding:80px 0;position:relative;z-index:1}
 .testi-header{padding:0 28px;max-width:1100px;margin:0 auto 40px}
@@ -566,6 +607,83 @@ footer{border-top:1px solid var(--border);padding:24px 28px;text-align:center;
       </div>
     </div>
 
+  </div>
+</section>
+
+<!-- EDUCATION -->
+<section id="education">
+  <div class="edu-wrap">
+    <div class="edu-visual" aria-hidden="true">
+      <div class="edu-orbit-card">
+        <div class="edu-slide">
+          <div>
+            <div class="edu-kicker">University</div>
+            <div class="edu-big">UP<br><em>Diliman</em></div>
+          </div>
+          <div>
+            <div class="edu-slide-copy">Business Administration foundation shaped by honor, excellence, and real organizational work.</div>
+            <div class="edu-card-meta"><span class="edu-pill">2008-2013</span><span class="edu-pill">Cum Laude</span></div>
+          </div>
+        </div>
+        <div class="edu-slide">
+          <div>
+            <div class="edu-kicker">Leadership</div>
+            <div class="edu-slide-title">Led a 200-member student-run advertising agency.</div>
+          </div>
+          <div>
+            <div class="edu-slide-copy">Set strategy, strengthened systems, and helped cross-functional teams operate with clearer direction.</div>
+            <div class="edu-card-meta"><span class="edu-pill">President</span><span class="edu-pill">UP AdCore</span></div>
+          </div>
+        </div>
+        <div class="edu-slide">
+          <div>
+            <div class="edu-kicker">Marketing</div>
+            <div class="edu-slide-title">Competed in national brand and IMC cases.</div>
+          </div>
+          <div>
+            <div class="edu-slide-copy">Built early muscles in insight, positioning, campaign planning, and persuasive storytelling.</div>
+            <div class="edu-card-meta"><span class="edu-pill">PANAF Champion</span><span class="edu-pill">Brandstorm Finalist</span></div>
+          </div>
+        </div>
+        <div class="edu-slide">
+          <div>
+            <div class="edu-kicker">Recognition</div>
+            <div class="edu-slide-title">Selected for national student leadership programs.</div>
+          </div>
+          <div>
+            <div class="edu-slide-copy">Recognized for academic excellence, leadership, and potential for business impact.</div>
+            <div class="edu-card-meta"><span class="edu-pill">P&G Finalist</span><span class="edu-pill">Nestle MILE</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="edu-content">
+      <div class="sec-eyebrow">Education</div>
+      <h2 class="sec-title">Where the <em>foundation was built.</em></h2>
+      <div class="edu-school">University of the Philippines Diliman</div>
+      <div class="edu-degree">BS Business Administration, Cum Laude · 2008-2013</div>
+      <p class="edu-summary">My university years gave me an early operating ground for strategy, leadership, marketing, and execution. I led UP Advertising Core as president, competed in national marketing competitions, and was selected for student leadership programs that sharpened how I think about brands, teams, and business problems.</p>
+
+      <div class="edu-highlights">
+        <div class="edu-highlight">
+          <div class="edu-highlight-num">200+</div>
+          <div class="edu-highlight-label">member student-run advertising organization led as UP Advertising Core president</div>
+        </div>
+        <div class="edu-highlight">
+          <div class="edu-highlight-num">Cum Laude</div>
+          <div class="edu-highlight-label">academic distinction in BS Business Administration</div>
+        </div>
+        <div class="edu-highlight">
+          <div class="edu-highlight-num">Champion</div>
+          <div class="edu-highlight-label">PANAF IMC competition, building a full advocacy campaign from insight to execution</div>
+        </div>
+        <div class="edu-highlight">
+          <div class="edu-highlight-num">National</div>
+          <div class="edu-highlight-label">recognition through P&G Student Excellence, L'Oreal Brandstorm, and Nestle MILE</div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
