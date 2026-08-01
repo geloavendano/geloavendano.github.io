@@ -143,9 +143,10 @@
     '@media(max-height:870px) and (min-width:501px){.bm-phone{transform:scale(0.88);transform-origin:center}}',
     '@media(max-width:500px){.bm-ov{align-items:flex-end}.bm-phone{width:100vw;height:92dvh;border-radius:28px 28px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,0.5)}.bm-x{top:10px;right:12px}}',
     '.bm-vp{position:relative;width:100%;height:100%;overflow:hidden}',
-    '.bm-sc{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;background:#15171a;-webkit-overflow-scrolling:touch;scrollbar-width:none}',
-    '.bm-sc::-webkit-scrollbar{display:none}',
+    '.bm-sc{position:absolute;inset:0;display:flex;flex-direction:column;background:#15171a;overflow:hidden}',
     '.bm-sc *{box-sizing:border-box}',
+    '.bm-body{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}',
+    '.bm-body::-webkit-scrollbar{display:none}',
     // Transitions
     '.bm-er{animation:bm-ir .28s cubic-bezier(.2,0,0,1) forwards}',
     '.bm-el{animation:bm-il .28s cubic-bezier(.2,0,0,1) forwards}',
@@ -179,7 +180,7 @@
     '.bm-pill-teal{background:#16332e;color:#6fe0c9}',
     '.bm-pill-neutral{background:#262a2d;color:#9a9d9b}',
     // Trip nav
-    '.bm-nav{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:2px;background:rgba(30,33,36,.88);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08);border-radius:30px;padding:5px 6px;box-shadow:0 10px 30px rgba(0,0,0,.5);z-index:50;white-space:nowrap}',
+    '.bm-nav{flex-shrink:0;align-self:center;margin:8px auto 14px;display:flex;align-items:center;gap:2px;background:rgba(30,33,36,.88);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08);border-radius:30px;padding:5px 6px;box-shadow:0 10px 30px rgba(0,0,0,.5);z-index:50;white-space:nowrap}',
     '.bm-ntab{display:flex;align-items:center;gap:5px;padding:8px 12px;border-radius:22px;border:none;background:transparent;color:#9a9d9b;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;position:relative;transition:color .15s}',
     '.bm-ntab.on{color:#22b3a0}',
     '.bm-npill{position:absolute;inset:0;border-radius:22px;background:#16332e;z-index:-1}',
@@ -254,7 +255,7 @@
 
   // ── SCREENS ──────────────────────────────────────────────────────────────────
   function scDashboard() {
-    return sb() +
+    return '<div class="bm-body">' + sb() +
     '<div style="display:flex;align-items:center;justify-content:space-between;padding:2px 20px 18px">' +
       '<div class="bm-logo">bonado<span>.</span></div>' +
       '<div style="display:flex;gap:8px;align-items:center">' +
@@ -308,7 +309,7 @@
     '<div style="padding:18px 16px">' +
       '<button data-a="openTrip" style="width:100%;padding:14px;border-radius:999px;background:#22b3a0;color:#fff;border:none;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;box-shadow:0 8px 20px rgba(34,179,160,.3)">+ Create trip</button>' +
     '</div>' +
-    '<div class="bm-pad"></div>';
+    '<div class="bm-pad"></div></div>';
   }
 
   function scTripHome() {
@@ -330,7 +331,7 @@
         '</div></div>';
     }).join('');
 
-    return '<div class="bm-hero">' +
+    return '<div class="bm-body"><div class="bm-hero">' +
       '<div class="bm-hero-dim"></div>' +
       '<div class="bm-hero-body">' +
         sb() +
@@ -369,7 +370,7 @@
       ['All','Paid','Created','Involves Me'].map(function(l,i){ return '<button class="bm-chip ' + (i===0?'on':'off') + '">' + l + '</button>'; }).join('') +
     '</div>' +
     txHtml +
-    '<div class="bm-pad"></div><div class="bm-pad"></div>' +
+    '<div class="bm-pad"></div></div>' +
     nav('entries');
   }
 
@@ -381,7 +382,7 @@
     var isSett = exp.type === 'settlement';
 
     if (isSett) {
-      return sb() +
+      return '<div class="bm-body">' + sb() +
         '<div class="bm-hd"><button class="bm-back" data-a="back">←</button><div class="bm-hd-title">Settlement</div><div style="width:36px"></div></div>' +
         '<div class="bm-det-card">' +
           '<div class="bm-det-cat">' + IC.swap + ' SETTLEMENT</div>' +
@@ -389,10 +390,10 @@
           '<div class="bm-det-meta">July 26, 2026</div>' +
           '<div class="bm-det-total">฿10,433.77</div>' +
         '</div>' +
-        '<div class="bm-meta">Created Jul 26, 2026 by Ellouise Cachero</div>';
+        '<div class="bm-meta">Created Jul 26, 2026 by Ellouise Cachero</div></div>';
     }
 
-    return sb() +
+    return '<div class="bm-body">' + sb() +
       '<div class="bm-hd"><button class="bm-back" data-a="back">←</button><div class="bm-hd-title">Expense details</div><div style="font-size:14px;font-weight:700;color:#22b3a0;cursor:pointer;width:36px;text-align:right">Edit</div></div>' +
       '<div class="bm-det-card">' +
         '<div class="bm-det-cat">' + (IC[exp.icon]||IC.activities) + ' ' + (exp.cat||'').toUpperCase() + '</div>' +
@@ -421,11 +422,11 @@
         '</div>' +
       '</div>' +
       '<div class="bm-meta">Created ' + (d.date||'July 26, 2026') + ' at 8:00 AM by ' + (d.paidBy||'Gelo Avendaño') + '</div>' +
-      '<div class="bm-pad"></div>';
+      '<div class="bm-pad"></div></div>';
   }
 
   function scBalances() {
-    return sb() +
+    return '<div class="bm-body">' + sb() +
       '<div class="bm-hd"><button class="bm-back" data-a="back">←</button><div class="bm-hd-title">Balances</div><div style="display:flex;gap:6px"><button class="bm-ico-btn" style="border:none;cursor:pointer">' + IC.bell + '</button><button class="bm-ico-btn" style="border:none;cursor:pointer">' + IC.gear + '</button></div></div>' +
       '<div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px 14px">' +
         '<div style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#9a9d9b">Display Currency</div>' +
@@ -452,12 +453,12 @@
             '<span style="font-size:14px;font-weight:700;color:#22b3a0">' + s.amount + '</span></button>';
         }).join('') +
       '</div>' +
-      '<div class="bm-pad"></div><div class="bm-pad"></div>' +
+      '<div class="bm-pad"></div></div>' +
       nav('balances');
   }
 
   function scReports() {
-    return sb() +
+    return '<div class="bm-body">' + sb() +
       '<div class="bm-hd"><button class="bm-back" data-a="back">←</button><div class="bm-hd-title">Reports</div><div style="display:flex;gap:6px"><button class="bm-ico-btn" style="border:none;cursor:pointer">' + IC.bell + '</button><button class="bm-ico-btn" style="border:none;cursor:pointer">' + IC.gear + '</button></div></div>' +
       '<div style="display:flex;align-items:center;justify-content:space-between;padding:0 16px 12px">' +
         '<div style="font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#9a9d9b">Spending Summary</div>' +
@@ -481,7 +482,7 @@
             '<span style="color:#3a3e42">' + IC.chevright + '</span></div>';
         }).join('') +
       '</div></div>' +
-      '<div class="bm-pad"></div><div class="bm-pad"></div>' +
+      '<div class="bm-pad"></div></div>' +
       nav('reports');
   }
 
