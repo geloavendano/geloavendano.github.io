@@ -224,8 +224,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 /* ── SIDE PROJECTS ── */
 #projects{position:relative;z-index:1;padding:80px 0 60px}
 .projects-intro{padding:0 28px;max-width:1100px;margin:0 auto 48px}
-.projects-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:0 28px;max-width:1100px;margin:0 auto}
-@media(max-width:900px){.projects-grid{grid-template-columns:1fr 1fr}}
+.projects-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;padding:0 28px;max-width:1100px;margin:0 auto}
 @media(max-width:580px){.projects-grid{grid-template-columns:1fr}}
 .proj-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;
   display:flex;flex-direction:column;
@@ -243,8 +242,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .proj-link{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;
   color:var(--red);text-decoration:none;transition:gap 0.2s}
 .proj-link:hover{gap:10px}
-.proj-preview-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:100px;background:var(--red);border:none;color:#fff;font-size:12px;font-weight:700;font-family:var(--font);cursor:pointer;letter-spacing:0.04em;transition:opacity 0.2s}
-.proj-preview-btn:hover{opacity:0.85}
+.proj-preview-btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--red);background:none;border:none;padding:0;cursor:pointer;font-family:var(--font);transition:gap 0.2s}
+.proj-preview-btn:hover{gap:10px}
 
 /* ── EDUCATION ── */
 #education{position:relative;z-index:1;padding:80px 28px 70px}

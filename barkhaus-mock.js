@@ -66,7 +66,8 @@
     // Window
     '.bk-win{width:900px;height:570px;background:#0F1C26;border-radius:13px;overflow:hidden;display:flex;flex-direction:column;font-family:"Nunito",sans-serif;-webkit-font-smoothing:antialiased;color:#F0EDE6;font-size:13px;box-shadow:0 40px 90px rgba(0,0,0,.72),0 0 0 1px rgba(77,150,185,.16)}',
     '@media(max-height:630px),(max-width:940px){.bk-win{transform:scale(0.87);transform-origin:center}}',
-    '@media(max-width:600px){.bk-ov{align-items:flex-end}.bk-win{width:100%;height:90dvh;border-radius:16px 16px 0 0;transform:none}}',
+    '@media(max-width:600px){.bk-ov{align-items:flex-end}.bk-win{width:100%;height:90dvh;border-radius:16px 16px 0 0;transform:none}.bk-note{display:none}}',
+    '.bk-note{font-size:11px;color:rgba(255,255,255,0.28);text-align:center;letter-spacing:0.03em;margin-top:12px}',
     '.bk-win *{box-sizing:border-box}',
     // Top bar
     '.bk-tb{height:48px;background:#1A3044;border-bottom:0.5px solid rgba(77,150,185,.22);display:flex;align-items:center;padding:0 12px;gap:4px;flex-shrink:0;z-index:5}',
@@ -417,9 +418,18 @@
     document.body.appendChild(ov);
     ovEl = ov;
 
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;align-items:center';
+    ov.appendChild(wrap);
+
     var win = document.createElement('div');
     win.className = 'bk-win';
-    ov.appendChild(win);
+    wrap.appendChild(win);
+
+    var note = document.createElement('p');
+    note.className = 'bk-note';
+    note.textContent = 'Rough interactive mockup — not all screens included';
+    wrap.appendChild(note);
 
     // Close button (outside win so it's always on top)
     var xbtn = document.createElement('button');

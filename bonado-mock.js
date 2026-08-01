@@ -141,7 +141,8 @@
     '.bm-x:hover{background:rgba(255,255,255,0.2)}',
     '.bm-phone{width:375px;height:790px;background:#15171a;border-radius:46px;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,0.7),0 0 0 1px rgba(255,255,255,0.08);position:relative;font-family:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,sans-serif;-webkit-font-smoothing:antialiased}',
     '@media(max-height:870px) and (min-width:501px){.bm-phone{transform:scale(0.88);transform-origin:center}}',
-    '@media(max-width:500px){.bm-ov{align-items:flex-end}.bm-phone{width:100vw;height:92dvh;border-radius:28px 28px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,0.5)}.bm-x{top:10px;right:12px}}',
+    '@media(max-width:500px){.bm-ov{align-items:flex-end}.bm-phone{width:100vw;height:92dvh;border-radius:28px 28px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,0.5)}.bm-x{top:10px;right:12px}.bm-note{display:none}}',
+    '.bm-note{font-size:11px;color:rgba(255,255,255,0.28);text-align:center;letter-spacing:0.03em;margin-top:12px}',
     '.bm-vp{position:relative;width:100%;height:100%;overflow:hidden}',
     '.bm-sc{position:absolute;inset:0;display:flex;flex-direction:column;background:#15171a;overflow:hidden}',
     '.bm-sc *{box-sizing:border-box}',
@@ -561,7 +562,7 @@
     var ov = document.createElement('div');
     ov.className = 'bm-ov';
     ov.id = 'bmOv';
-    ov.innerHTML = '<button class="bm-x" id="bmClose">✕</button><div class="bm-phone"><div class="bm-vp" id="bmVp"></div></div>';
+    ov.innerHTML = '<button class="bm-x" id="bmClose">✕</button><div style="display:flex;flex-direction:column;align-items:center"><div class="bm-phone"><div class="bm-vp" id="bmVp"></div></div><p class="bm-note">Rough interactive mockup — not all screens included</p></div>';
     document.body.appendChild(ov);
 
     vp = document.getElementById('bmVp');
