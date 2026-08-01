@@ -558,7 +558,10 @@ footer{border-top:1px solid var(--border);padding:24px 28px;text-align:center;
         <span class="proj-tag t-tech">Web App</span>
         <div class="proj-name">Barkhaus Booking System</div>
         <p class="proj-desc">End-to-end booking system with a multi-step flow for customers and an administrator dashboard for managing reservations across branches.</p>
-        <a href="https://barkhaus.ph/booking" target="_blank" class="proj-link">Visit Site <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <button onclick="openBarkMock()" class="proj-preview-btn">Preview ▶</button>
+          <a href="https://barkhaus.ph/booking" target="_blank" class="proj-link">Visit Site <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+        </div>
       </div>
     </div>
 
@@ -567,7 +570,7 @@ footer{border-top:1px solid var(--border);padding:24px 28px;text-align:center;
         <img src="projects-bonado.png" alt="Bonado">
       </div>
       <div class="proj-body">
-        <span class="proj-tag t-tech">Web App</span><span class="proj-tag t-tech">Mobile</span>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"><span class="proj-tag t-tech" style="margin-bottom:0">Web App</span><span class="proj-tag t-tech" style="margin-bottom:0">Mobile</span></div>
         <div class="proj-name">bonado.</div>
         <p class="proj-desc">Group expense tracker for trips — log shared expenses, track who paid, who owes, and settle up. Multi-currency support with spending reports and balance breakdowns.</p>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
@@ -1231,5 +1234,6 @@ lightboxClose.addEventListener('click', closeLightbox);
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && lightbox.style.display === 'flex') closeLightbox(); });
 </script>
 <script src="bonado-mock.js"></script>
+<script src="barkhaus-mock.js"></script>
 </body>
 </html>
