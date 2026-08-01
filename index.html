@@ -26,8 +26,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 
 /* ── FLOATING ISLAND ── */
 #islandHeader{
-  position:fixed;top:20px;left:50%;
-  transform:translateX(-50%) translateY(-100px);
+  position:fixed;bottom:24px;left:50%;
+  transform:translateX(-50%) translateY(80px);
   z-index:300;display:flex;align-items:center;gap:16px;
   padding:10px 10px 10px 20px;
   background:rgba(22,33,62,0.92);backdrop-filter:blur(20px);
@@ -121,9 +121,10 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 
 /* Cards */
 .cards-outer{position:relative;overflow:hidden;margin-top:4px}
-.cards-outer::before,.cards-outer::after{content:'';position:absolute;top:0;bottom:0;width:60px;z-index:2;pointer-events:none}
+.cards-outer::before,.cards-outer::after{content:'';position:absolute;top:0;bottom:0;width:60px;z-index:2;pointer-events:none;transition:opacity 0.2s}
 .cards-outer::before{left:0;background:linear-gradient(to right,var(--c0),transparent)}
 .cards-outer::after{right:0;background:linear-gradient(to left,var(--c0),transparent)}
+.cards-outer.at-start::before{opacity:0}
 .cards-track{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;
   -webkit-overflow-scrolling:touch;padding:28px 28px 20px;scrollbar-width:none;cursor:grab}
 .cards-track::-webkit-scrollbar{display:none}
@@ -1119,8 +1120,14 @@ function updateActiveTab() {
   }
 }
 
+var cardsOuter = document.querySelector('.cards-outer');
+function updateCardsEdge() {
+  cardsOuter.classList.toggle('at-start', cardsTrack.scrollLeft <= 0);
+}
 cardsTrack.addEventListener('scroll', updateActiveTab, { passive: true });
+cardsTrack.addEventListener('scroll', updateCardsEdge, { passive: true });
 updateActiveTab(); // run on load
+updateCardsEdge();
 
 // ══════════════════════════════════════════════
 // DRAG TO SCROLL (cards)
@@ -1167,14 +1174,13 @@ for (var s = 0; s < slots.length; s++) {
 // ══════════════════════════════════════════════
 var islandHeader = document.getElementById('islandHeader');
 var heroSection = document.getElementById('hero');
+var contactSection = document.getElementById('contact');
 
 function checkScroll() {
   var heroBottom = heroSection.getBoundingClientRect().bottom;
-  if (heroBottom <= 0) {
-    islandHeader.classList.add('show');
-  } else {
-    islandHeader.classList.remove('show');
-  }
+  var contactTop = contactSection.getBoundingClientRect().top;
+  var show = heroBottom <= 0 && contactTop > window.innerHeight;
+  islandHeader.classList.toggle('show', show);
 }
 window.addEventListener('scroll', checkScroll, { passive: true });
 checkScroll();
