@@ -243,6 +243,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
 .proj-link{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;
   color:var(--red);text-decoration:none;transition:gap 0.2s}
 .proj-link:hover{gap:10px}
+.proj-preview-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:100px;background:var(--red);border:none;color:#fff;font-size:12px;font-weight:700;font-family:var(--font);cursor:pointer;letter-spacing:0.04em;transition:opacity 0.2s}
+.proj-preview-btn:hover{opacity:0.85}
 
 /* ── EDUCATION ── */
 #education{position:relative;z-index:1;padding:80px 28px 70px}
@@ -565,10 +567,13 @@ footer{border-top:1px solid var(--border);padding:24px 28px;text-align:center;
         <img src="projects-bonado.png" alt="Bonado">
       </div>
       <div class="proj-body">
-        <span class="proj-tag t-tech">Web App</span>
+        <span class="proj-tag t-tech">Web App</span><span class="proj-tag t-tech">Mobile</span>
         <div class="proj-name">bonado.</div>
         <p class="proj-desc">Group expense tracker for trips — log shared expenses, track who paid, who owes, and settle up. Multi-currency support with spending reports and balance breakdowns.</p>
-        <a href="https://bonado-sage.vercel.app/" target="_blank" class="proj-link">Visit Site <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <button onclick="openBonadoMock()" class="proj-preview-btn">Preview ▶</button>
+          <a href="https://bonado-sage.vercel.app/" target="_blank" class="proj-link">Visit Site <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+        </div>
       </div>
     </div>
 
@@ -577,8 +582,8 @@ footer{border-top:1px solid var(--border);padding:24px 28px;text-align:center;
         <img src="projects-sansayaw.png" alt="Sansayaw">
       </div>
       <div class="proj-body">
-        <span class="proj-tag t-mktg">Directory</span>
-        <div class="proj-name">sa'nsayaw.org</div>
+        <span class="proj-tag t-tech">Web App</span>
+        <div class="proj-name">sansayaw.org</div>
         <p class="proj-desc">Dance class aggregator for Metro Manila — browse studios, instructors, and schedules across the city in one place.</p>
         <a href="https://sansayaw.org" target="_blank" class="proj-link">Visit Site <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
       </div>
@@ -1225,5 +1230,6 @@ lightbox.addEventListener('click', function(e) { if (e.target === lightbox) clos
 lightboxClose.addEventListener('click', closeLightbox);
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && lightbox.style.display === 'flex') closeLightbox(); });
 </script>
+<script src="bonado-mock.js"></script>
 </body>
 </html>
