@@ -1,0 +1,1866 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tools & references &middot; The Build So Far</title>
+<meta name="description" content="An optional reference catalog of interface foundations, styles, layouts, motion, components, graphics libraries, and design-agent workflows.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<link rel="stylesheet" href="handbook.css?v=20.1">
+<style>
+/* UX Field Kit - scoped under .kit-root so it can't touch the handbook, and vice versa. */
+.kit-root{
+  --ink-soft: var(--muted);
+  --card: var(--surface);
+  --code-bg: var(--surface-2);
+  --display: var(--font-sans);
+  --body: var(--font-sans);
+  --mono: var(--font-mono);
+  font-family: var(--body); color: var(--ink); line-height: 1.55; font-size: 15px;
+}
+:where(.kit-root) *{margin:0;padding:0}
+:where(.kit-root) a{color:var(--accent)}
+:where(.kit-root) :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* specimens are drawn on light stages in both themes, so they keep the kit's original light tokens */
+.kit-root .stage, .kit-root .k-drawer, .kit-root .k-toast{
+  --paper:#F6F6F1; --ink:#17181C; --ink-soft:#5C5F66; --line:#E3E3DA; --card:#FFFFFF; --code-bg:#EFEFE8;
+  --accent:#2B45E8; --surface:#FFFFFF; --surface-2:#EFEFE8; --muted:#5C5F66;
+  color: var(--ink);
+}
+.kit-root .section{scroll-margin-top:24px}
+.kit-root .sec-head h2{font-size:clamp(1.5rem,1.2rem + 1.2vw,1.9rem);font-weight:600}
+@media (prefers-reduced-motion: reduce){
+  .kit-root *,.kit-root *::before,.kit-root *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
+
+
+
+/* hero */
+
+/* section scaffolding */
+.section{padding:64px 0 30px}
+.sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:8px}
+.sec-head .letter{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:3px 8px}
+.sec-head h2{font-family:var(--display);font-weight:700;font-size:clamp(26px,3.6vw,40px);letter-spacing:-.01em}
+.sec-sub{color:var(--ink-soft);max-width:64ch;margin-bottom:34px}
+.subgroup{font-family:var(--display);font-weight:700;font-size:19px;margin:44px 0 6px}
+.subgroup-note{color:var(--ink-soft);font-size:13.5px;margin-bottom:18px;max-width:62ch}
+
+/* spec cards (shared frame for every catalog item) */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
+.grid.wide{grid-template-columns:repeat(auto-fill,minmax(340px,1fr))}
+.spec{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.spec .stage{min-height:170px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:18px}
+.spec .meta{padding:12px 14px 14px;border-top:1px solid var(--line)}
+.spec .meta .row{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.code{font-family:var(--mono);font-size:11px;letter-spacing:.06em;background:var(--code-bg);border-radius:5px;padding:2px 7px;color:var(--ink)}
+.spec .meta h3{font-family:var(--display);font-size:15px;font-weight:700}
+.spec .meta p{font-size:12.5px;color:var(--ink-soft);line-height:1.5}
+
+/* ============ S: STYLE SWATCH STAGES ============ */
+/* Each stage renders a mini UI *in* the style it documents. */
+
+/* S-01 Skeuomorphism */
+.st-skeu{background:
+  radial-gradient(circle at 30% 20%, #8a6a4b 0%, #6b4e33 60%, #59402a 100%)}
+.st-skeu .stage-inner{background:linear-gradient(#fdfbf6,#e8e2d2);border-radius:10px;padding:16px 18px;
+  box-shadow:0 10px 22px rgba(0,0,0,.45), inset 0 1px 0 #fff;border:1px solid #b9ac8f;text-align:center}
+.st-skeu .label{font-size:11px;color:#6d5d3f;letter-spacing:.04em;margin-bottom:8px;font-family:Georgia,serif}
+.btn-skeu{font-family:Georgia,serif;font-size:14px;color:#3d2c14;padding:9px 22px;border-radius:8px;cursor:pointer;
+  background:linear-gradient(#fef9e8 0%,#f3d98b 45%,#dfb345 55%,#f0cf74 100%);
+  border:1px solid #a67c1e;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9), inset 0 -2px 3px rgba(122,84,10,.35), 0 3px 5px rgba(0,0,0,.35);
+  text-shadow:0 1px 0 rgba(255,255,255,.6)}
+.btn-skeu:active{box-shadow:inset 0 2px 4px rgba(122,84,10,.5)}
+
+/* S-02 Neumorphism */
+.st-neu{background:#E0E5EC}
+.neu-panel{display:flex;gap:18px;align-items:center}
+.btn-neu{border:none;cursor:pointer;background:#E0E5EC;color:#5b6472;font-family:var(--body);font-weight:600;font-size:13px;
+  padding:12px 22px;border-radius:14px;
+  box-shadow:8px 8px 16px #bec3c9, -8px -8px 16px #ffffff}
+.btn-neu:active{box-shadow:inset 5px 5px 10px #bec3c9, inset -5px -5px 10px #ffffff}
+.neu-toggle{width:58px;height:32px;border-radius:16px;background:#E0E5EC;position:relative;cursor:pointer;border:none;
+  box-shadow:inset 5px 5px 10px #bec3c9, inset -5px -5px 10px #ffffff}
+.neu-toggle::after{content:"";position:absolute;top:4px;left:4px;width:24px;height:24px;border-radius:50%;
+  background:#E0E5EC;box-shadow:3px 3px 6px #bec3c9,-2px -2px 5px #fff;transition:left .2s}
+.neu-toggle[aria-pressed="true"]::after{left:30px;background:#7c8ce0}
+
+/* S-03 Glassmorphism */
+.st-glass{background:linear-gradient(135deg,#7f5af0 0%,#2cb1e1 55%,#2cd4a0 100%)}
+.st-glass::before,.st-glass::after{content:"";position:absolute;border-radius:50%;filter:blur(2px)}
+.st-glass::before{width:110px;height:110px;background:rgba(255,255,255,.35);top:-30px;right:-20px}
+.st-glass::after{width:80px;height:80px;background:rgba(255,90,160,.5);bottom:-24px;left:-14px}
+.card-glass{position:relative;z-index:1;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.45);
+  border-radius:16px;padding:16px 20px;color:#fff;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  box-shadow:0 8px 28px rgba(20,20,60,.25);min-width:200px}
+.card-glass h4{font-size:14px;font-weight:600;margin-bottom:2px}
+.card-glass p{font-size:12px;opacity:.85}
+.card-glass .pill{display:inline-block;margin-top:10px;font-size:11px;padding:5px 12px;border-radius:99px;
+  background:rgba(255,255,255,.3);border:1px solid rgba(255,255,255,.5)}
+
+/* S-04 Claymorphism */
+.st-clay{background:#EDE7FB}
+.card-clay{background:#fff;border-radius:26px;padding:18px 22px;text-align:center;
+  box-shadow:0 14px 24px rgba(124,101,255,.25), inset -6px -6px 12px rgba(124,101,255,.18), inset 6px 6px 12px rgba(255,255,255,.9)}
+.card-clay .face{width:44px;height:44px;margin:0 auto 8px;border-radius:50%;background:#FFC85C;
+  box-shadow:inset -4px -5px 8px rgba(214,140,0,.45), inset 4px 5px 8px rgba(255,255,255,.7)}
+.btn-clay{margin-top:6px;border:none;cursor:pointer;font-weight:700;font-size:12.5px;color:#fff;padding:10px 20px;border-radius:16px;
+  background:#8A6CFF;box-shadow:0 8px 14px rgba(138,108,255,.45), inset -3px -4px 6px rgba(70,40,190,.5), inset 3px 4px 6px rgba(255,255,255,.45)}
+
+/* S-05 Liquid Glass */
+.st-liquid{background:
+  radial-gradient(circle at 20% 30%, #ff9a62 0%, transparent 45%),
+  radial-gradient(circle at 80% 20%, #6a7bff 0%, transparent 50%),
+  radial-gradient(circle at 60% 85%, #37d2b2 0%, transparent 50%),
+  #101425}
+.pill-liquid{display:flex;gap:14px;align-items:center;padding:12px 20px;border-radius:99px;color:#fff;
+  background:linear-gradient(120deg,rgba(255,255,255,.28),rgba(255,255,255,.08) 40%,rgba(255,255,255,.22));
+  border:1px solid rgba(255,255,255,.55);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.6), inset 0 -8px 14px rgba(255,255,255,.12), 0 12px 30px rgba(0,0,10,.45);
+  backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%)}
+.pill-liquid .dot{width:26px;height:26px;border-radius:50%;
+  background:radial-gradient(circle at 32% 28%, #fff 0%, #cfe0ff 22%, #6a7bff 70%);box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.pill-liquid span{font-size:13px;font-weight:600;letter-spacing:.01em;text-shadow:0 1px 3px rgba(0,0,0,.35)}
+
+/* S-06 Frutiger Aero */
+.st-aero{background:linear-gradient(#8fd3ff 0%,#d8f3ff 55%,#b8ecc8 100%)}
+.st-aero::before{content:"";position:absolute;width:70px;height:70px;border-radius:50%;top:12px;left:16px;
+  background:radial-gradient(circle at 30% 25%, rgba(255,255,255,.95), rgba(255,255,255,.12) 55%, rgba(255,255,255,.35));
+  border:1px solid rgba(255,255,255,.6)}
+.btn-aero{border:1px solid #2f9ed8;cursor:pointer;color:#053a5e;font-weight:700;font-size:13px;padding:10px 24px;border-radius:99px;
+  background:linear-gradient(#ffffff 0%,#bfe9ff 48%,#7fd0f7 52%,#c9f0ff 100%);
+  box-shadow:0 4px 10px rgba(30,120,180,.35), inset 0 1px 0 #fff;text-shadow:0 1px 0 rgba(255,255,255,.8)}
+
+/* S-07 Flat */
+.st-flat{background:#1ABC9C}
+.card-flat{background:#fff;padding:16px 20px;text-align:center;min-width:190px}
+.card-flat h4{font-size:14px;font-weight:700;color:#2C3E50}
+.card-flat p{font-size:12px;color:#7F8C8D;margin:2px 0 10px}
+.btn-flat{border:none;cursor:pointer;background:#E74C3C;color:#fff;font-weight:700;font-size:12.5px;padding:10px 20px}
+
+/* S-08 Flat 2.0 */
+.st-flat2{background:#F4F6F8}
+.card-flat2{background:#fff;border-radius:8px;padding:16px 20px;text-align:center;min-width:190px;
+  box-shadow:0 2px 6px rgba(30,40,60,.12)}
+.card-flat2 h4{font-size:14px;font-weight:700;color:#2C3E50}
+.card-flat2 p{font-size:12px;color:#7F8C8D;margin:2px 0 10px}
+.btn-flat2{border:none;cursor:pointer;background:#3498DB;color:#fff;font-weight:600;font-size:12.5px;padding:10px 20px;border-radius:6px;
+  box-shadow:0 2px 4px rgba(52,152,219,.4)}
+.btn-flat2:hover{background:#2f89c5}
+
+/* S-09 Material */
+.st-material{background:#EDEFF2}
+.card-material{background:#fff;border-radius:12px;overflow:hidden;width:210px;position:relative;
+  box-shadow:0 1px 3px rgba(0,0,0,.12), 0 4px 10px rgba(0,0,0,.14)}
+.card-material .mhead{height:56px;background:#6750A4}
+.card-material .mbody{padding:12px 14px 16px}
+.card-material .mbody h4{font-size:13.5px;font-weight:600;color:#1C1B1F}
+.card-material .mbody p{font-size:11.5px;color:#49454F;margin-top:2px}
+.fab-material{position:absolute;right:12px;top:36px;width:40px;height:40px;border-radius:14px;border:none;cursor:pointer;
+  background:#D0BCFF;color:#381E72;font-size:20px;line-height:1;
+  box-shadow:0 3px 8px rgba(0,0,0,.3)}
+
+/* S-10 Minimalism */
+.st-minimal{background:#FFFFFF}
+.min-inner{text-align:center}
+.min-inner h4{font-weight:400;font-size:19px;letter-spacing:.14em;text-transform:uppercase;color:#111}
+.min-inner p{font-size:11px;color:#999;letter-spacing:.28em;text-transform:uppercase;margin:8px 0 18px}
+.btn-min{background:none;border:1px solid #111;color:#111;font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+  padding:10px 26px;cursor:pointer}
+.btn-min:hover{background:#111;color:#fff}
+
+/* S-11 Swiss */
+.st-swiss{background:#fff;align-items:stretch!important;justify-content:stretch!important;padding:0!important}
+.swiss-inner{width:100%;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto 1fr}
+.swiss-inner .red{grid-column:1/-1;background:#E30613;color:#fff;padding:12px 16px;
+  font-family:Helvetica,Arial,sans-serif;font-weight:700;font-size:20px;letter-spacing:-.02em}
+.swiss-inner .colA{border-right:2px solid #111;padding:12px 16px;font-family:Helvetica,Arial,sans-serif;font-size:11px;line-height:1.4;color:#111}
+.swiss-inner .colB{padding:12px 16px;font-family:Helvetica,Arial,sans-serif;font-size:11px;color:#111}
+.swiss-inner .colB .num{font-size:28px;font-weight:700;letter-spacing:-.03em}
+
+/* S-12 Maximalism */
+.st-maximal{background:
+  repeating-linear-gradient(45deg,#FF2E93 0 14px,#FFB800 14px 28px,#2E9CFF 28px 42px,#8AFF00 42px 56px)}
+.card-maximal{background:#20003c;color:#fff;padding:14px 18px;border:4px double #FFB800;transform:rotate(-2deg);
+  box-shadow:8px 8px 0 #FF2E93, 16px 16px 0 rgba(46,156,255,.7);text-align:center}
+.card-maximal h4{font-family:var(--display);font-size:17px;text-transform:uppercase;letter-spacing:.06em;
+  background:linear-gradient(90deg,#FFB800,#FF2E93,#2E9CFF);-webkit-background-clip:text;background-clip:text;color:transparent}
+.card-maximal p{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;margin-top:4px;color:#FFD9F2}
+
+/* S-13 Brutalism */
+.st-brutal{background:#fff}
+.brutal-inner{font-family:'Times New Roman',serif;width:100%;padding:0 6px}
+.brutal-inner h4{font-size:22px;font-weight:700;text-decoration:underline}
+.brutal-inner p{font-size:13px;margin:4px 0}
+.brutal-inner a{color:#0000EE;font-size:13px}
+.btn-brutal{font-family:'Times New Roman',serif;font-size:13px;background:#ddd;border:2px outset #999;padding:3px 10px;cursor:pointer;margin-top:6px}
+.btn-brutal:active{border-style:inset}
+
+/* S-14 Neubrutalism */
+.st-neubrutal{background:#FFF9E5}
+.card-neubrutal{background:#A6FAFF;border:3px solid #111;border-radius:10px;padding:16px 20px;text-align:center;
+  box-shadow:7px 7px 0 #111}
+.card-neubrutal h4{font-family:var(--display);font-weight:700;font-size:15px;color:#111}
+.btn-neubrutal{margin-top:10px;background:#FFE01B;border:3px solid #111;border-radius:8px;font-weight:700;font-size:12.5px;
+  padding:9px 18px;cursor:pointer;box-shadow:4px 4px 0 #111;transition:transform .08s,box-shadow .08s}
+.btn-neubrutal:hover{transform:translate(2px,2px);box-shadow:2px 2px 0 #111}
+
+/* S-15 Memphis */
+.st-memphis{background:#FDF6EC}
+.st-memphis .squig{position:absolute;font-size:30px;color:#FF6B9D;top:10px;left:14px;transform:rotate(-12deg);font-weight:700}
+.st-memphis .tri{position:absolute;width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;
+  border-bottom:28px solid #4ECDC4;bottom:14px;right:20px;transform:rotate(18deg)}
+.st-memphis .dots{position:absolute;top:16px;right:24px;width:54px;height:34px;
+  background:radial-gradient(#111 2.4px, transparent 2.6px);background-size:12px 12px}
+.card-memphis{background:#FFD93D;border:3px solid #111;padding:14px 20px;transform:rotate(2deg);
+  box-shadow:-6px 6px 0 #6C5CE7}
+.card-memphis h4{font-family:var(--display);font-weight:700;font-size:15px;color:#111;text-transform:uppercase;letter-spacing:.04em}
+
+/* S-16 Aurora */
+.st-aurora{background:#0d0f1d}
+.st-aurora .blob{position:absolute;border-radius:50%;filter:blur(34px);opacity:.8}
+.st-aurora .b1{width:150px;height:150px;background:#7f5af0;top:-40px;left:-20px}
+.st-aurora .b2{width:130px;height:130px;background:#2cb67d;bottom:-40px;right:0}
+.st-aurora .b3{width:110px;height:110px;background:#ff5c8a;top:20px;right:-40px}
+.aurora-text{position:relative;z-index:1;color:#fff;text-align:center}
+.aurora-text h4{font-family:var(--display);font-size:17px;font-weight:700}
+.aurora-text p{font-size:11.5px;opacity:.7;letter-spacing:.1em;text-transform:uppercase;margin-top:4px}
+
+/* S-17 Dark mode */
+.st-dark{background:#101318}
+.card-dark{background:#1A1F27;border:1px solid #2A313C;border-radius:12px;padding:16px 20px;min-width:200px}
+.card-dark h4{color:#E8EAED;font-size:13.5px;font-weight:600}
+.card-dark p{color:#9AA3AF;font-size:12px;margin:2px 0 12px}
+.btn-dark{background:#7C93FF;color:#0E1220;border:none;border-radius:8px;font-weight:600;font-size:12px;padding:8px 16px;cursor:pointer}
+
+/* S-18 Y2K */
+.st-y2k{background:linear-gradient(160deg,#c8c8d8 0%,#eef 40%,#b7c4e8 100%)}
+.chrome-text{font-family:var(--display);font-weight:700;font-size:30px;letter-spacing:.02em;
+  background:linear-gradient(#f8f8ff 0%,#8d9ab8 35%,#fdfdff 50%,#5a6a90 65%,#e8ecff 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(1px 2px 0 rgba(40,50,90,.55));transform:skewX(-6deg)}
+.btn-y2k{display:block;margin:12px auto 0;background:linear-gradient(#fff,#c9d4f2);border:2px outset #eef;
+  border-radius:99px;font-size:12px;font-weight:700;color:#33406b;padding:7px 20px;cursor:pointer}
+
+/* S-19 Organic */
+.st-organic{background:#F4F1E8}
+.blob-organic{background:#7FA97E;color:#fff;padding:22px 34px;text-align:center;
+  border-radius:58% 42% 55% 45% / 48% 55% 45% 52%}
+.blob-organic h4{font-family:var(--display);font-size:15px;font-weight:700}
+.blob-organic p{font-size:11px;opacity:.85;margin-top:2px}
+.foundation-stage{min-height:190px;background:#FBFBF9}
+.f-token-grid{width:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.f-swatch{min-height:52px;border-radius:8px;padding:8px;display:flex;flex-direction:column;justify-content:flex-end;font-family:var(--mono);font-size:9.5px;line-height:1.25;color:#fff;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.f-swatch.light{color:#17181C}
+.f-type{width:100%;background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px}
+.f-type .display{font-family:var(--display);font-size:28px;line-height:1;font-weight:700}
+.f-type .title{font-weight:700;margin-top:10px}
+.f-type .body{color:var(--ink-soft);font-size:13px;margin-top:4px}
+.f-type .caption{font-family:var(--mono);font-size:10px;color:#8A8D99;margin-top:8px;text-transform:uppercase;letter-spacing:.08em}
+.f-space{width:100%;display:flex;align-items:flex-end;gap:8px;justify-content:center}
+.f-space i{display:block;background:#D8D9E6;border-radius:4px;position:relative}
+.f-space i::after{content:attr(data-step);position:absolute;left:50%;bottom:-20px;transform:translateX(-50%);font-family:var(--mono);font-size:10px;color:var(--ink-soft)}
+.f-shape{display:flex;gap:12px;align-items:center}
+.f-shape i{width:56px;height:56px;background:#D8D9E6;border:1px solid #C9CBDD}
+.f-elev{display:flex;gap:14px;align-items:center}
+.f-elev i{width:62px;height:62px;background:#fff;border-radius:10px;border:1px solid rgba(0,0,0,.04)}
+.f-icons{display:grid;grid-template-columns:repeat(4,42px);gap:10px}
+.f-icons span{height:42px;border:1px solid var(--line);border-radius:9px;background:#fff;display:grid;place-items:center;font-size:19px}
+.f-states{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;font-size:12px}
+.f-state{background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px}
+.f-state b{display:block;font-size:11px;color:var(--ink);margin-bottom:4px}
+.f-state i{display:block;height:8px;border-radius:99px;background:#D8D9E6}
+.f-a11y{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+.f-a11y .pass,.f-a11y .fail{border-radius:10px;padding:12px;font-weight:700;text-align:center}
+.f-a11y .pass{background:#062B19;color:#fff}
+.f-a11y .fail{background:#F6E7E4;color:#A32B22}
+
+/* paired mini viewport frames for layout demos */
+.layout-stage{min-height:230px;align-items:stretch!important}
+.layout-pair{width:100%;display:grid;grid-template-columns:minmax(0,1.7fr) minmax(92px,.8fr);gap:10px;align-items:stretch}
+.layout-shot{display:flex;flex-direction:column;gap:6px;min-width:0}
+.layout-shot b{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);font-weight:500}
+.vp{width:100%;height:184px;background:#FAFAF7;border-radius:8px;border:1px solid var(--line);
+  overflow:hidden;position:relative;padding:8px;display:block}
+.vp.mobile{height:184px;border-radius:14px}
+.blk{background:#D8D9E6;border-radius:4px}
+.blk.dk{background:#A9ACC7}
+.blk.ac{background:var(--accent)}
+.blk.ln{background:#EBEBF2}
+
+/* L-01 12-col grid */
+.lay-12col{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;height:100%}
+.lay-12col .col{background:rgba(43,69,232,.12);border:1px dashed rgba(43,69,232,.35);border-radius:3px}
+.lay-12col.content{position:absolute;inset:8px;display:grid;grid-template-columns:repeat(12,1fr);gap:4px;pointer-events:none;align-content:start}
+.lay-12col.content .blk{opacity:.92}
+
+/* L-02 modular */
+.lay-mod{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(3,1fr);gap:6px;height:100%}
+
+/* L-03 bento */
+.lay-bento{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);gap:6px;height:100%}
+.lay-bento .b1{grid-column:span 2;grid-row:span 2}
+.lay-bento .b2{grid-column:span 2}
+.lay-bento .b4{grid-column:span 1}
+
+/* L-04 masonry */
+.lay-masonry{columns:3;column-gap:6px;height:100%}
+.lay-masonry .blk{width:100%;margin-bottom:6px;break-inside:avoid}
+
+/* L-05 cards */
+.lay-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;height:100%}
+.lay-cards .cardlet{background:#fff;border:1px solid var(--line);border-radius:6px;padding:6px;display:flex;flex-direction:column;gap:4px;min-height:0}
+.lay-cards .cardlet .img{background:#D8D9E6;border-radius:3px;flex:1}
+.lay-cards .cardlet .t{height:6px;background:#A9ACC7;border-radius:2px;width:80%;flex:none}
+.lay-cards .cardlet .s{height:5px;background:#E3E3EC;border-radius:2px;flex:none}
+
+/* L-06 broken grid */
+.lay-broken{position:relative;height:100%}
+.lay-broken .a{position:absolute;left:6%;top:10%;width:52%;height:64%}
+.lay-broken .b{position:absolute;right:8%;top:32%;width:38%;height:56%;box-shadow:0 6px 14px rgba(40,40,80,.18)}
+.lay-broken .c{position:absolute;left:16%;bottom:6%;width:26%;height:16%}
+
+/* L-07 single column */
+.lay-single{display:flex;flex-direction:column;gap:6px;align-items:center;height:100%}
+.lay-single .blk{width:62%}
+
+/* L-08 sidebar */
+.lay-sidebar{display:grid;grid-template-columns:56px 1fr;gap:6px;height:100%}
+.lay-sidebar .main{display:flex;flex-direction:column;gap:6px}
+
+/* L-09 holy grail */
+.lay-holy{display:grid;height:100%;gap:5px;
+  grid-template-columns:44px 1fr 44px;grid-template-rows:24px 1fr 20px;
+  grid-template-areas:"h h h" "l m r" "f f f"}
+.lay-holy .h{grid-area:h}.lay-holy .l{grid-area:l}.lay-holy .m{grid-area:m}.lay-holy .r{grid-area:r}.lay-holy .f{grid-area:f}
+
+/* L-10 split */
+.lay-split{display:grid;grid-template-columns:1fr 1fr;gap:6px;height:100%}
+.lay-split .txt{background:#fff;border:1px solid var(--line);border-radius:4px;padding:10px;display:flex;flex-direction:column;gap:5px;justify-content:center}
+.lay-split .txt i{display:block;height:6px;border-radius:2px;background:#A9ACC7}
+.lay-split .txt i:nth-child(2){width:70%}.lay-split .txt i:nth-child(3){width:45%;background:var(--accent)}
+
+/* L-11 hero+sections */
+.lay-hero{display:flex;flex-direction:column;gap:6px;height:100%}
+.lay-hero .hero-b{height:44%;display:flex;align-items:center;justify-content:center}
+.lay-hero .hero-b i{width:40%;height:8px;background:#fff;border-radius:3px;opacity:.9}
+.lay-hero .row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;flex:1}
+
+/* L-12 full bleed */
+.lay-bleed{position:absolute;inset:0;background:linear-gradient(120deg,#A9ACC7,#D8D9E6);display:flex;align-items:flex-end;padding:12px}
+.lay-bleed i{width:34%;height:8px;background:#fff;border-radius:3px}
+
+/* L-13 responsive */
+.lay-resp{display:grid;grid-template-columns:1fr 1.6fr;gap:6px;height:100%}
+.lay-resp .bar{height:18px;background:var(--accent);border-radius:4px}
+.lay-resp .panel{background:#D8D9E6;border-radius:4px}
+.lay-resp .stack{display:grid;grid-template-rows:18px 1fr 1fr;gap:6px}
+
+/* eye-flow overlays */
+.lay-eye{position:relative;height:100%;display:grid;gap:6px}
+.lay-eye svg{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+.lay-eye svg path{fill:none;stroke:var(--accent);stroke-width:2.5;stroke-dasharray:6 5}
+.lay-eye svg path.arrowed{marker-end:url(#arrow)}
+.lay-z{grid-template-rows:26px 1fr 26px}
+.lay-z .top{display:flex;justify-content:space-between}.lay-z .top .blk{width:26%}
+.lay-z .bot{display:flex;justify-content:space-between}.lay-z .bot .blk{width:26%}
+.lay-f{grid-template-rows:repeat(5,1fr)}
+.lay-f .blk{border-radius:3px}
+.lay-gut{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr}
+.lay-gut .q{border:1px dashed #C9CBDD;border-radius:4px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:9.5px;color:#8A8DA8;text-align:center;padding:4px}
+.lay-gut .q.hot{background:rgba(43,69,232,.08);border-color:var(--accent);color:var(--accent)}
+
+/* mobile reflow inside the right-hand demo viewport */
+.vp.mobile .lay-12col{grid-template-columns:repeat(4,1fr)}
+.vp.mobile .lay-12col.content{grid-template-columns:1fr}
+.vp.mobile .lay-12col.content .blk{grid-column:1/-1!important;height:22px!important}
+.vp.mobile .lay-mod{grid-template-columns:repeat(2,1fr);grid-template-rows:repeat(6,1fr)}
+.vp.mobile .lay-bento{grid-template-columns:1fr;grid-template-rows:1.4fr 1fr .8fr .8fr}
+.vp.mobile .lay-bento .b1,.vp.mobile .lay-bento .b2,.vp.mobile .lay-bento .b4{grid-column:auto;grid-row:auto}
+.vp.mobile .lay-masonry{columns:1}
+.vp.mobile .lay-masonry .blk{height:24px!important}
+.vp.mobile .lay-cards{grid-template-columns:1fr}
+.vp.mobile .lay-cards .cardlet:nth-child(n+3){display:none}
+.vp.mobile .lay-broken{display:flex;flex-direction:column;gap:6px}
+.vp.mobile .lay-broken .a,.vp.mobile .lay-broken .b,.vp.mobile .lay-broken .c{position:static;width:100%;box-shadow:none}
+.vp.mobile .lay-broken .a{height:54%}.vp.mobile .lay-broken .b{height:30%}.vp.mobile .lay-broken .c{height:16%}
+.vp.mobile .lay-single .blk{width:100%!important}
+.vp.mobile .lay-sidebar{grid-template-columns:1fr;grid-template-rows:24px 1fr}
+.vp.mobile .lay-holy{grid-template-columns:1fr;grid-template-rows:22px 24px 1fr 24px 18px;grid-template-areas:"h" "l" "m" "r" "f"}
+.vp.mobile .lay-split{grid-template-columns:1fr;grid-template-rows:1fr 1fr}
+.vp.mobile .lay-hero .hero-b{height:38%}
+.vp.mobile .lay-hero .row{grid-template-columns:1fr}
+.vp.mobile .lay-bleed i{width:70%}
+.vp.mobile .lay-resp{grid-template-columns:1fr;grid-template-rows:18px 1fr 1fr;gap:6px}
+.vp.mobile .lay-resp .stack{display:contents}
+.vp.mobile .lay-z{grid-template-rows:22px 1fr 38px}
+.vp.mobile .lay-gut{grid-template-columns:1fr;grid-template-rows:repeat(4,1fr)}
+
+@media (max-width:760px){
+  .layout-pair{grid-template-columns:1fr}
+  .layout-stage{min-height:420px}
+}
+
+.motion-stage{min-height:230px}
+.motion-demo{width:100%;height:210px;background:#FAFAF7;border:1px solid var(--line);border-radius:10px;overflow:hidden;position:relative}
+.motion-demo .hint{position:absolute;right:8px;top:8px;z-index:5;font-family:var(--mono);font-size:9.5px;color:var(--ink-soft);background:rgba(255,255,255,.76);border:1px solid var(--line);border-radius:99px;padding:3px 7px}
+.m-parallax{overflow:auto;scrollbar-width:thin}
+.m-parallax .sky,.m-parallax .hills,.m-parallax .near{position:sticky;top:0;height:210px;pointer-events:none;transform:translateY(var(--py,0))}
+.m-parallax .sky{background:linear-gradient(#8dc8ff,#f8fbff);z-index:0}
+.m-parallax .hills{margin-top:-210px;background:radial-gradient(circle at 24% 78%,#8fb799 0 24%,transparent 25%),radial-gradient(circle at 72% 82%,#6e9f85 0 34%,transparent 35%);z-index:1;transform:translateY(var(--hy,0))}
+.m-parallax .near{margin-top:-210px;background:linear-gradient(165deg,transparent 0 52%,#2B45E8 53% 58%,transparent 59%),linear-gradient(20deg,transparent 0 62%,rgba(23,24,28,.22) 63% 68%,transparent 69%);z-index:2;transform:translateY(var(--fy,0))}
+.m-parallax .story{position:relative;z-index:3;padding:78px 18px 160px;display:grid;gap:56px}
+.m-parallax .story-card{background:rgba(255,255,255,.86);border:1px solid rgba(255,255,255,.9);border-radius:10px;padding:12px;box-shadow:0 8px 20px rgba(60,80,120,.16);font-size:12px;color:var(--ink-soft)}
+.m-reveal{overflow:auto;padding:18px;display:grid;gap:18px;scroll-snap-type:y mandatory}
+.m-reveal .reveal-card{min-height:72px;border-radius:10px;background:#fff;border:1px solid var(--line);box-shadow:0 10px 20px rgba(30,35,50,.08);display:flex;align-items:center;gap:10px;padding:12px;scroll-snap-align:center;animation:rise-in both;animation-timeline:view();animation-range:entry 10% cover 38%}
+.m-reveal .dot{width:24px;height:24px;border-radius:50%;background:var(--accent);flex:none}
+@keyframes rise-in{from{opacity:.15;transform:translateY(24px) scale(.96)}to{opacity:1;transform:none}}
+.m-sticky{overflow:auto;background:#ECEEF8}
+.m-sticky .chapter{height:165px;padding:12px}
+.m-sticky .pin{position:sticky;top:12px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;box-shadow:0 8px 18px rgba(30,35,50,.12)}
+.m-sticky .pin b,.m-transitions .page b{font-family:var(--display);font-size:14px}
+.m-hover{display:flex;align-items:center;justify-content:center;gap:14px;padding:18px}
+.m-hover button{border:1px solid #111;background:#fff;border-radius:8px;padding:11px 16px;font-weight:700;box-shadow:5px 5px 0 #111;transition:transform .16s,box-shadow .16s,background .16s;cursor:pointer}
+.m-hover button:hover{transform:translate(4px,4px);box-shadow:1px 1px 0 #111;background:#FFF06A}
+.m-hover .tile{width:58px;height:58px;border-radius:12px;background:linear-gradient(135deg,#2B45E8,#37d2b2);transition:transform .2s,filter .2s}
+.m-hover .tile:hover{transform:rotate(-6deg) scale(1.08);filter:saturate(1.35)}
+.m-transitions{display:grid;place-items:center;background:#111827;color:#fff}
+.m-transitions .page{width:72%;height:70%;background:#fff;color:#111827;border-radius:12px;padding:18px;box-shadow:0 20px 34px rgba(0,0,0,.28);animation:page-swap 3s infinite}
+@keyframes page-swap{0%,18%{opacity:0;transform:translateY(18px) scale(.96)}28%,70%{opacity:1;transform:none}82%,100%{opacity:0;transform:translateY(-14px) scale(.98)}}
+.m-snap{overflow:auto;display:flex;scroll-snap-type:x mandatory}
+.m-snap .snap-panel{min-width:82%;height:100%;scroll-snap-align:center;display:grid;place-items:center;font-family:var(--display);font-size:22px;color:#fff}
+.m-snap .snap-panel:nth-child(1){background:#2B45E8}.m-snap .snap-panel:nth-child(2){background:#17181C}.m-snap .snap-panel:nth-child(3){background:#37A879}
+
+/* Component demos use a neutral, realistic UI kit so they read as "real". */
+.kit{--k-ink:#1C1E26;--k-soft:#6B7080;--k-line:#E4E5EC;--k-bg:#fff;--k-accent:#2B45E8;--k-danger:#D6362B;--k-ok:#1F9D55;--k-warn:#B7791F}
+.spec .stage.kitstage{background:#FBFBF9;align-items:center;justify-content:center;flex-wrap:wrap;gap:12px}
+.spec .stage.kitstage.col{flex-direction:column;align-items:stretch}
+
+/* nav components */
+.k-navbar{width:100%;background:#fff;border:1px solid var(--k-line);border-radius:10px;display:flex;align-items:center;gap:16px;padding:10px 14px;font-size:12.5px}
+.k-navbar .logo{font-family:var(--display);font-weight:700;font-size:13px}
+.k-navbar a{color:var(--k-soft);text-decoration:none}
+.k-navbar a.on{color:var(--k-ink);font-weight:600}
+.k-navbar .cta{margin-left:auto;background:var(--k-accent);color:#fff;border:none;border-radius:7px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer}
+.k-sidenav{width:150px;background:#fff;border:1px solid var(--k-line);border-radius:10px;padding:8px;font-size:12.5px}
+.k-sidenav div{padding:7px 10px;border-radius:7px;color:var(--k-soft);cursor:pointer;display:flex;gap:8px;align-items:center}
+.k-sidenav div.on{background:#EEF0FE;color:var(--k-accent);font-weight:600}
+.k-sidenav div:hover:not(.on){background:#F4F4F1}
+.k-rail{height:154px;width:70px;background:#fff;border:1px solid var(--k-line);border-radius:14px;padding:8px;display:flex;flex-direction:column;gap:8px;align-items:center}
+.k-rail button{width:50px;height:38px;border:none;background:transparent;border-radius:12px;color:var(--k-soft);font-size:18px;cursor:pointer}
+.k-rail button.on{background:#EEF0FE;color:var(--k-accent)}
+.k-tabbar{width:260px;background:#fff;border:1px solid var(--k-line);border-radius:18px;padding:8px 10px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;box-shadow:0 10px 24px rgba(20,24,50,.1)}
+.k-tabbar button{border:none;background:transparent;color:var(--k-soft);border-radius:12px;padding:7px 4px;font-size:10.5px;font-family:var(--body);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+.k-tabbar button span{font-size:18px;line-height:1}
+.k-tabbar button.on{background:#EEF0FE;color:var(--k-accent);font-weight:700}
+.k-toolbar{width:100%;background:#fff;border:1px solid var(--k-line);border-radius:12px;padding:8px;display:flex;align-items:center;gap:8px}
+.k-toolbar .title{font-weight:700;font-size:13px;margin-right:auto}
+.k-toolbar button{width:34px;height:34px;border:1px solid #D5D7E1;background:#fff;border-radius:9px;cursor:pointer;color:var(--k-ink)}
+.k-burger{width:40px;height:40px;border:1px solid var(--k-line);background:#fff;border-radius:9px;cursor:pointer;display:inline-flex;flex-direction:column;gap:4px;align-items:center;justify-content:center}
+.k-burger i{display:block;width:16px;height:2px;background:var(--k-ink);border-radius:2px}
+.k-tabs{display:flex;gap:2px;border-bottom:2px solid var(--k-line);width:100%;font-size:13px}
+.k-tabs button{background:none;border:none;padding:9px 14px;cursor:pointer;color:var(--k-soft);font-weight:500;border-bottom:2px solid transparent;margin-bottom:-2px;font-family:var(--body)}
+.k-tabs button[aria-selected="true"]{color:var(--k-accent);border-bottom-color:var(--k-accent);font-weight:600}
+.k-crumbs{font-size:12.5px;color:var(--k-soft)}
+.k-crumbs a{color:var(--k-soft);text-decoration:none}
+.k-crumbs a:hover{color:var(--k-accent)}
+.k-crumbs .sep{margin:0 6px;color:#C4C6D0}
+.k-crumbs .here{color:var(--k-ink);font-weight:600}
+.k-pager{display:flex;gap:5px;align-items:center}
+.k-pager button{min-width:30px;height:30px;border:1px solid var(--k-line);background:#fff;border-radius:7px;font-size:12px;cursor:pointer;color:var(--k-ink)}
+.k-pager button.on{background:var(--k-accent);border-color:var(--k-accent);color:#fff;font-weight:600}
+.k-pager button:hover:not(.on){border-color:#B9BCCB}
+.k-dropwrap{position:relative}
+.k-drop{position:absolute;top:calc(100% + 6px);left:0;background:#fff;border:1px solid var(--k-line);border-radius:9px;
+  box-shadow:0 8px 22px rgba(20,24,50,.12);padding:5px;min-width:150px;z-index:5;font-size:12.5px;display:none}
+.k-drop.open{display:block}
+.k-drop button{display:block;width:100%;text-align:left;background:none;border:none;padding:8px 10px;border-radius:6px;cursor:pointer;font-size:12.5px;color:var(--k-ink);font-family:var(--body)}
+.k-drop button:hover{background:#F2F3FA}
+.k-drop button.danger{color:var(--k-danger)}
+.k-footer{width:100%;background:#fff;border:1px solid var(--k-line);border-radius:10px;padding:12px 14px;font-size:11.5px;color:var(--k-soft);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.k-footer a{color:var(--k-soft);text-decoration:none;margin-left:12px}
+
+/* buttons */
+.k-btn{border:none;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--body)}
+.k-btn.primary{background:var(--k-accent);color:#fff}
+.k-btn.primary:hover{background:#2338c4}
+.k-btn.secondary{background:#fff;color:var(--k-ink);border:1px solid #C9CBD6}
+.k-btn.secondary:hover{border-color:#9DA1B4}
+.k-btn.ghost{background:transparent;color:var(--k-accent)}
+.k-btn.ghost:hover{background:#EEF0FE}
+.k-btn.destructive{background:var(--k-danger);color:#fff}
+.k-btn.icon{width:38px;height:38px;padding:0;display:inline-flex;align-items:center;justify-content:center;background:#fff;border:1px solid #C9CBD6;color:var(--k-ink)}
+.k-btn:disabled{opacity:.45;cursor:not-allowed}
+.k-group{display:inline-flex}
+.k-group button{border:1px solid #C9CBD6;background:#fff;padding:8px 14px;font-size:12.5px;cursor:pointer;color:var(--k-ink);font-family:var(--body)}
+.k-group button:first-child{border-radius:8px 0 0 8px}
+.k-group button:last-child{border-radius:0 8px 8px 0}
+.k-group button + button{border-left:none}
+.k-group button.on{background:#EEF0FE;color:var(--k-accent);font-weight:600}
+.k-fab{width:50px;height:50px;border-radius:50%;border:none;background:var(--k-accent);color:#fff;font-size:24px;line-height:1;cursor:pointer;
+  box-shadow:0 6px 16px rgba(43,69,232,.4)}
+.k-chip{display:inline-flex;align-items:center;gap:6px;background:#EEF0FE;color:var(--k-accent);border:1px solid #D5DAFB;
+  border-radius:99px;padding:5px 11px;font-size:12px;font-weight:500}
+.k-chip.neutral{background:#F1F1EE;color:var(--k-ink);border-color:#E0E0DA}
+.k-chip .x{cursor:pointer;border:none;background:none;color:inherit;font-size:13px;line-height:1;padding:0}
+.k-link{font-size:13px}
+
+/* forms */
+.k-field{display:flex;flex-direction:column;gap:5px;width:100%;max-width:250px;text-align:left}
+.k-field label{font-size:12px;font-weight:600;color:var(--k-ink)}
+.k-field .hint{font-size:11px;color:var(--k-soft)}
+.k-field .err{font-size:11px;color:var(--k-danger)}
+.k-input{border:1px solid #C9CBD6;border-radius:8px;padding:9px 11px;font-size:13px;font-family:var(--body);background:#fff;color:var(--k-ink);width:100%}
+.k-input:focus{outline:none;border-color:var(--k-accent);box-shadow:0 0 0 3px rgba(43,69,232,.15)}
+.k-input.bad{border-color:var(--k-danger);box-shadow:0 0 0 3px rgba(214,54,43,.12)}
+textarea.k-input{resize:vertical;min-height:64px}
+.k-check,.k-radio{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;color:var(--k-ink)}
+.k-check input,.k-radio input{width:16px;height:16px;accent-color:var(--k-accent);cursor:pointer}
+.k-switch{position:relative;width:42px;height:24px;border-radius:12px;background:#C9CBD6;border:none;cursor:pointer;transition:background .15s;flex:none}
+.k-switch::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .15s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.k-switch[aria-checked="true"]{background:var(--k-accent)}
+.k-switch[aria-checked="true"]::after{left:21px}
+.k-slider{width:100%;max-width:220px;accent-color:var(--k-accent)}
+.k-stepper{display:inline-flex;align-items:center;border:1px solid #C9CBD6;border-radius:8px;overflow:hidden;background:#fff}
+.k-stepper button{width:32px;height:34px;border:none;background:#fff;font-size:16px;cursor:pointer;color:var(--k-ink)}
+.k-stepper button:hover{background:#F2F3FA}
+.k-stepper output{width:40px;text-align:center;font-size:13px;font-weight:600;border-left:1px solid var(--k-line);border-right:1px solid var(--k-line);line-height:34px}
+.k-search{position:relative;width:100%;max-width:250px}
+.k-search .k-input{padding-left:32px}
+.k-search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--k-soft)}
+.k-drop-zone{border:1.5px dashed #B9BCCB;border-radius:10px;padding:20px;text-align:center;font-size:12.5px;color:var(--k-soft);width:100%;max-width:260px;background:#fff;cursor:pointer}
+.k-drop-zone:hover{border-color:var(--k-accent);color:var(--k-accent);background:#FBFBFE}
+.k-drop-zone strong{color:var(--k-accent)}
+.k-action-sheet{width:230px;background:#F4F4F7;border:1px solid var(--k-line);border-radius:18px;padding:8px;box-shadow:0 14px 34px rgba(20,24,50,.18)}
+.k-action-sheet button{width:100%;border:none;background:#fff;padding:11px 12px;font-family:var(--body);font-size:13px;cursor:pointer;color:var(--k-accent)}
+.k-action-sheet button:first-child{border-radius:12px 12px 0 0}
+.k-action-sheet button + button{border-top:1px solid var(--k-line)}
+.k-action-sheet button.danger{color:var(--k-danger)}
+.k-action-sheet .cancel{margin-top:8px;border-radius:12px;color:var(--k-ink);font-weight:700}
+
+/* containers */
+.k-card{background:#fff;border:1px solid var(--k-line);border-radius:12px;overflow:hidden;width:230px;text-align:left}
+.k-card .img{height:86px;background:linear-gradient(120deg,#C9A87C,#8A6242)}
+.k-card .bd{padding:12px 14px 14px}
+.k-card h4{font-size:13.5px;font-weight:600}
+.k-card p{font-size:12px;color:var(--k-soft);margin:3px 0 10px}
+.k-list{background:#fff;border:1px solid var(--k-line);border-radius:12px;width:100%;max-width:290px;overflow:hidden;text-align:left}
+.k-list .li{display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:12.5px}
+.k-list .li + .li{border-top:1px solid var(--k-line)}
+.k-list .li:hover{background:#FAFAFE}
+.k-list .av{width:30px;height:30px;border-radius:50%;background:#DCE0F8;color:#3A4CC9;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
+.k-list .li b{display:block;font-size:12.5px}
+.k-list .li span{font-size:11px;color:var(--k-soft)}
+.k-list .li .go{margin-left:auto;color:#B9BCCB}
+.k-acc{background:#fff;border:1px solid var(--k-line);border-radius:12px;width:100%;max-width:300px;overflow:hidden;text-align:left}
+.k-acc details + details{border-top:1px solid var(--k-line)}
+.k-acc summary{padding:11px 14px;font-size:13px;font-weight:600;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
+.k-acc summary::after{content:"+";color:var(--k-soft);font-size:15px}
+.k-acc details[open] summary::after{content:"−"}
+.k-acc .body{padding:0 14px 12px;font-size:12.5px;color:var(--k-soft)}
+.k-table{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;text-align:left}
+.k-table th{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--k-soft);font-weight:500;padding:9px 12px;border-bottom:1px solid var(--k-line);background:#FBFBFA}
+.k-table td{padding:9px 12px;border-bottom:1px solid var(--k-line)}
+.k-table tr:last-child td{border-bottom:none}
+.k-table tbody tr:hover{background:#FAFAFE}
+.k-tablewrap{border:1px solid var(--k-line);border-radius:12px;overflow:hidden;width:100%}
+.k-status{font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px}
+.k-status.ok{background:#E5F5EC;color:var(--k-ok)}
+.k-status.low{background:#FBF0DC;color:var(--k-warn)}
+.k-carousel{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;width:100%;padding-bottom:6px}
+.k-carousel .slide{flex:0 0 150px;height:96px;border-radius:10px;scroll-snap-align:start;display:flex;align-items:flex-end;padding:9px;color:#fff;font-size:12px;font-weight:600}
+.k-banner{width:100%;background:#EEF0FE;border:1px solid #D5DAFB;color:#2338c4;border-radius:10px;padding:10px 14px;font-size:12.5px;display:flex;align-items:center;gap:10px}
+.k-banner button{margin-left:auto;background:none;border:none;color:inherit;cursor:pointer;font-size:14px}
+.k-hero{width:100%;border-radius:12px;background:linear-gradient(120deg,#1C1E26,#3A3F55);color:#fff;padding:26px 24px;text-align:left}
+.k-hero .eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.7}
+.k-hero h4{font-family:var(--display);font-size:21px;margin:6px 0 4px}
+.k-hero p{font-size:12.5px;opacity:.8;margin-bottom:14px;max-width:40ch}
+
+/* overlays */
+dialog.k-modal{border:none;border-radius:14px;padding:0;width:min(92vw,360px);box-shadow:0 24px 60px rgba(10,14,40,.35)}
+dialog.k-modal::backdrop{background:rgba(16,18,30,.5)}
+.k-modal .mb{padding:20px 22px}
+.k-modal h4{font-family:var(--display);font-size:16px;margin-bottom:6px}
+.k-modal p{font-size:13px;color:var(--k-soft, #6B7080)}
+.k-modal .actions{display:flex;justify-content:flex-end;gap:8px;padding:14px 22px;border-top:1px solid #E4E5EC}
+.k-drawer{position:fixed;top:0;right:0;bottom:0;width:min(84vw,290px);background:#fff;z-index:100;
+  box-shadow:-16px 0 40px rgba(10,14,40,.22);transform:translateX(105%);transition:transform .25s ease;padding:20px;display:flex;flex-direction:column;gap:8px}
+.k-drawer.open{transform:translateX(0)}
+.kit-root .k-drawer{visibility:hidden;transition:transform .25s ease,visibility 0s .25s}
+.kit-root .k-drawer.open{visibility:visible;transition:transform .25s ease}
+.k-drawer h4{font-family:var(--display);font-size:16px;display:flex;justify-content:space-between;align-items:center}
+.k-drawer .close{background:none;border:none;font-size:16px;cursor:pointer;color:#6B7080}
+.k-scrim{position:fixed;inset:0;background:rgba(16,18,30,.4);z-index:99;opacity:0;pointer-events:none;transition:opacity .25s}
+.k-scrim.open{opacity:1;pointer-events:auto}
+.k-popwrap{position:relative;display:inline-block}
+.k-pop{position:absolute;bottom:calc(100% + 10px);left:50%;transform:translateX(-50%);width:210px;background:#fff;
+  border:1px solid var(--k-line);border-radius:10px;box-shadow:0 10px 26px rgba(20,24,50,.16);padding:12px;font-size:12px;color:var(--k-ink);display:none;z-index:6;text-align:left}
+.k-pop.open{display:block}
+.k-pop::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:7px solid transparent;border-top-color:#fff}
+.k-tip{position:relative}
+.k-tip:hover::after,.k-tip:focus-visible::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
+  background:#1C1E26;color:#fff;font-size:11px;padding:5px 9px;border-radius:6px;white-space:nowrap;z-index:6}
+.k-toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(16px);background:#1C1E26;color:#fff;
+  border-radius:10px;padding:11px 16px;font-size:13px;display:flex;gap:12px;align-items:center;z-index:120;opacity:0;transition:all .25s}
+.k-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.k-toast button{background:none;border:none;color:#8FA0FF;font-weight:600;cursor:pointer;font-size:13px}
+
+/* feedback */
+.k-alert{width:100%;border-radius:10px;padding:10px 13px;font-size:12.5px;display:flex;gap:9px;align-items:flex-start;text-align:left;border:1px solid}
+.k-alert b{display:block;font-size:12.5px}
+.k-alert.info{background:#EEF3FE;border-color:#C9DAFB;color:#1D4FB8}
+.k-alert.ok{background:#E9F7EF;border-color:#BFE8D0;color:#186A3B}
+.k-alert.warn{background:#FDF3E0;border-color:#F2DCAF;color:#8A5A10}
+.k-alert.err{background:#FCEAE8;border-color:#F3C4BF;color:#A3271D}
+.k-badgehost{position:relative;display:inline-flex;width:42px;height:42px;border:1px solid var(--k-line);border-radius:10px;background:#fff;align-items:center;justify-content:center;font-size:17px}
+.k-badge{position:absolute;top:-7px;right:-7px;background:var(--k-danger);color:#fff;font-size:10px;font-weight:700;
+  min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid #FBFBF9}
+.k-progress{width:100%;max-width:220px;height:8px;background:#E8E9F0;border-radius:4px;overflow:hidden}
+.k-progress i{display:block;height:100%;width:64%;background:var(--k-accent);border-radius:4px}
+.k-spin{width:26px;height:26px;border:3px solid #E0E2EE;border-top-color:var(--k-accent);border-radius:50%;animation:kspin 0.8s linear infinite}
+@keyframes kspin{to{transform:rotate(360deg)}}
+.k-skel{width:100%;max-width:250px;background:#fff;border:1px solid var(--k-line);border-radius:12px;padding:13px;display:flex;gap:11px;align-items:center}
+.k-skel i{border-radius:6px;background:linear-gradient(90deg,#EDEDF2 25%,#F7F7FA 45%,#EDEDF2 65%);background-size:200% 100%;animation:shim 1.3s infinite}
+@keyframes shim{to{background-position:-200% 0}}
+.k-skel .c{width:38px;height:38px;border-radius:50%;flex:none}
+.k-skel .lines{flex:1;display:flex;flex-direction:column;gap:7px}
+.k-skel .l1{height:10px;width:75%}.k-skel .l2{height:8px;width:50%}
+.k-empty{text-align:center;padding:8px;max-width:230px}
+.k-empty .art{font-size:30px;opacity:.45}
+.k-empty h4{font-size:13.5px;margin:6px 0 3px}
+.k-empty p{font-size:12px;color:var(--k-soft);margin-bottom:12px}
+
+/* data display */
+.k-stat{background:#fff;border:1px solid var(--k-line);border-radius:12px;padding:14px 16px;min-width:150px;text-align:left}
+.k-stat .lbl{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--k-soft)}
+.k-stat .num{font-family:var(--display);font-size:27px;font-weight:700;margin:2px 0}
+.k-stat .trend{font-size:11.5px;font-weight:600;color:var(--k-ok)}
+.k-chart{display:flex;align-items:flex-end;gap:8px;height:110px;padding:0 4px}
+.k-chart .bar{width:26px;background:#D8DBF5;border-radius:5px 5px 0 0;position:relative}
+.k-chart .bar.hot{background:var(--k-accent)}
+.k-chart .bar span{position:absolute;top:100%;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:9.5px;color:var(--k-soft);margin-top:4px}
+.k-timeline{text-align:left;max-width:250px;width:100%}
+.k-timeline .ev{position:relative;padding:0 0 16px 22px;border-left:2px solid #E0E2EE;margin-left:6px}
+.k-timeline .ev:last-child{padding-bottom:0;border-color:transparent}
+.k-timeline .ev::before{content:"";position:absolute;left:-6px;top:1px;width:10px;height:10px;border-radius:50%;background:var(--k-accent);border:2px solid #FBFBF9}
+.k-timeline b{font-size:12.5px;display:block}
+.k-timeline span{font-size:11px;color:var(--k-soft)}
+.k-steps{display:flex;align-items:center;gap:6px;width:100%;max-width:300px}
+.k-steps .dot{width:26px;height:26px;border-radius:50%;font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;
+  background:#E8E9F0;color:var(--k-soft)}
+.k-steps .dot.done{background:var(--k-accent);color:#fff}
+.k-steps .dot.now{background:#fff;border:2px solid var(--k-accent);color:var(--k-accent)}
+.k-steps .ln{flex:1;height:2px;background:#E8E9F0}
+.k-steps .ln.done{background:var(--k-accent)}
+
+/* media */
+.k-avatars{display:flex;align-items:center}
+.k-av{width:38px;height:38px;border-radius:50%;border:2.5px solid #FBFBF9;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
+.k-av + .k-av{margin-left:-11px}
+.k-av.more{background:#E8E9F0;color:var(--k-soft);font-size:11px}
+.k-player{background:#fff;border:1px solid var(--k-line);border-radius:12px;padding:12px 14px;width:100%;max-width:260px;display:flex;gap:11px;align-items:center;text-align:left}
+.k-player .art2{width:42px;height:42px;border-radius:9px;background:linear-gradient(135deg,#8A6CFF,#2CB1E1);flex:none}
+.k-player b{font-size:12.5px;display:block}
+.k-player span{font-size:11px;color:var(--k-soft)}
+.k-player .bar{height:4px;background:#E8E9F0;border-radius:2px;margin-top:7px;overflow:hidden}
+.k-player .bar i{display:block;height:100%;width:40%;background:var(--k-accent)}
+.k-player .play{margin-left:auto;width:34px;height:34px;border-radius:50%;border:none;background:var(--k-accent);color:#fff;cursor:pointer;font-size:12px;flex:none}
+.k-icons{display:flex;gap:14px;color:var(--k-ink)}
+.k-icons svg{width:20px;height:20px}
+
+/* recipe section */
+.recipe{border:1px solid var(--line);background:var(--card);border-radius:14px;padding:26px 28px;margin:20px 0 70px}
+.recipe ol{margin:14px 0 0 20px;display:flex;flex-direction:column;gap:9px;font-size:14px}
+.recipe .ex{margin-top:18px;padding:13px 16px;background:var(--code-bg);border-radius:10px;font-family:var(--mono);font-size:12.5px;line-height:1.7}
+footer.site{border-top:1px solid var(--line);padding:26px 0 46px;color:var(--ink-soft);font-size:12.5px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+
+</style>
+<script src="handbook.js?v=20.3" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <a class="brand" href="index.html">The Build So Far</a>
+  <nav class="parts" aria-label="Parts of the handbook">
+      <a href="concepts.html"><span class="num">I</span>Concepts</a>
+      <a href="deep-dives.html"><span class="num">II</span>Deep-dives</a>
+      <a href="together.html"><span class="num">III</span>Build playbook</a>
+      <a href="ai.html"><span class="num">IV</span>AI development</a>
+      <a href="tools.html" aria-current="page"><span class="num">A</span>Tools</a>
+  </nav>
+</header>
+
+<div class="hb-wrap">
+  <header class="part-head">
+    <p class="part-eyebrow">Appendix A</p>
+    <h1 class="part-title">Tools &amp; references</h1>
+    <p class="part-sub">An optional parts catalog for when you need a visual pattern, interaction, graphics library, or design-agent workflow. Look things up here; do not treat the catalog as prerequisite reading.</p>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" aria-label="On this page">
+      <p>The design toolkit</p>
+      <a href="#design-kit">How to use it</a>
+      <a href="#foundations">F &middot; Foundations</a>
+      <a href="#styles">S &middot; Styles</a>
+      <a href="#layouts">L &middot; Layouts</a>
+      <a href="#motion">M &middot; Motion</a>
+      <a href="#components">C &middot; Components</a>
+      <a href="#recipe">Quick-start recipe</a>
+      <p>Design libraries</p>
+      <a href="#libraries">Overview</a>
+      <a href="#lib-shadergradient">ShaderGradient</a>
+      <a href="#lib-liquid-metal">Liquid metal</a>
+      <a href="#lib-liquid-glass">liquid-glass-js</a>
+      <a href="#lib-r3f">react-three-fiber</a>
+      <p>Design skills</p>
+      <a href="#design-skills">Overview</a>
+      <a href="#skill-ui-ux-pro-max">UI UX Pro Max</a>
+      <a href="#skill-emil">Emil Kowalski&rsquo;s skills</a>
+      <a href="#skill-visual-plan">visual-plan</a>
+    </nav>
+
+    <main id="main" class="content wide">
+      <div class="prose prose-block">
+<section id="design-kit">
+  <h2>The design toolkit</h2>
+
+  <p class="decision-default"><strong>Reference, not curriculum.</strong> Start with the user journey and information hierarchy in the <a href="together.html">build playbook</a>. Return here when a concrete interface problem needs a pattern.</p>
+
+  <h3>In one line</h3>
+  <p>Everything else in this handbook documents what was already built. This page is the opposite: a catalog of how the next screen <em>could</em> look and move, ready to be picked from before it&rsquo;s designed.</p>
+
+  <h3>What it actually is</h3>
+  <p>Not a mood board. Every entry below is a working implementation, not a picture of one: the neumorphism button really is built in neumorphism, and the masonry layout really is CSS columns. There are five catalogs, each with a letter code, meant to be used in build order:</p>
+
+  <figure class="diagram">
+    <svg viewBox="0 0 720 220" role="img" aria-label="Five catalogs in build order: Foundations with 8 entries, Style with 19, Layout with 16, Motion with 6, and Components with 52. An arrow leads down to a recipe box showing the toolkit's own example: F-01 plus F-03 to L-08 shell to L-03 bento content to C-42 plus C-43 plus C-28 to M-04 hover feedback, skinned in S-17 dark mode, labelled as the spec for an analytics dashboard.">
+      <defs>
+        <marker id="ahtk" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+        </marker>
+      </defs>
+      <rect class="box" x="10" y="20" width="129" height="66" rx="8"></rect>
+      <text class="t t--title" x="74" y="48" text-anchor="middle" font-size="13">F &middot; Foundations</text>
+      <text class="lbl" x="74" y="70" text-anchor="middle" font-size="11">8</text>
+      <rect class="box" x="153" y="20" width="129" height="66" rx="8"></rect>
+      <text class="t t--title" x="217" y="48" text-anchor="middle" font-size="13">S &middot; Style</text>
+      <text class="lbl" x="217" y="70" text-anchor="middle" font-size="11">19</text>
+      <rect class="box" x="296" y="20" width="129" height="66" rx="8"></rect>
+      <text class="t t--title" x="360" y="48" text-anchor="middle" font-size="13">L &middot; Layout</text>
+      <text class="lbl" x="360" y="70" text-anchor="middle" font-size="11">16</text>
+      <rect class="box" x="439" y="20" width="129" height="66" rx="8"></rect>
+      <text class="t t--title" x="503" y="48" text-anchor="middle" font-size="13">M &middot; Motion</text>
+      <text class="lbl" x="503" y="70" text-anchor="middle" font-size="11">6</text>
+      <rect class="box" x="582" y="20" width="129" height="66" rx="8"></rect>
+      <text class="t t--title" x="646" y="48" text-anchor="middle" font-size="13">C &middot; Components</text>
+      <text class="lbl" x="646" y="70" text-anchor="middle" font-size="11">52</text>
+      <line class="edge" x1="139" y1="53" x2="153" y2="53" marker-end="url(#ahtk)"></line>
+      <line class="edge" x1="282" y1="53" x2="296" y2="53" marker-end="url(#ahtk)"></line>
+      <line class="edge" x1="425" y1="53" x2="439" y2="53" marker-end="url(#ahtk)"></line>
+      <line class="edge" x1="568" y1="53" x2="582" y2="53" marker-end="url(#ahtk)"></line>
+      <line class="edge" x1="360" y1="86" x2="360" y2="112" marker-end="url(#ahtk)"></line>
+      <rect class="box box--key" x="10" y="114" width="700" height="92" rx="9"></rect>
+      <text class="t t--title" x="360" y="138" text-anchor="middle" font-size="12.5">Recipe &mdash; one screen, in shorthand</text>
+      <text class="t" x="360" y="162" text-anchor="middle" font-size="11.5" opacity="0.85">F-01 + F-03 &rarr; L-08 shell &rarr; L-03 bento content &rarr;</text>
+      <text class="t" x="360" y="182" text-anchor="middle" font-size="11.5" opacity="0.85">C-42 + C-43 + C-28 &rarr; M-04 hover feedback, skinned in S-17 dark mode</text>
+      <text class="lbl" x="360" y="200" text-anchor="middle" font-size="10">&ldquo;Analytics dashboard&rdquo; &mdash; the toolkit&rsquo;s own example</text>
+    </svg>
+    <figcaption>Work in that order &mdash; foundations first, components last &mdash; and a screen becomes a one-line spec instead of an open-ended &ldquo;make it nice.&rdquo; The full steps are in the <a href="#recipe">quick-start recipe</a> at the end of the catalog.</figcaption>
+  </figure>
+
+  <h3>Why the shorthand matters here</h3>
+  <p>A code like <code>C-42</code> or <code>S-17</code> is short enough to type straight into a prompt. &ldquo;Build the dashboard using F-01 colour roles, an L-03 bento layout, and C-42 stat cards, skinned in S-17 dark mode&rdquo; gives an agent a precise spec instead of a vague description. It&rsquo;s the same instinct as the <a href="ai.html#agent-loop">inspectable prompt</a> in Part IV, aimed at how things look instead of how they work.</p>
+
+  <h3>What it isn&rsquo;t</h3>
+  <ul class="findings">
+    <li><b>Not a brand system.</b> It catalogs how things <em>can</em> look and move. A real project still needs its own colours, type and voice decided on top.</li>
+    <li><b>Not wired into any project yet.</b> No repo&rsquo;s <code>CLAUDE.md</code> or skills point at it. Worth one line in each project&rsquo;s briefing: &ldquo;check the design toolkit in the handbook before building a new screen.&rdquo;</li>
+  </ul>
+
+  <h3>How it looks here</h3>
+  <p>The catalog started as a standalone file, <code>ux-design-kit-gelo/ux-field-kit.html</code>, and now lives on this page. It uses the handbook&rsquo;s type and colours for its labels, and the specimens keep their original light backgrounds even in dark mode, so each one still shows its style accurately. Every catalog code is unchanged.</p>
+</section>
+
+      </div>
+
+      <div class="kit-root">
+<!-- ============================= FOUNDATIONS ============================= -->
+
+<section class="section" id="foundations">
+  <div class="sec-head"><span class="letter">F</span><h2>Foundations &amp; Tokens</h2></div>
+  <p class="sec-sub">The reusable decisions underneath every screen: color, type, spacing, shape, elevation, icons, states, and accessibility. These are systems you apply before choosing a visual style.</p>
+
+  <div class="grid wide">
+    <div class="spec"><div class="stage foundation-stage"><div class="f-token-grid">
+      <div class="f-swatch" style="background:#2B45E8">primary<br>#2B45E8</div><div class="f-swatch" style="background:#1F7A4D">success<br>#1F7A4D</div><div class="f-swatch" style="background:#B7791F">warning<br>#B7791F</div><div class="f-swatch" style="background:#D6362B">danger<br>#D6362B</div>
+      <div class="f-swatch light" style="background:#F4F6FF">surface</div><div class="f-swatch light" style="background:#FFFFFF">card</div><div class="f-swatch light" style="background:#E3E5EF">outline</div><div class="f-swatch" style="background:#17181C">on-surface</div>
+    </div></div><div class="meta"><div class="row"><span class="code">F-01</span><h3>Semantic color system</h3></div>
+      <p>Color roles, not random hex values: primary, surface, outline, success, warning, danger. Then define light/dark pairs and contrast rules.</p></div></div>
+
+    <div class="spec"><div class="stage foundation-stage"><div class="f-type"><div class="display">Display</div><div class="title">Title / section heading</div><div class="body">Body copy balances readable size, line-height, and measure.</div><div class="caption">Caption / metadata</div></div></div><div class="meta"><div class="row"><span class="code">F-02</span><h3>Typography scale</h3></div>
+      <p>A named type ladder: display, headline, title, body, label, caption. Use roles so hierarchy survives across styles and platforms.</p></div></div>
+
+    <div class="spec"><div class="stage foundation-stage"><div class="f-space"><i data-step="4" style="width:12px;height:24px"></i><i data-step="8" style="width:20px;height:48px"></i><i data-step="16" style="width:32px;height:76px"></i><i data-step="24" style="width:44px;height:108px"></i><i data-step="32" style="width:56px;height:136px"></i></div></div><div class="meta"><div class="row"><span class="code">F-03</span><h3>Spacing scale</h3></div>
+      <p>Use predictable steps for padding, gaps, gutters, and sections. Material commonly thinks in dp grids; web kits often use 4/8px increments.</p></div></div>
+
+    <div class="spec"><div class="stage foundation-stage"><div class="f-shape"><i style="border-radius:0"></i><i style="border-radius:6px"></i><i style="border-radius:16px"></i><i style="border-radius:50%"></i></div></div><div class="meta"><div class="row"><span class="code">F-04</span><h3>Shape &amp; radius</h3></div>
+      <p>Corner logic communicates personality and hierarchy: sharp for utilitarian, rounded for friendly, pill/circle for compact controls and avatars.</p></div></div>
+
+    <div class="spec"><div class="stage foundation-stage"><div class="f-elev"><i style="box-shadow:0 1px 2px rgba(0,0,0,.12)"></i><i style="box-shadow:0 6px 16px rgba(30,35,50,.16)"></i><i style="box-shadow:0 18px 38px rgba(30,35,50,.22)"></i></div></div><div class="meta"><div class="row"><span class="code">F-05</span><h3>Elevation &amp; materials</h3></div>
+      <p>Depth rules for surfaces: shadows, translucency, blur, and material layers. Keep levels consistent so users know what floats above what.</p></div></div>
+
+    <div class="spec"><div class="stage foundation-stage"><div class="f-icons"><span>⌂</span><span>⌕</span><span>♡</span><span>⚙</span><span>＋</span><span>✓</span><span>↗</span><span>⋯</span></div></div><div class="meta"><div class="row"><span class="code">F-06</span><h3>Iconography system</h3></div>
+      <p>One grid, stroke/fill logic, optical size, and label strategy. Apple’s SF Symbols model is the reference for text-aligned icon systems.</p></div></div>
+
+    <div class="spec"><div class="stage foundation-stage"><div class="f-states"><div class="f-state"><b>Default</b><i></i></div><div class="f-state"><b>Hover</b><i style="background:#BFC5FA"></i></div><div class="f-state"><b>Focus</b><i style="background:#2B45E8;box-shadow:0 0 0 3px rgba(43,69,232,.18)"></i></div><div class="f-state"><b>Disabled</b><i style="opacity:.38"></i></div></div></div><div class="meta"><div class="row"><span class="code">F-07</span><h3>Interaction states</h3></div>
+      <p>Every interactive element needs default, hover, active, focus, selected, disabled, loading, and error states before it is production-ready.</p></div></div>
+
+    <div class="spec"><div class="stage foundation-stage"><div class="f-a11y"><div class="pass">Readable<br>contrast</div><div class="fail">Weak<br>contrast</div></div></div><div class="meta"><div class="row"><span class="code">F-08</span><h3>Accessibility rules</h3></div>
+      <p>Contrast, focus visibility, target size, labels, reduced motion, and non-color cues. Treat accessibility as a foundation, not a QA afterthought.</p></div></div>
+  </div>
+</section>
+
+<!-- ============================= STYLES ============================= -->
+<section class="section" id="styles">
+  <div class="sec-head"><span class="letter">S</span><h2>Visual Styles</h2></div>
+  <p class="sec-sub">The skin. Each swatch is rendered in the style it documents — what you see is the technique itself (shadows, blur, borders, type) implemented in CSS.</p>
+
+  <h3 class="subgroup">Skeuomorphic family — depth, texture, real-world mimicry</h3>
+  <div class="grid">
+
+    <div class="spec"><div class="stage st-skeu">
+      <div class="stage-inner"><div class="label">Leather &amp; brass — physical metaphors</div><button class="btn-skeu">Press me</button></div>
+    </div><div class="meta"><div class="row"><span class="code">S-01</span><h3>Skeuomorphism</h3></div>
+      <p>UI imitates real objects: gradients, bevels, textures, glossy highlights. Tactile and familiar; heavy if overdone.</p></div></div>
+
+    <div class="spec"><div class="stage st-neu">
+      <div class="neu-panel"><button class="btn-neu">Extruded</button><button class="neu-toggle" aria-pressed="false" aria-label="Neumorphic toggle" onclick="this.setAttribute('aria-pressed', this.getAttribute('aria-pressed')==='true'?'false':'true')"></button></div>
+    </div><div class="meta"><div class="row"><span class="code">S-02</span><h3>Neumorphism</h3></div>
+      <p>Soft shapes extruded from a single-tone background using paired light/dark shadows. Click the toggle — pressed states go <em>inset</em>. Watch contrast for accessibility.</p></div></div>
+
+    <div class="spec"><div class="stage st-glass">
+      <div class="card-glass"><h4>Frosted panel</h4><p>backdrop-filter: blur(12px)</p><span class="pill">Translucent border</span></div>
+    </div><div class="meta"><div class="row"><span class="code">S-03</span><h3>Glassmorphism</h3></div>
+      <p>Semi-transparent panels with background blur and a light 1px border, layered over colorful backdrops for depth.</p></div></div>
+
+    <div class="spec"><div class="stage st-clay">
+      <div class="card-clay"><div class="face"></div><strong style="font-size:13px;color:#4a3d78">Puffy &amp; friendly</strong><br><button class="btn-clay">Squish</button></div>
+    </div><div class="meta"><div class="row"><span class="code">S-04</span><h3>Claymorphism</h3></div>
+      <p>Inflated 3D look: big border-radius plus inner top-light and inner bottom-dark shadows, floating on a soft outer shadow.</p></div></div>
+
+    <div class="spec"><div class="stage st-liquid">
+      <div class="pill-liquid"><div class="dot"></div><span>Liquid Glass control</span></div>
+    </div><div class="meta"><div class="row"><span class="code">S-05</span><h3>Liquid Glass <span style="font-weight:400;color:var(--ink-soft)">(Apple, 2025)</span></h3></div>
+      <p>Apple's system material: glass that refracts what's beneath it, with specular edges and dynamic highlights. Evolution of S-03.</p></div></div>
+
+    <div class="spec"><div class="stage st-aero">
+      <button class="btn-aero">Glossy aqua</button>
+    </div><div class="meta"><div class="row"><span class="code">S-06</span><h3>Frutiger Aero</h3></div>
+      <p>Mid-2000s optimism: wet-look gloss, sky gradients, bubbles, nature motifs. Retro-futuristic and nostalgic.</p></div></div>
+  </div>
+
+  <h3 class="subgroup">Flat family — clean, 2D, content-first</h3>
+  <div class="grid">
+
+    <div class="spec"><div class="stage st-flat">
+      <div class="card-flat"><h4>No shadows at all</h4><p>Solid color, simple shapes</p><button class="btn-flat">FLAT ACTION</button></div>
+    </div><div class="meta"><div class="row"><span class="code">S-07</span><h3>Flat Design</h3></div>
+      <p>Zero depth cues: solid fills, crisp geometry, bold color blocking. Fast, legible, mobile-first.</p></div></div>
+
+    <div class="spec"><div class="stage st-flat2">
+      <div class="card-flat2"><h4>Almost flat</h4><p>Subtle shadows restore affordance</p><button class="btn-flat2">Clickable again</button></div>
+    </div><div class="meta"><div class="row"><span class="code">S-08</span><h3>Flat 2.0 / Semi-flat</h3></div>
+      <p>Flat design with gentle shadows and hover states added back so interactive things <em>look</em> interactive.</p></div></div>
+
+    <div class="spec"><div class="stage st-material">
+      <div class="card-material"><div class="mhead"></div><button class="fab-material" aria-label="Add">+</button>
+      <div class="mbody"><h4>Elevation system</h4><p>Cards float at defined shadow levels; the FAB floats highest.</p></div></div>
+    </div><div class="meta"><div class="row"><span class="code">S-09</span><h3>Material Design <span style="font-weight:400;color:var(--ink-soft)">(Google)</span></h3></div>
+      <p>A complete design system: elevation shadows, an 8dp grid, motion rules, dynamic color. Native to Android.</p></div></div>
+
+    <div class="spec"><div class="stage st-minimal">
+      <div class="min-inner"><h4>Less</h4><p>but better</p><button class="btn-min">Enter</button></div>
+    </div><div class="meta"><div class="row"><span class="code">S-10</span><h3>Minimalism</h3></div>
+      <p>Whitespace as a material: few elements, restrained palette, typography does the heavy lifting.</p></div></div>
+
+    <div class="spec"><div class="stage st-swiss">
+      <div class="swiss-inner"><div class="red">Grid. Type. Order.</div>
+        <div class="colA">Objective communication through a strict column grid and asymmetric balance.</div>
+        <div class="colB"><span class="num">1957</span><br>Helvetica, flush-left, ragged-right.</div></div>
+    </div><div class="meta"><div class="row"><span class="code">S-11</span><h3>Swiss / International Style</h3></div>
+      <p>Typography-led, grid-driven, famously neutral. The ancestor of most digital minimalism.</p></div></div>
+  </div>
+
+  <h3 class="subgroup">Expressive family — bold, loud, unconventional</h3>
+  <div class="grid">
+
+    <div class="spec"><div class="stage st-maximal">
+      <div class="card-maximal"><h4>More is more</h4><p>Pattern × clash × density</p></div>
+    </div><div class="meta"><div class="row"><span class="code">S-12</span><h3>Maximalism</h3></div>
+      <p>Deliberate excess: layered patterns, clashing hues, dense compositions. Needs confident art direction.</p></div></div>
+
+    <div class="spec"><div class="stage st-brutal">
+      <div class="brutal-inner"><h4>RAW HTML ENERGY</h4><p>System fonts. Default blue <a href="#styles">links</a>. Zero decoration.</p><button class="btn-brutal">Submit</button></div>
+    </div><div class="meta"><div class="row"><span class="code">S-13</span><h3>Brutalism</h3></div>
+      <p>Deliberately unstyled and exposed, like raw concrete. Anti-polish as a statement.</p></div></div>
+
+    <div class="spec"><div class="stage st-neubrutal">
+      <div class="card-neubrutal"><h4>Hard shadow, thick border</h4><button class="btn-neubrutal">Hover me →</button></div>
+    </div><div class="meta"><div class="row"><span class="code">S-14</span><h3>Neubrutalism</h3></div>
+      <p>Brutalism made friendly: 3px black borders, offset solid shadows, candy colors. Hover the button — the shadow collapses like a press.</p></div></div>
+
+    <div class="spec"><div class="stage st-memphis">
+      <span class="squig" aria-hidden="true">〰</span><span class="dots" aria-hidden="true"></span><span class="tri" aria-hidden="true"></span>
+      <div class="card-memphis"><h4>1985 called</h4></div>
+    </div><div class="meta"><div class="row"><span class="code">S-15</span><h3>Memphis</h3></div>
+      <p>Squiggles, confetti geometry, clashing pastels — the Memphis Group's playful chaos, revived for web.</p></div></div>
+  </div>
+
+  <h3 class="subgroup">Trend aesthetics — moods you layer on top</h3>
+  <div class="grid">
+
+    <div class="spec"><div class="stage st-aurora">
+      <div class="blob b1" aria-hidden="true"></div><div class="blob b2" aria-hidden="true"></div><div class="blob b3" aria-hidden="true"></div>
+      <div class="aurora-text"><h4>Mesh gradients</h4><p>Blurred color fields</p></div>
+    </div><div class="meta"><div class="row"><span class="code">S-16</span><h3>Aurora / Mesh Gradient</h3></div>
+      <p>Soft out-of-focus color blobs as atmosphere. Pairs naturally with S-03 glass panels on top.</p></div></div>
+
+    <div class="spec"><div class="stage st-dark">
+      <div class="card-dark"><h4>Dark surface</h4><p>Desaturated text, brightened accent</p><button class="btn-dark">Primary on dark</button></div>
+    </div><div class="meta"><div class="row"><span class="code">S-17</span><h3>Dark Mode</h3></div>
+      <p>A color <em>mode</em>, not a style — plan light and dark token pairs from day one. Never pure black on pure white-inverted.</p></div></div>
+
+    <div class="spec"><div class="stage st-y2k">
+      <div><div class="chrome-text">CHROME.exe</div><button class="btn-y2k">◢ enter site ◣</button></div>
+    </div><div class="meta"><div class="row"><span class="code">S-18</span><h3>Y2K / Retro</h3></div>
+      <p>Millennium-era gloss: chrome gradient type, pill buttons, bevels, pixel motifs. Nostalgic-internet energy.</p></div></div>
+
+    <div class="spec"><div class="stage st-organic">
+      <div class="blob-organic"><h4>Blob shapes</h4><p>irregular radius, natural feel</p></div>
+    </div><div class="meta"><div class="row"><span class="code">S-19</span><h3>Organic / Blob</h3></div>
+      <p>Asymmetric border-radius, hand-drawn curves, soft nature palettes. Human and approachable.</p></div></div>
+  </div>
+</section>
+
+<!-- ============================= LAYOUTS ============================= -->
+
+<section class="section" id="layouts">
+  <div class="sec-head"><span class="letter">L</span><h2>Layouts</h2></div>
+  <p class="sec-sub">The skeleton. Each card now shows desktop and mobile together, because the real layout decision is how the structure reflows.</p>
+
+  <h3 class="subgroup">A · Content-arrangement systems</h3>
+  <p class="subgroup-note">How blocks tile within a region.</p>
+  <div class="grid wide">
+
+    <div class="spec"><div class="stage layout-stage"><div class="layout-pair">
+      <div class="layout-shot"><b>Desktop</b><div class="vp">
+        <div class="lay-12col"><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div></div>
+        <div class="lay-12col content"><div class="blk dk" style="grid-column:span 12;height:22px"></div><div class="blk" style="grid-column:span 8;height:60px"></div><div class="blk" style="grid-column:span 4;height:60px"></div><div class="blk ln" style="grid-column:span 4;height:34px"></div><div class="blk ln" style="grid-column:span 4;height:34px"></div><div class="blk ln" style="grid-column:span 4;height:34px"></div></div>
+      </div></div>
+      <div class="layout-shot"><b>Mobile</b><div class="vp mobile">
+        <div class="lay-12col"><div class="col"></div><div class="col"></div><div class="col"></div><div class="col"></div></div>
+        <div class="lay-12col content"><div class="blk dk" style="grid-column:span 12;height:22px"></div><div class="blk" style="grid-column:span 8;height:60px"></div><div class="blk" style="grid-column:span 4;height:60px"></div><div class="blk ln" style="grid-column:span 4;height:34px"></div><div class="blk ln" style="grid-column:span 4;height:34px"></div></div>
+      </div></div>
+    </div></div><div class="meta"><div class="row"><span class="code">L-01</span><h3>Column grid</h3></div>
+      <p>Desktop often uses 12 columns; mobile usually collapses to 4 or a single content column. Use spans for hierarchy, not arbitrary widths.</p></div></div>
+
+    <div class="spec"><div class="stage layout-stage"><div class="layout-pair">
+      <div class="layout-shot"><b>Desktop</b><div class="vp"><div class="lay-mod"><div class="blk"></div><div class="blk ln"></div><div class="blk ln"></div><div class="blk"></div><div class="blk ln"></div><div class="blk dk"></div><div class="blk"></div><div class="blk ln"></div><div class="blk ln"></div><div class="blk"></div><div class="blk ln"></div><div class="blk"></div></div></div></div>
+      <div class="layout-shot"><b>Mobile</b><div class="vp mobile"><div class="lay-mod"><div class="blk"></div><div class="blk ln"></div><div class="blk ln"></div><div class="blk"></div><div class="blk ln"></div><div class="blk dk"></div><div class="blk"></div><div class="blk ln"></div><div class="blk ln"></div><div class="blk"></div><div class="blk ln"></div><div class="blk"></div></div></div></div>
+    </div></div><div class="meta"><div class="row"><span class="code">L-02</span><h3>Modular grid</h3></div>
+      <p>Rows and columns form uniform cells. Great for dense dashboards; on mobile, preserve rhythm by reducing column count.</p></div></div>
+
+    <div class="spec"><div class="stage layout-stage"><div class="layout-pair">
+      <div class="layout-shot"><b>Desktop</b><div class="vp"><div class="lay-bento"><div class="blk dk b1"></div><div class="blk b2"></div><div class="blk ln b4"></div><div class="blk ac b4" style="opacity:.85"></div></div></div></div>
+      <div class="layout-shot"><b>Mobile</b><div class="vp mobile"><div class="lay-bento"><div class="blk dk b1"></div><div class="blk b2"></div><div class="blk ln b4"></div><div class="blk ac b4" style="opacity:.85"></div></div></div></div>
+    </div></div><div class="meta"><div class="row"><span class="code">L-03</span><h3>Bento grid</h3></div>
+      <p>Mixed-size tiles packed like a bento box. Mobile turns tile size hierarchy into vertical ordering, so choose the first tile carefully.</p></div></div>
+
+    <div class="spec"><div class="stage layout-stage"><div class="layout-pair">
+      <div class="layout-shot"><b>Desktop</b><div class="vp"><div class="lay-masonry"><div class="blk" style="height:64px"></div><div class="blk ln" style="height:38px"></div><div class="blk dk" style="height:50px"></div><div class="blk ln" style="height:44px"></div><div class="blk dk" style="height:70px"></div><div class="blk" style="height:36px"></div><div class="blk dk" style="height:40px"></div><div class="blk ln" style="height:56px"></div><div class="blk" style="height:46px"></div></div></div></div>
+      <div class="layout-shot"><b>Mobile</b><div class="vp mobile"><div class="lay-masonry"><div class="blk" style="height:64px"></div><div class="blk ln" style="height:38px"></div><div class="blk dk" style="height:50px"></div><div class="blk ln" style="height:44px"></div><div class="blk dk" style="height:70px"></div><div class="blk" style="height:36px"></div></div></div></div>
+    </div></div><div class="meta"><div class="row"><span class="code">L-04</span><h3>Masonry</h3></div>
+      <p>Variable-height items packed like brickwork. Desktop gets multiple columns; mobile usually becomes a single chronological feed.</p></div></div>
+
+    <div class="spec"><div class="stage layout-stage"><div class="layout-pair">
+      <div class="layout-shot"><b>Desktop</b><div class="vp"><div class="lay-cards"><div class="cardlet"><div class="img"></div><div class="t"></div><div class="s"></div></div><div class="cardlet"><div class="img"></div><div class="t"></div><div class="s"></div></div><div class="cardlet"><div class="img"></div><div class="t"></div><div class="s"></div></div></div></div></div>
+      <div class="layout-shot"><b>Mobile</b><div class="vp mobile"><div class="lay-cards"><div class="cardlet"><div class="img"></div><div class="t"></div><div class="s"></div></div><div class="cardlet"><div class="img"></div><div class="t"></div><div class="s"></div></div><div class="cardlet"><div class="img"></div><div class="t"></div><div class="s"></div></div></div></div></div>
+    </div></div><div class="meta"><div class="row"><span class="code">L-05</span><h3>Card grid</h3></div>
+      <p>Equal-height repeating cards. Desktop prioritizes comparison; mobile prioritizes one-at-a-time scanning.</p></div></div>
+
+    <div class="spec"><div class="stage layout-stage"><div class="layout-pair">
+      <div class="layout-shot"><b>Desktop</b><div class="vp"><div class="lay-broken"><div class="blk a"></div><div class="blk dk b"></div><div class="blk ac c" style="opacity:.85"></div></div></div></div>
+      <div class="layout-shot"><b>Mobile</b><div class="vp mobile"><div class="lay-broken"><div class="blk a"></div><div class="blk dk b"></div><div class="blk ac c" style="opacity:.85"></div></div></div></div>
+    </div></div><div class="meta"><div class="row"><span class="code">L-06</span><h3>Broken / asymmetric grid</h3></div>
+      <p>Elements overlap and break alignment for editorial energy. Mobile often removes overlap to preserve readability.</p></div></div>
+  </div>
+
+  <h3 class="subgroup">B · Page structures</h3>
+  <p class="subgroup-note">Whole-screen archetypes.</p>
+  <div class="grid wide">
+
+    <div class="spec"><div class="stage layout-stage"><div class="layout-pair">
+      <div class="layout-shot"><b>Desktop</b><div class="vp"><div class="lay-single"><div class="blk dk" style="height:20px"></div><div class="blk" style="height:44px"></div><div class="blk ln" style="height:12px"></div><div class="blk ln" style="height:12px"></div><div class="blk ln" style="height:12px;width:44%"></div><div class="blk" style="height:30px"></div></div></div></div>
+      <div class="layout-shot"><b>Mobile</b><div class="vp mobile"><div class="lay-single"><div class="blk dk" style="height:20px"></div><div class="blk" style="height:44px"></div><div class="blk ln" style="height:12px"></div><div class="blk ln" style="height:12px"></div><div class="blk ln" style="height:12px;width:44%"></div><div class="blk" style="height:30px"></div></div></div></div>
+    </div></div><div class="meta"><div class="row"><span class="code">L-07</span><h3>Single column</h3></div>
+      <p>One vertical flow. It may be centered and narrow on desktop, then fill the available width on mobile.</p></div></div>
+
+    <div class="spec"><div class="stage layout-stage"><div class="layout-pair">
+      <div class="layout-shot"><b>Desktop</b><div class="vp"><div class="lay-sidebar"><div class="blk dk"></div><div class="main"><div class="blk ln" style="height:20px"></div><div class="blk" style="flex:1"></div><div class="blk ln" style="height:34px"></div></div></div></div></div>
+      <div class="layout-shot"><b>Mobile</b><div class="vp mobile"><div class="lay-sidebar"><div class="blk dk"></div><div class="main"><div class="blk ln" style="height:20px"></div><div class="blk" style="flex:1"></div><div class="blk ln" style="height:34px"></div></div></div></div></div>
+    </div></div><div class="meta"><div class="row"><span class="code">L-08</span><h3>Sidebar layout</h3></div>
+      <p>Persistent side navigation plus a main pane. Mobile usually turns the sidebar into top tabs, bottom nav, or a drawer trigger.</p></div></div>
+
+    <div class="spec"><div class="stage layout-stage"><div class="layout-pair">
+      <div class="layout-shot"><b>Desktop</b><div class="vp"><div class="lay-holy"><div class="blk dk h"></div><div class="blk ln l"></div><div class="blk m"></div><div class="blk ln r"></div><div class="blk dk f"></div></div></div></div>
+      <div class="layout-shot"><b>Mobile</b><div class="vp mobile"><div class="lay-holy"><div class="blk dk h"></div><div class="blk ln l"></div><div class="blk m"></div><div class="blk ln r"></div><div class="blk dk f"></div></div></div></div>
+    </div></div><div class="meta"><div class="row"><span class="code">L-09</span><h3>Holy Grail</h3></div>
+      <p>Header, footer, center content, and two side regions. On mobile, side regions become stacked support content or drawers.</p></div></div>
+
+    <div class="spec"><div class="stage layout-stage"><div class="layout-pair">
+      <div class="layout-shot"><b>Desktop</b><div class="vp"><div class="lay-split"><div class="blk dk"></div><div class="txt"><i></i><i></i><i></i></div></div></div></div>
+      <div class="layout-shot"><b>Mobile</b><div class="vp mobile"><div class="lay-split"><div class="blk dk"></div><div class="txt"><i></i><i></i><i></i></div></div></div></div>
+    </div></div><div class="meta"><div class="row"><span class="code">L-10</span><h3>Split screen</h3></div>
+      <p>Two equal panels on desktop. Mobile stacks them, so decide whether media or copy earns the top position.</p></div></div>
+
+    <div class="spec"><div class="stage layout-stage"><div class="layout-pair">
+      <div class="layout-shot"><b>Desktop</b><div class="vp"><div class="lay-hero"><div class="blk dk hero-b"><i></i></div><div class="row"><div class="blk ln"></div><div class="blk ln"></div><div class="blk ln"></div></div><div class="blk" style="height:22px"></div></div></div></div>
+      <div class="layout-shot"><b>Mobile</b><div class="vp mobile"><div class="lay-hero"><div class="blk dk hero-b"><i></i></div><div class="row"><div class="blk ln"></div><div class="blk ln"></div><div class="blk ln"></div></div><div class="blk" style="height:22px"></div></div></div></div>
+    </div></div><div class="meta"><div class="row"><span class="code">L-11</span><h3>Hero + sections</h3></div>
+      <p>Big statement block up top, content bands below. Mobile compresses the hero and stacks section cards vertically.</p></div></div>
+
+    <div class="spec"><div class="stage layout-stage"><div class="layout-pair">
+      <div class="layout-shot"><b>Desktop</b><div class="vp" style="padding:0"><div class="lay-bleed"><i></i></div></div></div>
+      <div class="layout-shot"><b>Mobile</b><div class="vp mobile" style="padding:0"><div class="lay-bleed"><i></i></div></div></div>
+    </div></div><div class="meta"><div class="row"><span class="code">L-12</span><h3>Full-bleed</h3></div>
+      <p>Content runs edge to edge. On mobile, check crop and focal point first; the layout may be identical but the image decision changes.</p></div></div>
+
+    <div class="spec"><div class="stage layout-stage"><div class="layout-pair">
+      <div class="layout-shot"><b>Desktop</b><div class="vp"><div class="lay-resp"><div class="panel"></div><div class="stack"><div class="bar"></div><div class="panel"></div><div class="panel"></div></div></div></div></div>
+      <div class="layout-shot"><b>Mobile</b><div class="vp mobile"><div class="lay-resp"><div class="panel"></div><div class="stack"><div class="bar"></div><div class="panel"></div><div class="panel"></div></div></div></div></div>
+    </div></div><div class="meta"><div class="row"><span class="code">L-13</span><h3>Responsive breakpoints</h3></div>
+      <p>A strategy, not a single layout: content rearranges at set widths. Fixed = set width; fluid = stretches; responsive = adapts.</p></div></div>
+  </div>
+
+  <h3 class="subgroup">C · Eye-flow patterns</h3>
+  <p class="subgroup-note">Placement rules for attention. Dashed blue = scan path; mobile changes the path because the canvas changes.</p>
+  <div class="grid wide">
+
+    <div class="spec"><div class="stage layout-stage"><div class="layout-pair">
+      <div class="layout-shot"><b>Desktop</b><div class="vp"><div class="lay-eye lay-z"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><defs><marker id="arrow" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#2B45E8"/></marker></defs><path class="arrowed" d="M8,12 H88 L10,86 H86"/></svg><div class="top"><div class="blk dk" style="height:100%"></div><div class="blk" style="height:100%"></div></div><div></div><div class="bot"><div class="blk" style="height:100%"></div><div class="blk ac" style="height:100%;opacity:.85"></div></div></div></div></div>
+      <div class="layout-shot"><b>Mobile</b><div class="vp mobile"><div class="lay-eye lay-z"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path class="arrowed" d="M12,10 H80 L14,70 H78"/></svg><div class="top"><div class="blk dk" style="height:100%"></div><div class="blk" style="height:100%"></div></div><div></div><div class="bot"><div class="blk" style="height:100%"></div><div class="blk ac" style="height:100%;opacity:.85"></div></div></div></div></div>
+    </div></div><div class="meta"><div class="row"><span class="code">L-14</span><h3>Z-pattern</h3></div>
+      <p>Top-left to top-right to diagonal sweep to bottom-right. Works best for sparse, action-led screens.</p></div></div>
+
+    <div class="spec"><div class="stage layout-stage"><div class="layout-pair">
+      <div class="layout-shot"><b>Desktop</b><div class="vp"><div class="lay-eye lay-f"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M8,10 H90 M8,10 V34 H62 M8,34 V88"/></svg><div class="blk dk"></div><div class="blk" style="width:70%"></div><div class="blk ln" style="width:88%"></div><div class="blk ln" style="width:56%"></div><div class="blk ln" style="width:74%"></div></div></div></div>
+      <div class="layout-shot"><b>Mobile</b><div class="vp mobile"><div class="lay-eye lay-f"><svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M10,8 H80 M10,8 V30 H62 M10,30 V90"/></svg><div class="blk dk"></div><div class="blk" style="width:70%"></div><div class="blk ln" style="width:88%"></div><div class="blk ln" style="width:56%"></div><div class="blk ln" style="width:74%"></div></div></div></div>
+    </div></div><div class="meta"><div class="row"><span class="code">L-15</span><h3>F-pattern</h3></div>
+      <p>Common for text-heavy pages: scan across the top, a shorter sweep, then down the left edge.</p></div></div>
+
+    <div class="spec"><div class="stage layout-stage"><div class="layout-pair">
+      <div class="layout-shot"><b>Desktop</b><div class="vp"><div class="lay-eye lay-gut" style="gap:6px"><div class="q hot">1 · Primary<br>optical area</div><div class="q">2 · Strong<br>fallow</div><div class="q">3 · Weak<br>fallow</div><div class="q hot">4 · Terminal<br>CTA here</div></div></div></div>
+      <div class="layout-shot"><b>Mobile</b><div class="vp mobile"><div class="lay-eye lay-gut" style="gap:6px"><div class="q hot">1 · Primary</div><div class="q">2 · Support</div><div class="q">3 · Detail</div><div class="q hot">4 · CTA</div></div></div></div>
+    </div></div><div class="meta"><div class="row"><span class="code">L-16</span><h3>Gutenberg diagram</h3></div>
+      <p>For evenly distributed content, gravity pulls top-left to bottom-right. On mobile, this becomes a stronger top-to-bottom sequence.</p></div></div>
+  </div>
+</section>
+
+<!-- ============================= MOTION & SCROLL ============================= -->
+
+<section class="section" id="motion">
+  <div class="sec-head"><span class="letter">M</span><h2>Motion &amp; Scroll</h2></div>
+  <p class="sec-sub">Behavior layered on top of layouts and components: scroll depth, reveal timing, sticky narrative, hover feedback, and page-to-page continuity.</p>
+
+  <div class="grid wide">
+    <div class="spec"><div class="stage motion-stage"><div class="motion-demo m-parallax" onscroll="syncParallax(this)">
+      <span class="hint">Scroll</span><div class="sky"></div><div class="hills"></div><div class="near"></div>
+      <div class="story"><div class="story-card"><strong>Foreground copy</strong><br>Moves fastest as the scene scrolls.</div><div class="story-card"><strong>Background layers</strong><br>Move slower to fake depth.</div><div class="story-card"><strong>Use sparingly</strong><br>Keep text readable and honor reduced motion.</div></div>
+    </div></div><div class="meta"><div class="row"><span class="code">M-01</span><h3>Parallax scroll</h3></div>
+      <p>Background and foreground scroll at different speeds to create depth. Useful for editorial, product storytelling, and immersive hero sections.</p></div></div>
+
+    <div class="spec"><div class="stage motion-stage"><div class="motion-demo m-reveal"><span class="hint">Scroll</span>
+      <div class="reveal-card"><span class="dot"></span><span>Content fades and rises into view.</span></div><div class="reveal-card"><span class="dot"></span><span>Stagger reveals by section, not every tiny element.</span></div><div class="reveal-card"><span class="dot"></span><span>Keep core content available without animation.</span></div>
+    </div></div><div class="meta"><div class="row"><span class="code">M-02</span><h3>Scroll-triggered reveal</h3></div>
+      <p>Elements animate as they enter the viewport. Best for pacing long pages; avoid hiding essential information behind delayed reveals.</p></div></div>
+
+    <div class="spec"><div class="stage motion-stage"><div class="motion-demo m-sticky"><span class="hint">Scroll</span>
+      <div class="chapter"><div class="pin"><b>Sticky chapter 1</b><br>Graphic or message pins while details pass.</div></div><div class="chapter"><div class="pin"><b>Sticky chapter 2</b><br>The pinned surface updates as the reader advances.</div></div><div class="chapter"><div class="pin"><b>Sticky chapter 3</b><br>Strong for explainers and product narratives.</div></div>
+    </div></div><div class="meta"><div class="row"><span class="code">M-03</span><h3>Sticky scrollytelling</h3></div>
+      <p>A panel sticks while surrounding content scrolls. Use when motion clarifies a sequence, comparison, process, or data story.</p></div></div>
+
+    <div class="spec"><div class="stage motion-stage"><div class="motion-demo m-hover"><span class="hint">Hover</span><button>Pressable</button><div class="tile" tabindex="0" aria-label="Hover tile"></div></div></div><div class="meta"><div class="row"><span class="code">M-04</span><h3>Hover micro-interactions</h3></div>
+      <p>Small state changes that confirm affordance: lift, depress, glow, tilt, color shift. Always pair with focus and active states.</p></div></div>
+
+    <div class="spec"><div class="stage motion-stage"><div class="motion-demo m-transitions"><div class="page"><b>Page transition</b><br><span style="font-size:12px;color:#5C5F66">Fade, slide, or shared element handoff.</span></div></div></div><div class="meta"><div class="row"><span class="code">M-05</span><h3>Page transitions</h3></div>
+      <p>Motion between screens. Helps preserve orientation, especially when navigating between related states or detail pages.</p></div></div>
+
+    <div class="spec"><div class="stage motion-stage"><div class="motion-demo m-snap"><span class="hint">Scroll</span><div class="snap-panel">1</div><div class="snap-panel">2</div><div class="snap-panel">3</div></div></div><div class="meta"><div class="row"><span class="code">M-06</span><h3>Scroll snap</h3></div>
+      <p>Scroll lands on discrete panels or cards. Useful for carousels, onboarding steps, galleries, and paged mobile interactions.</p></div></div>
+  </div>
+</section>
+
+<!-- ============================= COMPONENTS ============================= -->
+
+<section class="section" id="components">
+  <div class="sec-head"><span class="letter">C</span><h2>Components</h2></div>
+  <p class="sec-sub">The building blocks, grouped by function. All rendered in one neutral "kit" style so the anatomy is clear — reskin them with any S-code. Everything clickable actually works.</p>
+
+  <h3 class="subgroup" id="c-nav">Navigation</h3>
+  <div class="grid wide kit">
+
+    <div class="spec" style="grid-column:1/-1"><div class="stage kitstage col">
+      <div class="k-navbar"><span class="logo">Brew&nbsp;Log</span><a class="on" href="#c-nav" onclick="return false">Beans</a><a href="#c-nav" onclick="return false">Recipes</a><a href="#c-nav" onclick="return false">Journal</a><button class="cta">New entry</button></div>
+    </div><div class="meta"><div class="row"><span class="code">C-01</span><h3>Navbar / top nav</h3></div>
+      <p>Primary horizontal navigation: logo left, links center/left, key action right. Collapses into C-03 on mobile.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <div class="k-sidenav">
+        <div class="on"><span>◫</span> Dashboard</div><div><span>☕</span> Beans</div><div><span>✎</span> Journal</div><div><span>⚙</span> Settings</div>
+      </div>
+    </div><div class="meta"><div class="row"><span class="code">C-02</span><h3>Sidebar / side nav</h3></div>
+      <p>Vertical navigation with a clear selected state. Often collapsible to icons-only.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <button class="k-burger" aria-label="Open menu"><i></i><i></i><i></i></button>
+    </div><div class="meta"><div class="row"><span class="code">C-03</span><h3>Hamburger menu</h3></div>
+      <p>The ☰ trigger that reveals hidden navigation (usually a C-33 drawer) on small screens. Convenient but hides wayfinding — use tabs when you can afford them.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <div class="k-tabs" role="tablist">
+        <button role="tab" aria-selected="true" onclick="pickTab(this)">Overview</button>
+        <button role="tab" aria-selected="false" onclick="pickTab(this)">Tasting notes</button>
+        <button role="tab" aria-selected="false" onclick="pickTab(this)">History</button>
+      </div>
+    </div><div class="meta"><div class="row"><span class="code">C-04</span><h3>Tabs</h3></div>
+      <p>Switch views within one context without leaving the page. Try clicking. One tab always active.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <div class="k-rail" aria-label="Navigation rail">
+        <button class="on" aria-label="Home">⌂</button><button aria-label="Search">⌕</button><button aria-label="Saved">♡</button><button aria-label="Settings">⚙</button>
+      </div>
+    </div><div class="meta"><div class="row"><span class="code">C-49</span><h3>Navigation rail</h3></div>
+      <p>Compact vertical top-level navigation for tablet, desktop, and foldable widths. Often appears between bottom tabs and a full sidebar.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <div class="k-tabbar" role="tablist" aria-label="Bottom navigation">
+        <button class="on"><span>⌂</span>Home</button><button><span>⌕</span>Search</button><button><span>♡</span>Saved</button><button><span>⚙</span>Settings</button>
+      </div>
+    </div><div class="meta"><div class="row"><span class="code">C-50</span><h3>Bottom nav / tab bar</h3></div>
+      <p>Mobile top-level destinations anchored near the thumb. Material calls this navigation bar; Apple usually calls the iOS equivalent a tab bar.</p></div></div>
+
+    <div class="spec" style="grid-column:1/-1"><div class="stage kitstage col">
+      <div class="k-toolbar"><button aria-label="Back">‹</button><span class="title">Bean details</span><button aria-label="Share">↗</button><button aria-label="More">⋯</button></div>
+    </div><div class="meta"><div class="row"><span class="code">C-51</span><h3>Toolbar / app bar</h3></div>
+      <p>Screen-level navigation and actions: back, title, search, share, edit, overflow. Material says app bar; Apple commonly says toolbar or navigation bar.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <nav class="k-crumbs" aria-label="Breadcrumb"><a href="#c-nav" onclick="return false">Home</a><span class="sep">/</span><a href="#c-nav" onclick="return false">Beans</a><span class="sep">/</span><span class="here">Ethiopia Yirgacheffe</span></nav>
+    </div><div class="meta"><div class="row"><span class="code">C-05</span><h3>Breadcrumbs</h3></div>
+      <p>Shows location in a hierarchy and offers one-click retreat. Current page is text, not a link.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <div class="k-pager"><button aria-label="Previous">‹</button><button class="on">1</button><button>2</button><button>3</button><span style="color:var(--k-soft);font-size:12px">…</span><button>12</button><button aria-label="Next">›</button></div>
+    </div><div class="meta"><div class="row"><span class="code">C-06</span><h3>Pagination</h3></div>
+      <p>Page-by-page traversal of long lists. Alternatives: "Load more" button, infinite scroll.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage" style="align-items:flex-start;padding-top:24px">
+      <div class="k-dropwrap">
+        <button class="k-btn secondary" onclick="this.nextElementSibling.classList.toggle('open')" aria-haspopup="menu">Actions ▾</button>
+        <div class="k-drop" role="menu"><button>Duplicate</button><button>Export as CSV</button><button class="danger">Delete bean</button></div>
+      </div>
+    </div><div class="meta"><div class="row"><span class="code">C-07</span><h3>Dropdown menu</h3></div>
+      <p>Expandable list of actions or links anchored to a trigger. Click it. Destructive items go last, styled in red.</p></div></div>
+
+    <div class="spec" style="grid-column:1/-1"><div class="stage kitstage col">
+      <div class="k-footer"><span>© 2026 Brew Log</span><span><a href="#c-nav" onclick="return false">Privacy</a><a href="#c-nav" onclick="return false">Terms</a><a href="#c-nav" onclick="return false">Contact</a></span></div>
+    </div><div class="meta"><div class="row"><span class="code">C-08</span><h3>Footer</h3></div>
+      <p>Secondary links, legal, contact. The last-resort wayfinding when someone scrolls to the bottom looking for something.</p></div></div>
+  </div>
+
+  <h3 class="subgroup" id="c-actions">Actions</h3>
+  <div class="grid wide kit">
+
+    <div class="spec" style="grid-column:1/-1"><div class="stage kitstage">
+      <button class="k-btn primary">Primary</button>
+      <button class="k-btn secondary">Secondary</button>
+      <button class="k-btn ghost">Ghost / tertiary</button>
+      <button class="k-btn destructive">Delete</button>
+      <button class="k-btn icon" aria-label="Settings">⚙</button>
+      <button class="k-btn primary" disabled>Disabled</button>
+    </div><div class="meta"><div class="row"><span class="code">C-09</span><h3>Buttons — the full set</h3></div>
+      <p>One primary per view; secondary for alternatives; ghost for low-emphasis; destructive in red; icon-only needs an aria-label. Label with the verb of what happens: "Save changes", not "Submit".</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <div class="k-group"><button class="on" onclick="pickSeg(this)">Day</button><button onclick="pickSeg(this)">Week</button><button onclick="pickSeg(this)">Month</button></div>
+    </div><div class="meta"><div class="row"><span class="code">C-10</span><h3>Button group / segmented control</h3></div>
+      <p>Related, mutually exclusive options fused into one control. Works like radio buttons that look like buttons.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <button class="k-fab" aria-label="New entry">+</button>
+    </div><div class="meta"><div class="row"><span class="code">C-11</span><h3>FAB — floating action button</h3></div>
+      <p>Circular button floating above content for the screen's single most important action. A Material Design signature.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <span class="k-chip">Ethiopia <button class="x" aria-label="Remove filter" onclick="this.parentElement.remove()">✕</button></span>
+      <span class="k-chip">Light roast <button class="x" aria-label="Remove filter" onclick="this.parentElement.remove()">✕</button></span>
+      <span class="k-chip neutral">Washed</span>
+    </div><div class="meta"><div class="row"><span class="code">C-12</span><h3>Chips / tags</h3></div>
+      <p>Compact tokens for filters, selections, and labels. The ✕ ones are removable — try it.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <span class="k-link">Read the <a href="#c-actions" onclick="return false">brewing guide</a> before you start.</span>
+    </div><div class="meta"><div class="row"><span class="code">C-13</span><h3>Link</h3></div>
+      <p>Inline navigation within text. Links navigate; buttons act. Keep them visually distinct from body copy.</p></div></div>
+  </div>
+
+  <h3 class="subgroup" id="c-forms">Form inputs</h3>
+  <div class="grid wide kit">
+
+    <div class="spec"><div class="stage kitstage col" style="gap:14px">
+      <div class="k-field"><label for="f-name">Bean name</label><input id="f-name" class="k-input" placeholder="e.g. Yirgacheffe lot 4"><span class="hint">Shown on your journal entries.</span></div>
+      <div class="k-field"><label for="f-mail">Email</label><input id="f-mail" class="k-input bad" value="not-an-email"><span class="err">Enter a valid email address.</span></div>
+    </div><div class="meta"><div class="row"><span class="code">C-14</span><h3>Text field</h3></div>
+      <p>Full anatomy: label (always), placeholder (example, not label), helper text, and an error state that says how to fix it.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage col">
+      <div class="k-field" style="max-width:100%"><label for="f-notes">Tasting notes</label><textarea id="f-notes" class="k-input" placeholder="Jasmine, bergamot, honey…"></textarea></div>
+    </div><div class="meta"><div class="row"><span class="code">C-15</span><h3>Textarea</h3></div>
+      <p>Multi-line entry for free text. Let it grow (resize or auto-expand) rather than trapping long thoughts in a small box.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage col" style="gap:10px;align-items:flex-start;padding-left:28px">
+      <label class="k-check"><input type="checkbox" checked> Grind fresh</label>
+      <label class="k-check"><input type="checkbox"> Pre-wet filter</label>
+      <label class="k-check"><input type="checkbox"> Bloom 30s</label>
+    </div><div class="meta"><div class="row"><span class="code">C-16</span><h3>Checkboxes</h3></div>
+      <p>Choose <em>any number</em> from a set. Each box is independent.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage col" style="gap:10px;align-items:flex-start;padding-left:28px">
+      <label class="k-radio"><input type="radio" name="method" checked> Pour over</label>
+      <label class="k-radio"><input type="radio" name="method"> French press</label>
+      <label class="k-radio"><input type="radio" name="method"> Espresso</label>
+    </div><div class="meta"><div class="row"><span class="code">C-17</span><h3>Radio buttons</h3></div>
+      <p>Choose <em>exactly one</em>. If the options don't fit on screen, use a select (C-19) instead.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage" style="gap:10px">
+      <button class="k-switch" role="switch" aria-checked="true" onclick="flipSwitch(this)" aria-label="Notifications"></button>
+      <span style="font-size:13px">Brew reminders</span>
+    </div><div class="meta"><div class="row"><span class="code">C-18</span><h3>Toggle / switch</h3></div>
+      <p>Binary on/off with immediate effect (no save button implied). Click it. For settings, not for form choices.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage col">
+      <div class="k-field"><label for="f-roast">Roast level</label>
+        <select id="f-roast" class="k-input"><option>Light</option><option>Medium</option><option>Dark</option></select></div>
+    </div><div class="meta"><div class="row"><span class="code">C-19</span><h3>Select / dropdown</h3></div>
+      <p>Pick from a list without spending screen space. Best for 5+ options; fewer than that, radios are faster.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage col" style="gap:6px">
+      <label for="f-temp" style="font-size:12px;font-weight:600">Water temp: <output id="f-temp-out">93</output>°C</label>
+      <input id="f-temp" class="k-slider" type="range" min="80" max="100" value="93" oninput="document.getElementById('f-temp-out').textContent=this.value">
+    </div><div class="meta"><div class="row"><span class="code">C-20</span><h3>Slider</h3></div>
+      <p>Pick a value along a range — good when the <em>feel</em> of the value matters more than precision. Always show the current value.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage" style="gap:10px">
+      <span style="font-size:13px">Cups</span>
+      <div class="k-stepper"><button onclick="step(this,-1)" aria-label="Fewer">−</button><output>2</output><button onclick="step(this,1)" aria-label="More">+</button></div>
+    </div><div class="meta"><div class="row"><span class="code">C-21</span><h3>Stepper</h3></div>
+      <p>Increment/decrement for small numeric ranges (quantities, counts). Works.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage col">
+      <div class="k-field"><label for="f-date">Roast date</label><input id="f-date" class="k-input" type="date"></div>
+    </div><div class="meta"><div class="row"><span class="code">C-22</span><h3>Date / time picker</h3></div>
+      <p>Calendar or time selection — native inputs give you the picker free, with correct mobile keyboards.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <div class="k-search">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input class="k-input" placeholder="Search beans…" aria-label="Search">
+      </div>
+    </div><div class="meta"><div class="row"><span class="code">C-23</span><h3>Search bar</h3></div>
+      <p>Input specialized for finding: leading icon, placeholder describing scope, usually paired with live suggestions.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <div class="k-drop-zone" role="button" tabindex="0">⬆ Drag a photo here<br>or <strong>browse files</strong><br><span style="font-size:10.5px">PNG or JPG, up to 5 MB</span></div>
+    </div><div class="meta"><div class="row"><span class="code">C-24</span><h3>File upload / dropzone</h3></div>
+      <p>Attach files by drag-and-drop or browse. State constraints (type, size) up front, not as an error afterwards.</p></div></div>
+  </div>
+
+
+  <h3 class="subgroup" id="c-containers">Content containers</h3>
+  <div class="grid wide kit">
+
+    <div class="spec"><div class="stage kitstage">
+      <div class="k-card"><div class="img"></div><div class="bd"><h4>Ethiopia Yirgacheffe</h4><p>Jasmine · bergamot · honey. Roasted Jul 2.</p><button class="k-btn ghost" style="padding:6px 10px;font-size:12px">Log a brew →</button></div></div>
+    </div><div class="meta"><div class="row"><span class="code">C-25</span><h3>Card</h3></div>
+      <p>Self-contained unit: media, title, supporting text, one action. The repeatable atom of L-05 card grids.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <div class="k-list">
+        <div class="li"><div class="av">KE</div><div><b>Kenya AA</b><span>230 g left</span></div><span class="go">›</span></div>
+        <div class="li"><div class="av" style="background:#F8E3DC;color:#B45A3C">CO</div><div><b>Colombia Huila</b><span>410 g left</span></div><span class="go">›</span></div>
+        <div class="li"><div class="av" style="background:#E3F2E5;color:#2F7D3B">SU</div><div><b>Sumatra Lintong</b><span>90 g left</span></div><span class="go">›</span></div>
+      </div>
+    </div><div class="meta"><div class="row"><span class="code">C-26</span><h3>List / list items</h3></div>
+      <p>Vertical rows with leading visual, primary + secondary text, trailing affordance. Denser than cards; better for scanning.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <div class="k-acc">
+        <details open><summary>What grind size?</summary><div class="body">Medium-fine for pour over — like table salt.</div></details>
+        <details><summary>Water ratio?</summary><div class="body">Start at 1:16 coffee to water, then adjust to taste.</div></details>
+        <details><summary>Why bloom?</summary><div class="body">Fresh coffee releases CO₂; blooming lets it escape for even extraction.</div></details>
+      </div>
+    </div><div class="meta"><div class="row"><span class="code">C-27</span><h3>Accordion</h3></div>
+      <p>Expandable sections that show one thing at a time — FAQs, settings groups. These really expand (native <code style="font-family:var(--mono);font-size:11px">&lt;details&gt;</code>).</p></div></div>
+
+    <div class="spec" style="grid-column:1/-1"><div class="stage kitstage col">
+      <div class="k-tablewrap"><table class="k-table">
+        <thead><tr><th>Bean</th><th>Origin</th><th>Roast</th><th>Stock</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Yirgacheffe lot 4</td><td>Ethiopia</td><td>Light</td><td>620 g</td><td><span class="k-status ok">In stock</span></td></tr>
+          <tr><td>Huila decaf</td><td>Colombia</td><td>Medium</td><td>140 g</td><td><span class="k-status low">Running low</span></td></tr>
+          <tr><td>Lintong</td><td>Sumatra</td><td>Dark</td><td>480 g</td><td><span class="k-status ok">In stock</span></td></tr>
+        </tbody>
+      </table></div>
+    </div><div class="meta"><div class="row"><span class="code">C-28</span><h3>Table / data grid</h3></div>
+      <p>Structured rows × columns: mono uppercase headers, row hover, status rendered as pills not raw text. Add sorting and filters as data grows.</p></div></div>
+
+    <div class="spec" style="grid-column:1/-1"><div class="stage kitstage col">
+      <div class="k-carousel">
+        <div class="slide" style="background:linear-gradient(135deg,#C9A87C,#8A6242)">V60 guide</div>
+        <div class="slide" style="background:linear-gradient(135deg,#7f5af0,#2cb1e1)">AeroPress</div>
+        <div class="slide" style="background:linear-gradient(135deg,#2F7D3B,#9BC53D)">Cold brew</div>
+        <div class="slide" style="background:linear-gradient(135deg,#B45A3C,#F0A868)">Moka pot</div>
+        <div class="slide" style="background:linear-gradient(135deg,#1C1E26,#5A6280)">Espresso</div>
+      </div>
+    </div><div class="meta"><div class="row"><span class="code">C-29</span><h3>Carousel</h3></div>
+      <p>Horizontally scrollable slides — drag/scroll it. Built with CSS scroll-snap. Never hide critical content in slide 3+.</p></div></div>
+
+    <div class="spec" style="grid-column:1/-1"><div class="stage kitstage col" style="gap:12px">
+      <div class="k-banner"><span>ℹ</span> Free shipping on bean orders over ₱1,500 this week. <button aria-label="Dismiss" onclick="this.parentElement.remove()">✕</button></div>
+      <div class="k-hero"><div class="eyebrow">Brew Log · Season 3</div><h4>Know exactly why that cup was great.</h4><p>Track beans, ratios, and tasting notes — then repeat your best brews on demand.</p><button class="k-btn primary">Start your log</button> <button class="k-btn ghost" style="color:#AEB8FF">See a sample →</button></div>
+    </div><div class="meta"><div class="row"><span class="code">C-30 / C-31</span><h3>Banner &amp; Hero</h3></div>
+      <p><b>Banner (C-30):</b> full-width strip for announcements — dismissible. <b>Hero (C-31):</b> eyebrow, headline, one-line promise, primary + secondary CTA. The anatomy of L-11's top block.</p></div></div>
+  </div>
+
+  <h3 class="subgroup" id="c-overlays">Overlays</h3>
+  <div class="grid wide kit">
+
+    <div class="spec"><div class="stage kitstage">
+      <button class="k-btn secondary" onclick="document.getElementById('demoModal').showModal()">Open modal</button>
+      <dialog class="k-modal" id="demoModal">
+        <div class="mb"><h4>Delete this entry?</h4><p>"Tuesday V60, 1:16" will be removed from your journal. This can't be undone.</p></div>
+        <div class="actions"><button class="k-btn secondary" onclick="this.closest('dialog').close()">Cancel</button><button class="k-btn destructive" onclick="this.closest('dialog').close()">Delete entry</button></div>
+      </dialog>
+    </div><div class="meta"><div class="row"><span class="code">C-32</span><h3>Modal / dialog</h3></div>
+      <p>Blocks the page for a focused decision. Try it — native <code style="font-family:var(--mono);font-size:11px">&lt;dialog&gt;</code>, Esc to close. Reserve for confirmations and short tasks.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <button class="k-btn secondary" onclick="openDrawer()">Open drawer</button>
+    </div><div class="meta"><div class="row"><span class="code">C-33</span><h3>Drawer / sheet</h3></div>
+      <p>Panel sliding from an edge — side on desktop, bottom sheet on mobile. Keeps page context visible behind a scrim.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <div class="k-action-sheet" role="group" aria-label="Action sheet">
+        <button>Share entry</button><button>Duplicate</button><button class="danger">Delete</button><button class="cancel">Cancel</button>
+      </div>
+    </div><div class="meta"><div class="row"><span class="code">C-52</span><h3>Action sheet</h3></div>
+      <p>Mobile-style action list for a specific object or moment. Use for short, mutually exclusive actions; destructive choices stay visually separated.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <div class="k-popwrap">
+        <button class="k-btn secondary" onclick="this.nextElementSibling.classList.toggle('open')">What's a bloom? ⓘ</button>
+        <div class="k-pop"><b style="font-size:12.5px">Blooming</b><br>Pouring a little water first to let CO₂ escape before the full pour. Richer content than a tooltip fits.</div>
+      </div>
+    </div><div class="meta"><div class="row"><span class="code">C-34</span><h3>Popover</h3></div>
+      <p>Anchored floating panel, opened on click. Holds rich content (text, links, controls) where a tooltip is too small.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <button class="k-btn icon k-tip" data-tip="Mark as favorite" aria-label="Mark as favorite">♡</button>
+      <button class="k-btn icon k-tip" data-tip="Share entry" aria-label="Share entry">↗</button>
+    </div><div class="meta"><div class="row"><span class="code">C-35</span><h3>Tooltip</h3></div>
+      <p>Tiny hover/focus label naming an icon-only control. Hover the buttons. Never hide essential info in one.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <button class="k-btn secondary" onclick="showToast()">Trigger toast</button>
+    </div><div class="meta"><div class="row"><span class="code">C-36</span><h3>Toast / snackbar</h3></div>
+      <p>Brief self-dismissing confirmation, often with a single undo action. Click to see it appear bottom-center.</p></div></div>
+  </div>
+
+  <h3 class="subgroup" id="c-feedback">Feedback &amp; status</h3>
+  <div class="grid wide kit">
+
+    <div class="spec" style="grid-column:1/-1"><div class="stage kitstage col" style="gap:9px">
+      <div class="k-alert info"><span>ℹ</span><div><b>Heads up</b>Grinder maintenance is due in 3 days.</div></div>
+      <div class="k-alert ok"><span>✓</span><div><b>Entry saved</b>Tuesday's V60 was added to your journal.</div></div>
+      <div class="k-alert warn"><span>⚠</span><div><b>Running low</b>Colombia Huila has 140 g left — about 9 cups.</div></div>
+      <div class="k-alert err"><span>✕</span><div><b>Sync failed</b>Couldn't reach the server. Retry, or your entry stays saved locally.</div></div>
+    </div><div class="meta"><div class="row"><span class="code">C-37</span><h3>Alerts — the four severities</h3></div>
+      <p>Info, success, warning, error. Each states what happened and what to do next; errors never blame or go vague.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage" style="gap:20px">
+      <div class="k-badgehost">🔔<span class="k-badge">3</span></div>
+      <div class="k-badgehost">✉<span class="k-badge">12</span></div>
+    </div><div class="meta"><div class="row"><span class="code">C-38</span><h3>Badge</h3></div>
+      <p>Small count or presence dot pinned to another element. Cap displayed counts ("99+").</p></div></div>
+
+    <div class="spec"><div class="stage kitstage col" style="gap:16px;align-items:center">
+      <div class="k-progress" role="progressbar" aria-valuenow="64" aria-valuemin="0" aria-valuemax="100"><i></i></div>
+      <div class="k-spin" role="status" aria-label="Loading"></div>
+    </div><div class="meta"><div class="row"><span class="code">C-39</span><h3>Progress bar &amp; spinner</h3></div>
+      <p>Bar when progress is measurable; spinner when it isn't. Past ~10s, always prefer the bar plus a status message.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <div class="k-skel"><i class="c"></i><div class="lines"><i class="l1"></i><i class="l2"></i></div></div>
+    </div><div class="meta"><div class="row"><span class="code">C-40</span><h3>Skeleton loader</h3></div>
+      <p>Shimmering placeholders shaped like the incoming content. Feels faster than a spinner because layout doesn't jump.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <div class="k-empty"><div class="art">☕</div><h4>No brews logged yet</h4><p>Your journal starts with your next cup.</p><button class="k-btn primary" style="font-size:12px;padding:8px 14px">Log your first brew</button></div>
+    </div><div class="meta"><div class="row"><span class="code">C-41</span><h3>Empty state</h3></div>
+      <p>An empty screen is an invitation to act: say what belongs here and give the one button that creates it.</p></div></div>
+  </div>
+
+  <h3 class="subgroup" id="c-data">Data display</h3>
+  <div class="grid wide kit">
+
+    <div class="spec"><div class="stage kitstage">
+      <div class="k-stat"><div class="lbl">Cups this week</div><div class="num">17</div><div class="trend">▲ 12% vs last week</div></div>
+    </div><div class="meta"><div class="row"><span class="code">C-42</span><h3>Stat / KPI card</h3></div>
+      <p>One number, one label, one trend. The atom of dashboards — tile them in an L-03 bento.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage" style="padding-bottom:30px">
+      <div class="k-chart">
+        <div class="bar" style="height:45%"><span>M</span></div><div class="bar" style="height:70%"><span>T</span></div>
+        <div class="bar" style="height:55%"><span>W</span></div><div class="bar hot" style="height:95%"><span>T</span></div>
+        <div class="bar" style="height:62%"><span>F</span></div><div class="bar" style="height:30%"><span>S</span></div>
+        <div class="bar" style="height:38%"><span>S</span></div>
+      </div>
+    </div><div class="meta"><div class="row"><span class="code">C-43</span><h3>Chart</h3></div>
+      <p>Bars, lines, donuts — pick the form the data's shape demands. Highlight the one bar the reader should notice.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <div class="k-timeline">
+        <div class="ev"><b>Bag opened</b><span>Jul 2 · 250 g</span></div>
+        <div class="ev"><b>First brew logged</b><span>Jul 3 · rated 4.5</span></div>
+        <div class="ev"><b>Ratio dialed in</b><span>Jul 6 · 1:15.5</span></div>
+      </div>
+    </div><div class="meta"><div class="row"><span class="code">C-44</span><h3>Timeline</h3></div>
+      <p>Chronological events on a spine. Use when <em>order and time</em> are the story.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <div class="k-steps">
+        <div class="dot done">✓</div><div class="ln done"></div>
+        <div class="dot done">✓</div><div class="ln done"></div>
+        <div class="dot now">3</div><div class="ln"></div>
+        <div class="dot">4</div>
+      </div>
+    </div><div class="meta"><div class="row"><span class="code">C-45</span><h3>Progress steps / wizard</h3></div>
+      <p>Multi-step flow indicator: done, current, upcoming. Always show how much is left before asking for more.</p></div></div>
+  </div>
+
+  <h3 class="subgroup" id="c-media">Media &amp; identity</h3>
+  <div class="grid wide kit">
+
+    <div class="spec"><div class="stage kitstage">
+      <div class="k-avatars">
+        <div class="k-av" style="background:#3A4CC9">JT</div>
+        <div class="k-av" style="background:#B45A3C">MA</div>
+        <div class="k-av" style="background:#2F7D3B">RC</div>
+        <div class="k-av more">+4</div>
+      </div>
+    </div><div class="meta"><div class="row"><span class="code">C-46</span><h3>Avatar &amp; avatar stack</h3></div>
+      <p>Identity at a glance — photo or initials on a color derived from the name. Stacks overlap with a "+n" overflow.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <div class="k-icons">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2v13M7 10l5 5 5-5"/><path d="M4 21h16"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3h.1a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9v.1a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      </div>
+    </div><div class="meta"><div class="row"><span class="code">C-47</span><h3>Icons</h3></div>
+      <p>One consistent set (stroke weight, corner style, grid) across the whole product. These are 24px stroke icons at 2px weight.</p></div></div>
+
+    <div class="spec"><div class="stage kitstage">
+      <div class="k-player"><div class="art2"></div><div style="flex:1"><b>Dialing in espresso</b><span>Brew School · 12 min</span><div class="bar"><i></i></div></div><button class="play" aria-label="Play">▶</button></div>
+    </div><div class="meta"><div class="row"><span class="code">C-48</span><h3>Media player</h3></div>
+      <p>Artwork, title + metadata, scrubber, one dominant play control. Same anatomy scales from podcast rows to video.</p></div></div>
+  </div>
+</section>
+
+<!-- ============================= RECIPE ============================= -->
+<section class="section" id="recipe" style="padding-top:50px">
+  <div class="sec-head"><span class="letter">R</span><h2>Quick-start recipe</h2></div>
+  <div class="recipe">
+    <ol>
+      <li><strong>Set Foundations (F)</strong> — color roles, type scale, spacing, shape, elevation, states, and accessibility.</li>
+      <li><strong>Pick a Visual Style (S)</strong> — or blend two, e.g. S-10 minimalism over S-16 aurora backgrounds.</li>
+      <li><strong>Choose a Layout (L)</strong> per screen type — landing → L-11, app → L-08, dashboard → L-03 or L-02.</li>
+      <li><strong>Layer Motion &amp; Scroll (M)</strong> only when it clarifies flow, depth, feedback, or screen transitions.</li>
+      <li><strong>Assemble Components (C)</strong> onto the layout, greyscale first. Structure and flow before beauty.</li>
+      <li><strong>Apply the style</strong> to promote the wireframe into a mockup.</li>
+    </ol>
+    <div class="ex">// Example screen spec, in catalog shorthand:<br>
+    "Analytics dashboard" = F-01 semantic color + F-03 spacing → L-08 shell → L-03 bento content →<br>
+    C-42 stat cards + C-43 chart + C-28 table → M-04 hover feedback, skinned in S-17 dark mode.</div>
+  </div>
+</section>
+<!-- drawer + scrim + toast live at body level -->
+<div class="k-scrim" id="scrim" onclick="closeDrawer()"></div>
+<aside class="k-drawer kit" id="drawer" aria-hidden="true">
+  <h4>Filters <button class="close" onclick="closeDrawer()" aria-label="Close drawer">✕</button></h4>
+  <label class="k-check"><input type="checkbox" checked> Light roast</label>
+  <label class="k-check"><input type="checkbox"> Medium roast</label>
+  <label class="k-check"><input type="checkbox"> Dark roast</label>
+  <button class="k-btn primary" style="margin-top:auto" onclick="closeDrawer()">Apply filters</button>
+</aside>
+<div class="k-toast kit" id="toast" role="status">Entry saved to your journal <button onclick="document.getElementById('toast').classList.remove('show')">Undo</button></div>
+      </div>
+
+      <div class="prose prose-block">
+<section id="libraries">
+  <h2>Design libraries</h2>
+  <p>Everything in the catalog above is plain HTML and CSS: cheap, fast, and it works everywhere. These four go a step further, into real-time graphics drawn by the graphics chip (<em>WebGL</em>): shaders, true refraction, 3D. They&rsquo;re for the one moment on a page that should feel alive, not for every screen.</p>
+
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Library</th><th>What it makes</th><th>Built on</th><th>Needs React</th><th>Download*</th><th>Licence</th></tr></thead>
+      <tbody>
+        <tr><td class="grp"><a href="#lib-shadergradient">ShaderGradient</a></td><td>Moving 3D gradients &mdash; a plane, a sphere, or rippling water</td><td>three.js + react-three-fiber</td><td>Yes <span style="opacity:.6">(also Figma &amp; Framer plugins)</span></td><td>&asymp; 390 KB</td><td>MIT</td></tr>
+        <tr><td class="grp"><a href="#lib-liquid-metal">Liquid metal</a><span>liquid-logo</span></td><td>A flat logo turned into flowing chrome</td><td>Paper Shaders &mdash; its own WebGL, no three.js</td><td>Optional</td><td>&asymp; 140 KB</td><td>Apache-2.0 <span style="opacity:.6">(engine)</span></td></tr>
+        <tr><td class="grp"><a href="#lib-liquid-glass">liquid-glass-js</a></td><td>Glass buttons that genuinely bend what&rsquo;s behind them</td><td>Raw WebGL + a page snapshot</td><td>No</td><td>&asymp; 60 KB</td><td>MIT</td></tr>
+        <tr><td class="grp"><a href="#lib-r3f">react-three-fiber</a></td><td>Any 3D scene, written as React components</td><td>three.js</td><td>Yes</td><td>&asymp; 300 KB</td><td>MIT</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:13px;color:var(--muted)">* Measured on the live samples below: compressed download, including React where the library needs it.</p>
+
+  <h3>Three rules before using any of them</h3>
+  <ul class="findings">
+    <li><b>One per page, at most.</b> Each keeps the graphics chip busy every frame. A moving gradient behind a glass nav bar behind a 3D hero drains a phone&rsquo;s battery and stutters on older laptops.</li>
+    <li><b>Always ship the still version.</b> Respect the &ldquo;reduce motion&rdquo; setting (every sample here stops animating when it&rsquo;s on) and keep a fallback for devices without WebGL. The CSS entries in the catalog, <a href="#styles">S-05 Liquid Glass</a> and <a href="#styles">S-16 Aurora</a>, are exactly that fallback.</li>
+    <li><b>Decoration can&rsquo;t carry meaning.</b> Nothing a person needs to read or press should depend on the effect rendering.</li>
+  </ul>
+  <p>In a prompt, name the catalog entry <em>and</em> the library: &ldquo;an S-16 aurora hero, rendered with ShaderGradient, with the CSS version as the reduced-motion fallback.&rdquo;</p>
+</section>
+
+<section id="lib-shadergradient">
+  <h2>ShaderGradient</h2>
+  <div class="lib-meta">
+    <a class="chip" href="https://github.com/ruucm/shadergradient">github.com/ruucm/shadergradient</a>
+    <span class="chip">&#9733; 2.5k</span><span class="chip">MIT</span><span class="chip">updated Sep 2026</span>
+  </div>
+  <p>A 3D surface &mdash; a flat plane, a sphere, or a rippling water plane &mdash; painted with a three-colour gradient and slowly deformed with noise. Designers tune it by eye at <a href="https://shadergradient.co">shadergradient.co</a>, then paste the settings into code, either as props or as one URL string.</p>
+
+  <figure class="sample">
+    <iframe src="samples/shadergradient.html" title="Live ShaderGradient sample" loading="lazy"></iframe>
+    <figcaption class="sample-bar"><span>Live &middot; switch between the three shapes</span><a href="samples/shadergradient.html" target="_blank" rel="noopener">Open full size &#8599;</a></figcaption>
+  </figure>
+
+  <h3>Reach for it when</h3>
+  <p>A hero or section background needs to feel alive and premium: a launch page, a login or splash screen, a brand page. It&rsquo;s the grown-up version of <a href="#styles">S-16 Aurora</a>.</p>
+  <h3>The catch</h3>
+  <p>In code it&rsquo;s React-only, and it brings the whole of three.js &mdash; the heaviest download on this page. Versions have to match: its README carries a compatibility table (React 19 with react-three-fiber 9 for Next.js 15). The sample above hit exactly this problem: the CDN served two copies of React until the page forced them into one. In a normal project the package manager sorts it out. And the npm package says MIT, but the GitHub repo has no licence file &mdash; fine to use, worth knowing.</p>
+  <h3>In a real project</h3>
+  <div class="snippet"><p class="snippet-label">terminal, then any React component</p><pre><code>npm i @shadergradient/react @react-three/fiber three three-stdlib camera-controls
+
+import { ShaderGradientCanvas, ShaderGradient } from '@shadergradient/react'
+
+&lt;ShaderGradientCanvas style={{ position: 'absolute', inset: 0 }}&gt;
+  &lt;ShaderGradient type="plane" color1="#3a55c8" color2="#8fa2ff" color3="#f6f5f1"
+    uSpeed={0.3} uStrength={4} lightType="3d" /&gt;
+&lt;/ShaderGradientCanvas&gt;</code></pre></div>
+</section>
+
+<section id="lib-liquid-metal">
+  <h2>Liquid metal <span style="font-weight:400;color:var(--muted);font-size:1rem">&middot; liquid-logo</span></h2>
+  <div class="lib-meta">
+    <a class="chip" href="https://github.com/paper-design/liquid-logo">github.com/paper-design/liquid-logo</a>
+    <a class="chip" href="https://github.com/paper-design/shaders">engine: paper-design/shaders</a>
+    <span class="chip">&#9733; 1.1k app &middot; 3.5k engine</span><span class="chip">Apache-2.0 engine</span>
+  </div>
+  <p><strong>liquid-logo</strong> is Paper&rsquo;s small web app (<a href="https://liquid.paper.design">liquid.paper.design</a>): upload a logo and get it back as flowing liquid chrome. It isn&rsquo;t something you install &mdash; the engine underneath is. That engine is <strong>Paper Shaders</strong>, an open-source set of about 30 GPU effects. <code>LiquidMetal</code> is one of them, and it&rsquo;s what the sample runs, fed with the handbook&rsquo;s own three-bar mark.</p>
+
+  <figure class="sample">
+    <iframe src="samples/liquid-metal.html" title="Live liquid metal sample" loading="lazy"></iframe>
+    <figcaption class="sample-bar"><span>Live &middot; our mark, or one of the built-in shapes</span><a href="samples/liquid-metal.html" target="_blank" rel="noopener">Open full size &#8599;</a></figcaption>
+  </figure>
+
+  <h3>Reach for it when</h3>
+  <p>There&rsquo;s a brand moment: a hero logo, a splash or loading screen, a launch page. The rest of Paper Shaders &mdash; mesh gradients, grain, dithering, water &mdash; covers much of ShaderGradient&rsquo;s ground without three.js, at a third of the weight.</p>
+  <h3>The catch</h3>
+  <p><strong>Two different licences.</strong> The liquid-logo <em>app&rsquo;s</em> code is under PolyForm Shield: you can read it, but not use it to build a competing product, so don&rsquo;t copy from that repo. The Paper Shaders package is Apache-2.0 and safe to ship. The logo has to be a flat, single-colour shape on transparency; detailed marks turn to mush. And it&rsquo;s pre-1.0 (version 0.0.81), so expect breaking changes and pin the version.</p>
+  <h3>In a real project</h3>
+  <div class="snippet"><p class="snippet-label">terminal, then any React component</p><pre><code>npm i @paper-design/shaders-react
+
+import { LiquidMetal } from '@paper-design/shaders-react'
+
+&lt;LiquidMetal image="/logo.svg" colorBack="#e9e7e1" colorTint="#8fa2ff"
+  repetition={4} softness={0.45} distortion={0.1} speed={1}
+  style={{ width: 320, height: 320 }} /&gt;</code></pre></div>
+</section>
+
+<section id="lib-liquid-glass">
+  <h2>liquid-glass-js</h2>
+  <div class="lib-meta">
+    <a class="chip" href="https://github.com/dashersw/liquid-glass-js">github.com/dashersw/liquid-glass-js</a>
+    <span class="chip">&#9733; 1.0k</span><span class="chip">MIT</span><span class="chip">updated Jun 2025</span>
+  </div>
+  <p>Glass buttons and bars that really refract what&rsquo;s behind them &mdash; the look of Apple&rsquo;s Liquid Glass &mdash; in plain JavaScript. It photographs the page once (with a helper called html2canvas), then a WebGL shader bends that photo through each glass shape: the edges magnify and the rim catches the light.</p>
+
+  <figure class="sample">
+    <iframe src="samples/liquid-glass.html" title="Live liquid-glass-js sample" loading="lazy"></iframe>
+    <figcaption class="sample-bar"><span>Live &middot; the buttons are clickable</span><a href="samples/liquid-glass.html" target="_blank" rel="noopener">Open full size &#8599;</a></figcaption>
+  </figure>
+
+  <h3>Reach for it when</h3>
+  <p>A floating toolbar, tab bar or set of media controls sits over a rich, mostly still background &mdash; a photo, a gradient. It&rsquo;s the real version of <a href="#styles">S-05 Liquid Glass</a>, which only fakes it with blur.</p>
+  <h3>The catch</h3>
+  <ul class="findings">
+    <li><b>The photo is taken once.</b> If what&rsquo;s behind the glass changes &mdash; a scrolling feed, video, animation &mdash; the glass shows a stale picture. That&rsquo;s why the sample runs in its own small frame instead of on this page.</li>
+    <li><b>It&rsquo;s a personal project.</b> It isn&rsquo;t on npm (the npm package with the same name is someone else&rsquo;s), was last updated in June 2025, and has no tests. Copy its two files into your project, as this handbook does in <code>samples/vendor/</code>, rather than depending on it.</li>
+    <li><b>The glass is a picture.</b> Text on it can&rsquo;t be selected, and contrast has to be checked by eye.</li>
+  </ul>
+  <h3>In a real project</h3>
+  <div class="snippet"><p class="snippet-label">any HTML page &mdash; no build step</p><pre><code>&lt;script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"&gt;&lt;/script&gt;
+&lt;script src="container.js"&gt;&lt;/script&gt;
+&lt;script src="button.js"&gt;&lt;/script&gt;
+&lt;script&gt;
+  const bar = new Container({ type: 'pill', borderRadius: 30 })
+  bar.addChild(new Button({ text: 'Book', size: 20, type: 'pill', onClick: book }))
+  document.querySelector('#dock').appendChild(bar.element)
+&lt;/script&gt;</code></pre></div>
+</section>
+
+<section id="lib-r3f">
+  <h2>react-three-fiber</h2>
+  <div class="lib-meta">
+    <a class="chip" href="https://github.com/pmndrs/react-three-fiber">github.com/pmndrs/react-three-fiber</a>
+    <span class="chip">&#9733; 32k</span><span class="chip">MIT</span><span class="chip">updated Sep 2026</span>
+  </div>
+  <p>Not an effect &mdash; a foundation. <strong>three.js</strong> is the standard way to draw 3D in a browser; react-three-fiber lets you write a 3D scene the way you write React screens: a shape is a component, a click is an <code>onClick</code>, state is <code>useState</code>. ShaderGradient is itself built on it.</p>
+
+  <figure class="sample">
+    <iframe src="samples/react-three-fiber.html" title="Live react-three-fiber sample" loading="lazy"></iframe>
+    <figcaption class="sample-bar"><span>Live &middot; the toolkit&rsquo;s five catalogs; height is each one&rsquo;s entry count</span><a href="samples/react-three-fiber.html" target="_blank" rel="noopener">Open full size &#8599;</a></figcaption>
+  </figure>
+
+  <h3>Reach for it when</h3>
+  <p>The 3D <em>is</em> the feature: a product you can turn around, a room or venue map you can explore, a data sculpture, an interactive hero.</p>
+  <h3>The catch</h3>
+  <p>3D is its own craft &mdash; cameras, lights, materials, frame budgets &mdash; so budget learning time or keep scenes simple. The download is heavy, and the helper packages most projects add (drei, post-processing) grow it further. Phone graphics chips vary widely: test on a mid-range Android, not only an iPhone. Anything interactive needs a keyboard and screen-reader alternative, because a canvas is invisible to both.</p>
+  <h3>In a real project</h3>
+  <div class="snippet"><p class="snippet-label">terminal, then any React component</p><pre><code>npm i three @react-three/fiber
+
+import { Canvas } from '@react-three/fiber'
+
+&lt;Canvas camera={{ position: [0, 3.6, 8.2] }}&gt;
+  &lt;ambientLight intensity={0.9} /&gt;
+  &lt;mesh onClick={() =&gt; setPicked('C')}&gt;
+    &lt;boxGeometry args={[1, 2.8, 1]} /&gt;
+    &lt;meshStandardMaterial color="#3a55c8" /&gt;
+  &lt;/mesh&gt;
+&lt;/Canvas&gt;</code></pre></div>
+</section>
+
+<section id="design-skills">
+  <h2>Design skills</h2>
+  <p>The libraries above are code you ship to users. Skills are the opposite: instructions an agent follows while it builds, and they never reach the finished product. <a href="ai.html#skills">Skills</a> in Part IV explains the Claude setup and the durable concept behind it. These three sets are installed for your whole Claude account, in <code>~/.claude/skills/</code>, so every project can use them.</p>
+
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Skill set</th><th>What it gives Claude</th><th>Reach for it</th><th>Installed</th></tr></thead>
+      <tbody>
+        <tr><td class="grp"><a href="#skill-ui-ux-pro-max">UI UX Pro Max</a><span>nextlevelbuilder</span></td><td>A searchable design database: styles, palettes, font pairs, UX rules</td><td>Starting a new product or page &mdash; picks a design direction</td><td>All 7 skills</td></tr>
+        <tr><td class="grp"><a href="#skill-emil">Emil Kowalski&rsquo;s skills</a><span>emilkowalski</span></td><td>A senior design engineer&rsquo;s taste rules, mostly for motion and polish</td><td>Adding animation, polishing, reviewing how a screen feels</td><td>5 of 13</td></tr>
+        <tr><td class="grp"><a href="#skill-visual-plan">visual-plan</a><span>BuilderIO</span></td><td>Turns a plan into a visual review page: wireframes, a clickable prototype, open questions</td><td>Reviewing a user flow <em>before</em> anything gets built</td><td>Local files only</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Where each one fits in a build</h3>
+  <figure class="diagram">
+    <svg viewBox="0 0 720 150" role="img" aria-label="Four steps left to right. Step one, review the flow, uses visual-plan. Step two, pick a direction, uses UI UX Pro Max plus the toolkit's catalog codes. Step three, build. Step four, polish, uses Emil Kowalski's skills.">
+      <defs>
+        <marker id="ahds" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+        </marker>
+      </defs>
+      <rect class="box box--key" x="10" y="30" width="156" height="78" rx="8"></rect>
+      <text class="lbl" x="88" y="52" text-anchor="middle" font-size="10.5">1</text>
+      <text class="t t--title" x="88" y="72" text-anchor="middle" font-size="13">Review the flow</text>
+      <text class="t" x="88" y="92" text-anchor="middle" font-size="11" opacity="0.75">visual-plan</text>
+      <rect class="box" x="194" y="30" width="156" height="78" rx="8"></rect>
+      <text class="lbl" x="272" y="52" text-anchor="middle" font-size="10.5">2</text>
+      <text class="t t--title" x="272" y="72" text-anchor="middle" font-size="13">Pick a direction</text>
+      <text class="t" x="272" y="92" text-anchor="middle" font-size="11" opacity="0.75">UI UX Pro Max + catalog codes</text>
+      <rect class="box" x="378" y="30" width="156" height="78" rx="8"></rect>
+      <text class="lbl" x="456" y="52" text-anchor="middle" font-size="10.5">3</text>
+      <text class="t t--title" x="456" y="72" text-anchor="middle" font-size="13">Build</text>
+      <text class="t" x="456" y="92" text-anchor="middle" font-size="11" opacity="0.75">Claude Code</text>
+      <rect class="box" x="562" y="30" width="148" height="78" rx="8"></rect>
+      <text class="lbl" x="636" y="52" text-anchor="middle" font-size="10.5">4</text>
+      <text class="t t--title" x="636" y="72" text-anchor="middle" font-size="13">Polish</text>
+      <text class="t" x="636" y="92" text-anchor="middle" font-size="11" opacity="0.75">Emil&rsquo;s skills</text>
+      <line class="edge" x1="166" y1="69" x2="192" y2="69" marker-end="url(#ahds)"></line>
+      <line class="edge" x1="350" y1="69" x2="376" y2="69" marker-end="url(#ahds)"></line>
+      <line class="edge" x1="534" y1="69" x2="560" y2="69" marker-end="url(#ahds)"></line>
+      <text class="lbl" x="360" y="136" text-anchor="middle" font-size="10.5">the catalog above is the menu; the skills help choose from it, check it, and review it</text>
+    </svg>
+    <figcaption>Step 1 is for flows worth reviewing; a small tweak can skip straight to building. Step 2 is where the toolkit&rsquo;s catalog codes earn their keep.</figcaption>
+  </figure>
+  <p>Too many design skills pulling in different directions is a real risk. UI UX Pro Max and Emil&rsquo;s skills sometimes disagree on taste. When they do, your own words and the project&rsquo;s existing design win, then the catalog codes you picked.</p>
+</section>
+
+<section id="skill-ui-ux-pro-max">
+  <h2>UI UX Pro Max</h2>
+  <div class="lib-meta">
+    <a class="chip" href="https://github.com/nextlevelbuilder/ui-ux-pro-max-skill">github.com/nextlevelbuilder/ui-ux-pro-max-skill</a>
+    <span class="chip">&#9733; 129k</span><span class="chip">MIT</span><span class="chip">updated Sep 2026</span>
+  </div>
+  <p>A local design database with a search tool that Claude runs by itself. Ask for a product and it returns a whole starting direction: page pattern, visual style, colour roles, font pair, effects, what to avoid, and a pre-launch checklist. Everything runs on your Mac with a small Python script; nothing is sent anywhere.</p>
+
+  <h3>What got installed</h3>
+  <dl class="mini">
+    <dt><code>ui-ux-pro-max</code></dt><dd>The core: the database search and the design-system generator. It switches on by itself for most UI work.</dd>
+    <dt><code>design-system</code> &middot; <code>ui-styling</code></dt><dd>Design tokens and component specs; shadcn/ui and Tailwind styling.</dd>
+    <dt><code>brand</code> &middot; <code>banner-design</code> &middot; <code>slides</code> &middot; <code>design</code></dt><dd>Marketing-side tools: brand voice, social banners, HTML slide decks, logos and icons.</dd>
+  </dl>
+
+  <h3>Try it</h3>
+  <div class="snippet"><p class="snippet-label">in Claude Code, inside a project</p><pre><code>Use ui-ux-pro-max to propose a design system for the Barkhaus daycare page,
+then map it to the toolkit's catalog codes before building anything.</code></pre></div>
+
+  <h3>The catch</h3>
+  <ul class="findings">
+    <li><b>Its picks are a starting point, not a decision.</b> Asked for a friendly pet-booking service, it suggested claymorphism in teal. That&rsquo;s plausible, and also what many other sites get. Compare it with the catalog above before committing.</li>
+    <li><b>The logo and icon tools use paid AI image services.</b> The <code>design</code> skill generates logos with Google&rsquo;s Gemini and similar services, which need an API key and cost money per image. Set keys up yourself; never paste one into chat.</li>
+    <li><b>It&rsquo;s built as a plugin but installed here as plain skills.</b> (The desktop app doesn&rsquo;t have Claude Code&rsquo;s plugin command.) Its instructions point at a plugin folder, but the search script lives in <code>~/.claude/skills/ui-ux-pro-max/scripts/</code>. Claude finds it there; it was tested at install.</li>
+  </ul>
+</section>
+
+<section id="skill-emil">
+  <h2>Emil Kowalski&rsquo;s skills</h2>
+  <div class="lib-meta">
+    <a class="chip" href="https://github.com/emilkowalski/skill">github.com/emilkowalski/skill</a>
+    <span class="chip">&#9733; 39k</span><span class="chip">MIT</span><span class="chip">updated Sep 2026</span>
+  </div>
+  <p>Emil Kowalski is a design engineer who worked at Vercel and Linear; he wrote Sonner, the toast library many React apps use. These skills write down the small calls AI tends to get wrong: an enter animation that eases <em>in</em> instead of out, a hard border where a soft shadow belongs, a hover state that sticks on a phone.</p>
+
+  <h3>What got installed &mdash; the web-relevant five</h3>
+  <dl class="mini">
+    <dt><code>emil-design-eng</code></dt><dd>The main one: his philosophy on polish, component design and animation choices.</dd>
+    <dt><code>review-animations</code></dt><dd>A strict review of motion code. &ldquo;Default to flagging; approval is earned.&rdquo;</dd>
+    <dt><code>animation-vocabulary</code></dt><dd>Turns a vague description into the right term, so you can ask for exactly what you mean.</dd>
+    <dt><code>mobile-native</code></dt><dd>The fixes that make a web app feel installed on a phone: the 100vh bug, zooming inputs, notch safe areas. Directly relevant to Bonado and Sansayaw.</dd>
+    <dt><code>pick-ui-library</code></dt><dd>Chooses a trusted library for charts, toasts, date pickers and more, instead of Claude writing its own. Runs only when you ask for it by name.</dd>
+  </dl>
+  <p>Not installed: the Swift and React Native skills (<code>write-swift</code>, <code>animate-expo</code>), plus <code>animate</code>, <code>apple-design</code>, <code>prototype</code>, <code>improve-animations</code>, <code>find-animation-opportunities</code> and <code>ask-sonner</code>. Add any later with one line:</p>
+  <div class="snippet"><p class="snippet-label">terminal</p><pre><code>npx skills add emilkowalski/skill -g -a claude-code -s prototype</code></pre></div>
+
+  <h3>Try it</h3>
+  <div class="snippet"><p class="snippet-label">in Claude Code</p><pre><code>What's it called when a card lifts slightly as I hover over it?
+Review the animations in the Bonado expense sheet against Emil's rules.</code></pre></div>
+</section>
+
+<section id="skill-visual-plan">
+  <h2>visual-plan</h2>
+  <div class="lib-meta">
+    <a class="chip" href="https://github.com/BuilderIO/skills/tree/main/skills/visual-plan">github.com/BuilderIO/skills &middot; visual-plan</a>
+    <span class="chip">&#9733; 4.3k</span><span class="chip">MIT</span><span class="chip">local-files mode</span>
+  </div>
+  <p>Normally Claude writes its plan as a long message in chat. visual-plan replaces that with a review page: wireframes of every screen, a clickable prototype where interaction matters, the real files it will touch, and a list of open questions for you to answer. Ask it for a <em>flow</em> or <em>journey</em> and it draws one wireframe per screen, with arrows between the steps. That makes it the tool for reviewing user flows before anything is built.</p>
+
+  <h3>Reviewing a user flow, step by step</h3>
+  <figure class="diagram">
+    <svg viewBox="0 0 720 200" role="img" aria-label="A loop. You ask for a flow. Claude reads the real code. It writes the plan as files in the project. A browser tab opens with wireframes, a prototype and open questions. Your feedback goes back to Claude, which edits the files and refreshes, until you approve; only then does building start.">
+      <defs>
+        <marker id="ahvp" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+        </marker>
+      </defs>
+      <rect class="box" x="10" y="24" width="150" height="62" rx="8"></rect>
+      <text class="t t--title" x="85" y="50" text-anchor="middle" font-size="12.5">You ask</text>
+      <text class="t" x="85" y="70" text-anchor="middle" font-size="10.5" opacity="0.75">/visual-plan + a flow</text>
+      <rect class="box" x="190" y="24" width="150" height="62" rx="8"></rect>
+      <text class="t t--title" x="265" y="50" text-anchor="middle" font-size="12.5">Claude reads</text>
+      <text class="t" x="265" y="70" text-anchor="middle" font-size="10.5" opacity="0.75">the real screens &amp; code</text>
+      <rect class="box" x="370" y="24" width="150" height="62" rx="8"></rect>
+      <text class="t t--title" x="445" y="50" text-anchor="middle" font-size="12.5">Writes the plan</text>
+      <text class="t" x="445" y="70" text-anchor="middle" font-size="10.5" opacity="0.75">as files in the project</text>
+      <rect class="box box--key" x="550" y="24" width="160" height="62" rx="8"></rect>
+      <text class="t t--title" x="630" y="50" text-anchor="middle" font-size="12.5">You review</text>
+      <text class="t" x="630" y="70" text-anchor="middle" font-size="10.5" opacity="0.75">wireframes &middot; prototype</text>
+      <line class="edge" x1="160" y1="55" x2="188" y2="55" marker-end="url(#ahvp)"></line>
+      <line class="edge" x1="340" y1="55" x2="368" y2="55" marker-end="url(#ahvp)"></line>
+      <line class="edge" x1="520" y1="55" x2="548" y2="55" marker-end="url(#ahvp)"></line>
+      <path class="edge" d="M600 86 C600 140 480 140 445 92" marker-end="url(#ahvp)"></path>
+      <text class="lbl" x="530" y="150" text-anchor="middle" font-size="10.5">feedback in chat &rarr; Claude edits the files</text>
+      <line class="edge" x1="660" y1="86" x2="660" y2="168" marker-end="url(#ahvp)"></line>
+      <text class="t t--title" x="660" y="188" text-anchor="middle" font-size="12">Approve &rarr; build</text>
+    </svg>
+    <figcaption>Planning is read-only: the skill&rsquo;s own rules forbid code changes until you approve. The plan files are the record, so a decision made in review is written down, not lost in the chat.</figcaption>
+  </figure>
+  <ol class="next">
+    <li>Open Claude Code in the project whose flow you want to review, for example <code>~/Projects/barkhaus</code>.</li>
+    <li>Ask for the flow by name, and say which screens start and end it (example below).</li>
+    <li>Claude writes the plan into a <code>plans/</code> folder in that project, checks it, and opens it in your browser. Use <strong>Chrome</strong>: Safari can block the page from reading the plan on your Mac.</li>
+    <li>React in chat (&ldquo;merge steps 2 and 3&rdquo;, &ldquo;what happens if the payment fails?&rdquo;). Claude edits the plan and refreshes it.</li>
+    <li>Approve it. Only then does Claude start changing code.</li>
+  </ol>
+  <div class="snippet"><p class="snippet-label">in Claude Code, inside the project</p><pre><code>/visual-plan Storyboard the Barkhaus booking flow as it works today, from
+choosing a service to the payment confirmation email. One wireframe per
+screen, and mark every place a customer could get stuck.</code></pre></div>
+
+  <h3>What &ldquo;local files&rdquo; means here</h3>
+  <ul class="findings">
+    <li><b>Your plans stay on your Mac.</b> They&rsquo;re plain files in the project, so they can be committed to git like any other document. Nothing goes to BuilderIO&rsquo;s database, and no account is needed.</li>
+    <li><b>The viewer is still their web page.</b> The browser tab opens BuilderIO&rsquo;s plan viewer, which reads the files straight from your machine. They keep basic page-view and error counts for that page, but not the plan itself.</li>
+    <li><b>No links, no comments.</b> Only you can open it, on this Mac. If you later want to share plans with a client and collect comments, switching to the hosted mode takes one command plus a sign-in you do yourself; the plans are then stored on BuilderIO&rsquo;s servers.</li>
+  </ul>
+
+  <h3>The catch</h3>
+  <p>It&rsquo;s eager: its instructions tell Claude a plan is worth making for fairly small UI changes too. For a quick tweak, say &ldquo;no plan needed&rdquo;. The review page also needs an internet connection, because the viewer is hosted even when the plan files are local.</p>
+</section>
+
+
+      </div>
+    </main>
+  </div>
+
+  <nav class="pager" aria-label="Previous and next part">
+    <a class="prev" href="ai.html"><small>Previous</small>Part IV &middot; AI development</a>
+    <a class="next" href="index.html"><small>Next</small>Contents</a>
+  </nav>
+
+  <footer>The Build So Far &middot; v20 &middot; 19 Sep 2026 &middot; <a href="index.html">all parts</a></footer>
+</div>
+<script>
+function pickTab(el){el.parentElement.querySelectorAll('[role=tab]').forEach(t=>t.setAttribute('aria-selected','false'));el.setAttribute('aria-selected','true')}
+function pickSeg(el){el.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('on'));el.classList.add('on')}
+function flipSwitch(el){el.setAttribute('aria-checked', el.getAttribute('aria-checked')==='true'?'false':'true')}
+function step(btn,d){const o=btn.parentElement.querySelector('output');o.textContent=Math.max(0,parseInt(o.textContent)+d)}
+function openDrawer(){document.getElementById('drawer').classList.add('open');document.getElementById('scrim').classList.add('open');document.getElementById('drawer').setAttribute('aria-hidden','false')}
+function closeDrawer(){document.getElementById('drawer').classList.remove('open');document.getElementById('scrim').classList.remove('open');document.getElementById('drawer').setAttribute('aria-hidden','true')}
+let toastTimer;
+function showToast(){const t=document.getElementById('toast');t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),3200)}
+function syncParallax(el){
+  const y=el.scrollTop;
+  el.style.setProperty('--py', `${y*.08}px`);
+  el.style.setProperty('--hy', `${y*.18}px`);
+  el.style.setProperty('--fy', `${y*.34}px`);
+}
+// close open dropdowns/popovers on outside click
+document.addEventListener('click',e=>{
+  document.querySelectorAll('.k-drop.open').forEach(d=>{if(!d.parentElement.contains(e.target))d.classList.remove('open')});
+  document.querySelectorAll('.k-pop.open').forEach(p=>{if(!p.parentElement.contains(e.target))p.classList.remove('open')});
+});
+</script>
+</body>
+</html>

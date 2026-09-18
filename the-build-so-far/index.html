@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The Build So Far</title>
+<meta name="description" content="A hands-on handbook for understanding how this portfolio works and building the next app with more speed, judgment, and control.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<link rel="stylesheet" href="handbook.css?v=20.1">
+<script src="handbook.js?v=20.3" defer></script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <a class="brand" href="index.html" aria-current="page">The Build So Far</a>
+  <nav class="parts" aria-label="Parts of the handbook">
+      <a href="concepts.html"><span class="num">I</span>Concepts</a>
+      <a href="deep-dives.html"><span class="num">II</span>Deep-dives</a>
+      <a href="together.html"><span class="num">III</span>Build playbook</a>
+      <a href="ai.html"><span class="num">IV</span>AI development</a>
+      <a href="tools.html"><span class="num">A</span>Tools</a>
+  </nav>
+</header>
+
+<div class="hb-wrap">
+  <header class="masthead prose">
+    <p class="eyebrow">Living document &middot; v20 &middot; 19 Sep 2026</p>
+    <h1>The Build So Far</h1>
+    <p class="standfirst">A hands-on guide to how the projects in <code>~/Projects</code> actually work &mdash; so the code is understandable, the AI&rsquo;s work is reviewable, and the next app starts from better decisions.</p>
+    <p class="meta"><strong>Goal 1:</strong> understand what is being built. &nbsp; <strong>Goal 2:</strong> build the next app faster and more deliberately.</p>
+  </header>
+
+  <main id="main" class="home prose">
+      <section id="how-to-read">
+        <div class="callout">
+          <p><strong>This is a working handbook and a practice space.</strong> Read explanations, then follow the source trails into the real repositories, predict what the code will do, make safe local changes, and verify them. The point is not to memorize every tool; it is to know how to find the rule, identify which layer owns it, and prove a change works.</p>
+          <p>Use <strong>Concepts</strong> for the mental model, <strong>Deep-dives</strong> for guided feature X-rays, <strong>Build playbook</strong> when starting or shipping, <strong>AI development</strong> to keep agent work reviewable, and <strong>Tools</strong> as an appendix when designing a screen.</p>
+        </div>
+
+        <h2 style="margin-top:36px">Choose a path</h2>
+        <div class="route-grid">
+          <article class="route-card">
+            <span class="route-number">01 &middot; LEARN</span>
+            <h3>Understand the system</h3>
+            <p>Start with vocabulary and code mechanics, then trace one real feature across every layer.</p>
+            <a href="concepts.html">Begin with concepts &rarr;</a>
+          </article>
+          <article class="route-card">
+            <span class="route-number">02 &middot; BUILD</span>
+            <h3>Make the next app</h3>
+            <p>Use the house defaults, templates, vertical-slice sequence, and definitions of done.</p>
+            <a href="together.html">Open the build playbook &rarr;</a>
+          </article>
+          <article class="route-card">
+            <span class="route-number">03 &middot; LOOK UP</span>
+            <h3>Answer one question</h3>
+            <p>Use search, the stack map, project risks, and the design catalog as references.</p>
+            <button type="button" class="search-toggle" onclick="document.querySelector('.topbar .search-toggle')?.click()">Search the handbook</button>
+          </article>
+        </div>
+      </section>
+
+
+    <ol class="part-list">
+      <li class="part-card">
+        <span class="num">I</span>
+        <div>
+          <h2><a href="concepts.html">Concepts</a></h2>
+          <p>The vocabulary, code mechanics, three views of a system, debugging, full stack map, reliability, capacity, and recovery.</p>
+          <div class="sections"><a href="concepts.html#principles">Core principles</a> <a href="concepts.html#request-journey">A click&rsquo;s journey</a> <a href="concepts.html#system-views">Three system views</a> <a href="concepts.html#debugging">Debugging</a> <a href="concepts.html#stack-map">Stack map</a> <a href="concepts.html#reliability">Reliability &amp; scale</a></div>
+        </div>
+      </li>
+      <li class="part-card">
+        <span class="num">II</span>
+        <div>
+          <h2><a href="deep-dives.html">The deep-dives</a></h2>
+          <p>One section per project: architecture, data, key flows, real source trails, safe exercises, risks, and rebuild lessons.</p>
+          <div class="sections"><a href="deep-dives.html#landscape">The landscape</a> <a href="deep-dives.html#barkhaus">A &nbsp;Barkhaus</a> <a href="deep-dives.html#mvl">B &nbsp;MVL 2026</a> <a href="deep-dives.html#sansayaw">C &nbsp;Sansayaw</a> <a href="deep-dives.html#bonado">D &nbsp;Bonado</a></div>
+        </div>
+      </li>
+      <li class="part-card">
+        <span class="num">III</span>
+        <div>
+          <h2><a href="together.html">Build playbook</a></h2>
+          <p>The house defaults, pre-build decisions, seven-layer stack plan, vertical-slice sequence, production readiness, and security baseline.</p>
+          <div class="sections"><a href="together.html#house-default">House default</a> <a href="together.html#prebuild">Before the build</a> <a href="together.html#stack-plan">Full-stack plan</a> <a href="together.html#templates">Templates</a> <a href="together.html#production-readiness">Production readiness</a></div>
+        </div>
+      </li>
+      <li class="part-card">
+        <span class="num">IV</span>
+        <div>
+          <h2><a href="ai.html">AI-assisted development</a></h2>
+          <p>The stable human/agent working loop first, followed by tool-specific adapters for Claude Code and Codex.</p>
+          <div class="sections"><a href="ai.html#agent-loop">The reviewable loop</a> <a href="ai.html#agent-adapters">Claude and Codex</a> <a href="ai.html#skills">Skills</a> <a href="ai.html#mcp">MCP</a> <a href="ai.html#scheduled">Scheduled work</a> <a href="ai.html#subagents">Subagents</a></div>
+        </div>
+      </li>
+      <li class="part-card">
+        <span class="num">A</span>
+        <div>
+          <h2><a href="tools.html">Tools &amp; references</a></h2>
+          <p>An appendix for visual foundations, layouts, components, motion, graphics libraries, and design skills. Use it when a screen needs a concrete design direction.</p>
+          <div class="sections"><a href="tools.html#design-kit">Design toolkit</a> <a href="tools.html#libraries">Graphics libraries</a> <a href="tools.html#design-skills">Design skills</a></div>
+        </div>
+      </li>
+    </ol>
+  </main>
+
+  <footer>v20 &middot; 19 Sep 2026 &middot; learning paths, code mechanics, guided project labs, build playbook, global search, and agent-agnostic AI guidance.</footer>
+</div>
+
+</body>
+</html>

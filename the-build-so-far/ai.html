@@ -1,0 +1,876 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AI-assisted development &middot; The Build So Far</title>
+<meta name="description" content="A durable way to work with coding agents: give them context and constraints, keep the human accountable, verify with evidence, and translate the ideas across Codex and Claude Code.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<link rel="stylesheet" href="handbook.css?v=20.1">
+<script src="handbook.js?v=20.3" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <a class="brand" href="index.html">The Build So Far</a>
+  <nav class="parts" aria-label="Parts of the handbook">
+      <a href="concepts.html"><span class="num">I</span>Concepts</a>
+      <a href="deep-dives.html"><span class="num">II</span>Deep-dives</a>
+      <a href="together.html"><span class="num">III</span>Build playbook</a>
+      <a href="ai.html" aria-current="page"><span class="num">IV</span>AI development</a>
+      <a href="tools.html"><span class="num">A</span>Tools</a>
+  </nav>
+</header>
+
+<div class="hb-wrap">
+  <header class="part-head">
+    <p class="part-eyebrow">Part IV</p>
+    <h1 class="part-title">AI-assisted development</h1>
+    <p class="part-sub">How to stay in control while an agent moves quickly: describe the job, preserve the architecture, inspect the evidence, and use tool-specific features without confusing them for the underlying practice.</p>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" aria-label="On this page">
+      <p>On this page</p>
+      <a href="#agent-loop">The working loop</a>
+      <a href="#agent-adapters">Codex &harr; Claude</a>
+      <a href="#ai-development">Working with AI, day to day</a>
+      <a href="#claude-md">Claude adapter</a>
+      <a href="#skills">Skills</a>
+      <a href="#mcp">MCP</a>
+      <a href="#scheduled">Scheduled runs</a>
+      <a href="#hooks">Hooks</a>
+      <a href="#subagents">Subagents</a>
+    </nav>
+
+    <main id="main" class="content prose">
+      <section id="agent-loop">
+        <h2>The working loop: stay the architect</h2>
+        <p>Vibecoding becomes risky when a plausible output substitutes for understanding. The remedy is not to type every line yourself; it is to control the decisions and demand evidence. Give the agent a well-shaped job, let it do the mechanical work, then reconstruct the system in your own words.</p>
+
+        <div class="flow-strip" aria-label="AI-assisted development loop">
+          <div class="flow-step"><span>1</span><b>Frame</b><small>objective, context, constraints, done</small></div>
+          <div class="flow-step"><span>2</span><b>Inspect</b><small>existing code and conventions</small></div>
+          <div class="flow-step"><span>3</span><b>Decide</b><small>architecture and trust boundary</small></div>
+          <div class="flow-step"><span>4</span><b>Change</b><small>small, reviewable slice</small></div>
+          <div class="flow-step"><span>5</span><b>Verify</b><small>tests plus runtime evidence</small></div>
+          <div class="flow-step"><span>6</span><b>Explain</b><small>teach it back and record why</small></div>
+        </div>
+
+        <h3>A prompt that makes the work inspectable</h3>
+        <div class="snippet">
+          <p class="snippet-label">Four parts &middot; enough structure for most feature work</p>
+<pre><code>Objective: Add [small user outcome].
+Context: The relevant flow starts in [files/feature]. [Rule] owns the decision.
+Constraints: Preserve [behaviour]. Never trust [browser input]. Do not change [scope].
+Done when: [observable behaviour], [tests], [live/runtime evidence], and explain the request path.</code></pre>
+        </div>
+        <p>This follows the same shape OpenAI recommends for coding-agent prompts: identify the goal, include the context and constraints, and make the completion criteria testable. The prompt is a compact specification, not a substitute for inspecting the repository.</p>
+
+        <h3>The seven questions to ask before accepting a change</h3>
+        <ol class="checklist">
+          <li><b>What user-visible state changed?</b><p class="q">Name the event that starts it and the evidence the user sees when it succeeds or fails.</p></li>
+          <li><b>Can I trace it end to end?</b><p class="q">Event handler &rarr; rule &rarr; request &rarr; trusted boundary &rarr; database or dependency &rarr; response &rarr; rendered state.</p></li>
+          <li><b>Where does the important rule live?</b><p class="q">If the answer is &ldquo;in several nearly identical places,&rdquo; the change has created future disagreement.</p></li>
+          <li><b>What input is untrusted?</b><p class="q">Prices, permissions, identity claims, results, and idempotency must be checked at an authoritative boundary.</p></li>
+          <li><b>Which failure did we prove?</b><p class="q">A happy-path test is not evidence that denial, retry, duplication, or dependency failure behaves safely.</p></li>
+          <li><b>What does the diff not prove?</b><p class="q">Build output, network behaviour, policies, migrations, and deployment configuration need runtime evidence.</p></li>
+          <li><b>Can I explain it without the agent?</b><p class="q">Complete a <a href="templates/feature-xray.md">Feature X-ray</a>. Any blank is the next thing to inspect.</p></li>
+        </ol>
+      </section>
+
+      <section id="agent-adapters">
+        <h2>Codex and Claude: translate the mechanism, keep the lesson</h2>
+        <p>Agent products change quickly. Keep the durable practice in the handbook, then map it to the current tool. OpenAI&rsquo;s Codex documentation describes project instructions, skills, MCP connections and subagents as separate layers; its best-practices guide also emphasizes small, verifiable tasks, tests and review. The table below maps that model to the Claude setup already used in these projects. <span class="status-note">Verified 19 Sep 2026</span></p>
+
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Durable need</th><th>Codex</th><th>Claude Code</th><th>Lesson to remember</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Project context</td><td><code>AGENTS.md</code>, discovered from the project tree</td><td><code>CLAUDE.md</code></td><td>Put stable facts, commands, boundaries, and verification here&mdash;not a diary of every change</td></tr>
+              <tr><td class="grp">Reusable workflow</td><td>Skills with scoped instructions and supporting resources</td><td>Skills / slash-command workflows</td><td>Package repeated judgment, not merely repeated keystrokes</td></tr>
+              <tr><td class="grp">External access</td><td>MCP servers and app connections</td><td>MCP servers and connectors</td><td>Scope every connection to the smallest project and permission set that works</td></tr>
+              <tr><td class="grp">Parallel work</td><td>Subagents, tasks, or worktrees where available</td><td>Subagents and worktrees</td><td>Delegate bounded, independent work; one owner integrates and verifies</td></tr>
+              <tr><td class="grp">Enforcement</td><td>Instructions plus repository tests, hooks and CI</td><td>Instructions plus tool hooks, repository tests and CI</td><td>Agent instructions guide; deterministic checks enforce</td></tr>
+              <tr><td class="grp">Recurring work</td><td>Automations or scheduled tasks</td><td>Scheduled runs where configured</td><td>Automate only when success and failure are objectively detectable</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="source-trail"><strong>Official references:</strong> <a href="https://developers.openai.com/es-419/docs/customization/overview">Codex customization overview</a>, <a href="https://developers.openai.com/es-419/docs/agent-configuration/agents-md">AGENTS.md discovery</a>, and <a href="https://developers.openai.com/es-419/guides/best-practices">Codex best practices</a>.</p>
+        <div class="learning-outcome"><strong>The useful distinction</strong><p>A feature name tells you where to configure something today. The durable need tells you why it exists and how to reproduce the practice in another tool tomorrow.</p></div>
+      </section>
+
+      <section id="ai-development">
+        <h2>Working with AI, day to day</h2>
+
+        <h3>In one line</h3>
+        <p>Most of this portfolio is built through Claude Code, not despite it. Two habits make that work in practice: a clear line between what an agent may do alone and what a human executes, and a record of what was learned so the next chat doesn&rsquo;t relearn it. The sections that follow &mdash; <a href="#claude-md">Briefing Claude</a>, <a href="#skills">Skills</a>, <a href="#mcp">MCP</a>, <a href="#scheduled">Scheduled runs</a>, <a href="#hooks">Hooks</a>, <a href="#subagents">Subagents</a> &mdash; are the tools. This is the ground rules they all sit on.</p>
+
+        <h3>The human/AI boundary &mdash; the Supabase rule</h3>
+        <p>Barkhaus states it outright, and every project with a database follows the same shape in practice: an agent may <strong>draft</strong> anything &mdash; code, SQL migrations, RLS policy changes, edge-function updates &mdash; but a <strong>human executes</strong> anything that touches the live database or a deploy a customer will hit.</p>
+        <figure class="diagram">
+          <svg viewBox="0 0 720 190" role="img" aria-label="Two boxes split by a dashed boundary. Left: an AI agent, which may draft code, SQL migrations, RLS policy changes, edge function updates, and handoff notes describing the intended action. Right: a human, who reviews and then executes anything against the live project - schema changes, RLS policy changes, edge function deploys, and dashboard or CLI operations.">
+            <rect class="box" x="16" y="34" width="324" height="120" rx="9"></rect>
+            <text class="t t--title" x="178" y="60" text-anchor="middle" font-size="14">AI agent</text>
+            <text class="t" x="178" y="79" text-anchor="middle" font-size="11" opacity="0.6">Claude Code, Codex, &hellip;</text>
+            <text class="t" x="178" y="107" text-anchor="middle" font-size="12">drafts code, migrations,</text>
+            <text class="t" x="178" y="127" text-anchor="middle" font-size="12">RLS changes, handoff notes</text>
+
+            <line class="edge" x1="360" y1="20" x2="360" y2="168" stroke-dasharray="5 4"></line>
+            <text class="lbl" x="360" y="14" text-anchor="middle" font-size="10.5">who executes it</text>
+
+            <rect class="box box--key" x="380" y="34" width="324" height="120" rx="9"></rect>
+            <text class="t t--title" x="542" y="60" text-anchor="middle" font-size="14">Human</text>
+            <text class="t" x="542" y="79" text-anchor="middle" font-size="11" opacity="0.6">the accountable operator</text>
+            <text class="t" x="542" y="107" text-anchor="middle" font-size="12">runs migrations, deploys</text>
+            <text class="t" x="542" y="127" text-anchor="middle" font-size="12">functions, applies RLS live</text>
+          </svg>
+          <figcaption>The same instinct as the browser/server trust boundary in Part I &mdash; keep the irreversible move with whoever is accountable for it &mdash; applied to the development process itself, not just the running app.</figcaption>
+        </figure>
+
+        <h3>Coordinating without a review process</h3>
+        <p>None of these repos run the branch-plus-pull-request process a larger team would &mdash; every deep-dive notes the same &ldquo;single maintainer&rdquo; pattern. Barkhaus&rsquo;s <code>AGENTS.md</code> sets a lighter convention instead: claim what you&rsquo;re about to work on in a shared <code>.agents/BOARD.md</code> file, prefer a separate branch or worktree for concurrent work, and leave a short handoff note when you stop &mdash; the <a href="#hooks">Board check</a> hook later on reads that same file back at the start of each chat. MVL shows the idea at its most literal: <code>mvl-admin-awards</code>, <code>mvl-raffle-repeat-winners</code> and <code>mvl-scoreboard-finish</code> are git worktrees &mdash; the same repo checked out to three <code>codex/*</code> branches (OpenAI&rsquo;s coding agent) at once, so parallel AI-driven feature work didn&rsquo;t collide during the tournament crunch.</p>
+
+        <h3>Commits carry attribution</h3>
+        <p>An AI-authored commit ends with a co-author line, the same way a human co-author would be credited. It&rsquo;s in Barkhaus&rsquo;s real history &mdash; the server-side pricing fix (see the <a href="deep-dives.html#barkhaus">Barkhaus deep-dive</a>) was committed as:</p>
+        <p style="font-family:var(--font-mono);font-size:12.5px;background:var(--surface-2);padding:10px 14px;border-radius:8px;">Co-Authored-By: Claude Opus 4.8 &lt;noreply@anthropic.com&gt;</p>
+        <p>Small detail, real payoff: months later, <code>git log</code> still shows who &mdash; or what &mdash; wrote a line and why. The commit message is the explanation, not just the diff.</p>
+
+        <h3>What the retrospective actually taught</h3>
+        <ul class="findings">
+          <li><b>A good bug report is most of the fix.</b> Barkhaus&rsquo;s own retrospective: open reports with the exact error text, the network request and response, and the schema of the table involved &mdash; every fast fix in that project&rsquo;s history started that way.</li>
+          <li><b>&ldquo;Audit everything in this area&rdquo; beats one symptom at a time.</b> One such request in Barkhaus surfaced and fixed six latent bugs in a single pass, instead of six separate rounds.</li>
+          <li><b>Incidents become institutional memory, not folklore.</b> Barkhaus appends every root cause to a gotchas table in its own docs (<code>technical-doc.html</code> &sect;12) &mdash; the next session, human or AI, reads it instead of rediscovering the bug.</li>
+          <li><b>None of this replaces judgment on what can&rsquo;t be undone.</b> The Supabase boundary above exists because an agent is a fast, tireless drafter &mdash; not the party accountable when a migration goes wrong on a live, shared database.</li>
+        </ul>
+      </section>
+
+      <section id="claude-md">
+        <h2>Claude Code adapter: <code>CLAUDE.md</code></h2>
+        <p class="decision-default"><strong>Same concept in Codex:</strong> use <code>AGENTS.md</code>. The syntax and discovery rules differ, but the content should answer the same questions: what this project is, how to verify it, where the boundaries are, and what must not be guessed.</p>
+        <p>Every Claude Code chat starts with no memory of the last one. Without a briefing, it relearns each project by reading the code, which costs tokens every time and still misses what the code doesn&rsquo;t show: that <code>booking_date</code> is the day a booking was <em>created</em>, or that <code>supabase db push</code> from the MVL repo would touch Sansayaw&rsquo;s migration history. A <code>CLAUDE.md</code> file is that briefing. Claude reads it at the start of every chat in the folder.</p>
+
+        <h3>Why it earns its place</h3>
+        <ul class="findings">
+          <li><b>The traps in this handbook are invisible in the code.</b> Almost every item under &ldquo;Risks &amp; gotchas&rdquo; above is something a careful reader of the repo would still get wrong. Written down once, Claude avoids them in every chat.</li>
+          <li><b>It replaces re-exploration.</b> Commands, where things live, and which database a repo writes to take several file reads to rediscover. A few lines answer them for free.</li>
+          <li><b>It&rsquo;s where boundaries live.</b> &ldquo;Draft migrations, but I apply them&rdquo; is a decision only you can make, and without a written rule Claude has to guess or ask each time.</li>
+          <li><b>It isn&rsquo;t free.</b> The whole file is sent with every message, so every line is paid for repeatedly. Aim for roughly 30&ndash;150 lines, and point to longer docs instead of copying them in.</li>
+        </ul>
+
+        <h3>Where the files sit</h3>
+        <p>Claude combines every <code>CLAUDE.md</code> between your home folder and the folder it&rsquo;s working in. Sansayaw, with its separate Next.js site in <code>web/</code>, uses all three levels:</p>
+        <figure class="diagram">
+          <svg viewBox="0 0 720 262" role="img" aria-label="Three nested boxes. Outermost: the file in your home folder's .claude directory, read in every project, for personal rules such as Supabase changes are always applied by hand. Inside it: dance-scraper/CLAUDE.md, read for the whole Sansayaw repo, with commands, data, and rules. Innermost: web/CLAUDE.md, read only when Claude works inside the web folder, holding Next.js-specific notes. A label notes that an @ line such as @AGENTS.md pulls another file in, which is how Barkhaus works.">
+            <rect class="box" x="10" y="12" width="700" height="238" rx="10"></rect>
+            <text class="t t--title" x="30" y="40" font-size="13">~/.claude/CLAUDE.md</text>
+            <text class="lbl" x="690" y="40" text-anchor="end" font-size="10.5">every project</text>
+            <text class="t" x="30" y="60" font-size="11" opacity="0.7">personal rules &mdash; e.g. &ldquo;Supabase changes are always applied by hand&rdquo;</text>
+
+            <rect class="box box--key" x="40" y="78" width="640" height="154" rx="9"></rect>
+            <text class="t t--title" x="60" y="104" font-size="13">dance-scraper/CLAUDE.md</text>
+            <text class="lbl" x="660" y="104" text-anchor="end" font-size="10.5">this repo</text>
+            <text class="t" x="60" y="124" font-size="11" opacity="0.8">commands &middot; layout &middot; data &middot; rules that are easy to break &middot; boundaries</text>
+
+            <rect class="box" x="70" y="142" width="580" height="72" rx="8"></rect>
+            <text class="t t--title" x="90" y="168" font-size="13">web/CLAUDE.md</text>
+            <text class="lbl" x="630" y="168" text-anchor="end" font-size="10.5">only inside web/</text>
+            <text class="t" x="90" y="190" font-size="11" opacity="0.75">Next.js notes &mdash; one line, <tspan style="font-family: var(--font-mono)">@AGENTS.md</tspan>, pulls in the rest</text>
+          </svg>
+          <figcaption>A line like <code>@AGENTS.md</code> pulls another file into the briefing. Barkhaus works this way: a 13-line <code>CLAUDE.md</code> imports a 134-line <code>AGENTS.md</code> that other coding assistants read too, so the rules exist in one place.</figcaption>
+        </figure>
+
+        <h3>What goes in &mdash; one outline for every project</h3>
+        <p>Claude doesn&rsquo;t need the files to match, but you do: a shared outline tells you where a new rule belongs, and an empty section stands out as a question nobody has answered yet.</p>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Section</th><th>What belongs there</th><th>From this portfolio</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">What this is</td><td>Two or three lines: the product, the stack, and where the longer docs are. Add a folder table when one repo holds several apps.</td><td>Sansayaw: scraper at the root, site in <code>web/</code>, app in <code>mobile/</code>, and <code>frontend/</code> marked &ldquo;prototype, don&rsquo;t edit&rdquo;.</td></tr>
+              <tr><td class="grp">Commands</td><td>How to run, test, check and deploy &mdash; especially anything with a side effect.</td><td>Bonado: <code>npm run build &amp;&amp; npm run lint &amp;&amp; npm test</code>, exactly what CI runs. Sansayaw: <code>python run.py</code> <em>writes to the live database</em>.</td></tr>
+              <tr><td class="grp">Layout <span>optional</span></td><td>Only when the structure isn&rsquo;t obvious from the folder names.</td><td>MVL: everything public lives under <code>mvl/</code>; old URLs stay alive in <code>vercel.json</code>.</td></tr>
+              <tr><td class="grp">Backend &amp; data</td><td>Which database and schema, how migrations are applied, which files mirror the schema.</td><td>All three shared-project repos say so plainly: one Supabase project, three schemas, one blast radius.</td></tr>
+              <tr><td class="grp">Rules that are easy to break</td><td>The traps: tidy-looking changes that would do real damage.</td><td>Bonado: multi-row writes go through one database function. MVL: never <code>db push</code>. Sansayaw: never invent an instructor identity.</td></tr>
+              <tr><td class="grp">Boundaries</td><td>What Claude may do alone versus what you do by hand.</td><td>Barkhaus: Supabase changes are drafted in the repo and applied by you. MVL: ask before touching the client&rsquo;s production database.</td></tr>
+              <tr><td class="grp">Known debt <span>optional</span></td><td>Problems you know about and have chosen not to fix yet, so Claude doesn&rsquo;t &ldquo;helpfully&rdquo; start.</td><td>Bonado: the TanStack Query rewrite is deliberately parked.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Three excerpts</h3>
+        <p>Most lines tell Claude what <em>not</em> to do. That&rsquo;s deliberate: it can read what exists, but not which obvious-looking fix would break something.</p>
+        <div class="snippet">
+          <p class="snippet-label">bonado/CLAUDE.md &middot; Rules that are easy to break</p>
+<pre><code>- **Multi-row writes go through a SECURITY DEFINER function (RPC), never plain inserts.**
+- **Entry ids are generated on the device** so a retried or offline-synced submit lands once.
+- **Expenses store the exchange rate as of their date.** Never recompute with today's rate.</code></pre>
+        </div>
+        <div class="snippet">
+          <p class="snippet-label">mvl/CLAUDE.md &middot; Commands</p>
+<pre><code>- Apply one migration: `supabase db query --linked --file supabase/migrations/&lt;file&gt;.sql` (**never `db push`**)
+- Nav check after touching any nav &mdash; must print `1` (see `HANDOFF.md`, "Standing invariant")</code></pre>
+        </div>
+        <div class="snippet">
+          <p class="snippet-label">dance-scraper/CLAUDE.md &middot; Boundaries</p>
+<pre><code>- Don't run `python run.py` against production to test a change; test one scraper's parse step instead.
+- `.env` holds the service-role key. Never print it, commit it, or pass it to `web/` or `mobile/`.</code></pre>
+        </div>
+
+        <h3>What stays out</h3>
+        <ul class="findings">
+          <li><b>Anything the code already says.</b> Folder trees, dependency lists, how React works.</li>
+          <li><b>Long explanations.</b> Link to <code>HANDOFF.md</code> or the technical doc instead; every line is resent with every message.</li>
+          <li><b>Secrets.</b> The file is committed. Name where the key lives, never the key.</li>
+          <li><b>Generic advice.</b> &ldquo;Write clean, tested code&rdquo; changes nothing.</li>
+        </ul>
+
+        <h3>Where each project stands</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Project</th><th>Briefing today</th><th>Next step</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Barkhaus</td><td><code>CLAUDE.md</code> &rarr; <code>AGENTS.md</code>, the most complete in the portfolio</td><td>Fix the stale payment note: <code>AGENTS.md</code> still says manual transfer is active, but card checkout is live.</td></tr>
+              <tr><td class="grp">MVL 2026</td><td>Draft ready, not yet committed</td><td>Commit it, and check that <code>HANDOFF.md</code>&rsquo;s nav check (7 pages) still covers every page with a nav.</td></tr>
+              <tr><td class="grp">Sansayaw</td><td>Only <code>web/CLAUDE.md</code>; root draft ready</td><td>Confirm <code>frontend/</code> is truly dead, then commit.</td></tr>
+              <tr><td class="grp">Bonado</td><td>Draft ready, Boundaries left blank</td><td>Decide what Claude may do alone: apply migrations? push to <code>main</code>?</td></tr>
+              <tr><td class="grp">Demos &amp; personal</td><td>None</td><td>Probably not worth it. The one-line <code>/init</code> default is enough for scratch projects.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Keeping it true</h3>
+        <ul class="findings">
+          <li><b>Claude doesn&rsquo;t update it on its own.</b> When it trips on something in a chat, say &ldquo;add that to CLAUDE.md&rdquo; before you close the chat. Or do what Barkhaus does and write that instruction into the file itself.</li>
+          <li><b>Start new projects with <code>/init</code>,</b> which scans the repo and writes a first draft. Then trim it and reshape it to the outline above.</li>
+          <li><b>A wrong briefing is worse than none.</b> Barkhaus&rsquo;s <code>AGENTS.md</code> and MVL&rsquo;s <code>HANDOFF.md</code> have both drifted from the code, and Claude trusts what it&rsquo;s told. Update the file in the same commit as the change that makes it wrong.</li>
+        </ul>
+      </section>
+
+      <section id="skills">
+        <h2>Skills: repeatable procedures</h2>
+        <p>A <code>CLAUDE.md</code> holds facts that matter in every chat. A <strong>skill</strong> holds a procedure you only need sometimes: how to work through a round of test feedback, or how to prepare a database change you&rsquo;ll run by hand. Each skill is a folder containing a <code>SKILL.md</code> file.</p>
+
+        <h3>How Claude picks one</h3>
+        <figure class="diagram">
+          <svg viewBox="0 0 720 206" role="img" aria-label="Three steps left to right. First, at the start of every chat Claude sees only each installed skill's name and one-line description, which is cheap. Second, your request matches a description, for example I'm testing again, seeing the following. Third, Claude loads that skill's full instructions and follows them. A note below says you can also call a skill by name with a slash, and that Claude can only pick from installed skills.">
+            <defs>
+              <marker id="ahsk" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+              </marker>
+            </defs>
+            <rect class="box" x="10" y="20" width="210" height="110" rx="9"></rect>
+            <text class="t t--title" x="115" y="48" text-anchor="middle" font-size="13">Every chat starts</text>
+            <text class="t" x="115" y="74" text-anchor="middle" font-size="11" opacity="0.8">Claude sees each skill&rsquo;s</text>
+            <text class="t" x="115" y="91" text-anchor="middle" font-size="11" opacity="0.8">name + one-line description</text>
+            <text class="lbl" x="115" y="116" text-anchor="middle" font-size="10">cheap &middot; about a line each</text>
+
+            <line class="edge" x1="220" y1="75" x2="252" y2="75" marker-end="url(#ahsk)"></line>
+
+            <rect class="box" x="254" y="20" width="210" height="110" rx="9"></rect>
+            <text class="t t--title" x="359" y="48" text-anchor="middle" font-size="13">Your request matches</text>
+            <text class="t" x="359" y="74" text-anchor="middle" font-size="11" opacity="0.8">&ldquo;I&rsquo;m testing again,</text>
+            <text class="t" x="359" y="91" text-anchor="middle" font-size="11" opacity="0.8">seeing the ff&hellip;&rdquo;</text>
+            <text class="lbl" x="359" y="116" text-anchor="middle" font-size="10">matched against descriptions</text>
+
+            <line class="edge" x1="464" y1="75" x2="496" y2="75" marker-end="url(#ahsk)"></line>
+
+            <rect class="box box--key" x="498" y="20" width="212" height="110" rx="9"></rect>
+            <text class="t t--title" x="604" y="48" text-anchor="middle" font-size="13">Full skill loads</text>
+            <text class="t" x="604" y="74" text-anchor="middle" font-size="11" opacity="0.8">qa-pass/SKILL.md &mdash;</text>
+            <text class="t" x="604" y="91" text-anchor="middle" font-size="11" opacity="0.8">split, fix, retest list</text>
+            <text class="lbl" x="604" y="116" text-anchor="middle" font-size="10">only now is it paid for</text>
+
+            <text class="lbl" x="360" y="166" text-anchor="middle" font-size="10.5">or call one directly: /qa-pass</text>
+            <text class="lbl" x="360" y="188" text-anchor="middle" font-size="10.5">Claude can only pick from skills that are installed</text>
+          </svg>
+          <figcaption>This is why a design skill appeared when you asked for a design: your request matched its description. The description decides everything, so write it as &ldquo;use when&hellip;&rdquo; in the words you actually type.</figcaption>
+        </figure>
+
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th></th><th><code>CLAUDE.md</code></th><th>Skill</th><th>MCP server</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Holds</td><td>Facts and rules about one project</td><td>A procedure for one kind of task</td><td>Access to an outside system</td></tr>
+              <tr><td class="grp">Loaded</td><td>Every message</td><td>Only when the task comes up</td><td>Tool names up front</td></tr>
+              <tr><td class="grp">Example here</td><td>&ldquo;Never <code>db push</code> in MVL&rdquo;</td><td>&ldquo;How to hand over a Supabase change&rdquo;</td><td>Reading the live Supabase schema</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Where they come from</h3>
+        <ul class="findings">
+          <li><b>Built into Claude Code.</b> <code>/code-review</code>, <code>/security-review</code>, <code>/simplify</code>, <code>/init</code>, <code>/schedule</code>. Generic, and already good: no need to write your own versions.</li>
+          <li><b>Anthropic&rsquo;s skill pack.</b> Word, Excel, PowerPoint and PDF files, plus <code>skill-creator</code> for writing new skills.</li>
+          <li><b>Yours, for every project:</b> <code>~/.claude/skills/&lt;name&gt;/SKILL.md</code>. <b>Yours, for one repo:</b> <code>&lt;repo&gt;/.claude/skills/&lt;name&gt;/SKILL.md</code>, committed with the code. None exist yet. The built-in skills know PDFs and code review, but only yours can know that MVL uses <code>?v=</code> cache busters.</li>
+        </ul>
+
+        <h3>The skills this portfolio would have used</h3>
+        <p>These come from about 1,200 prompts across your past Claude Code chats since May, grouped by the requests that kept coming back. The counts are rough keyword matches. The drafts live in <code>~/Projects/claude-setup/skills/</code> and aren&rsquo;t active until copied into place.</p>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Skill</th><th>The pattern in your history</th><th>What it makes consistent</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">qa-pass<span>personal</span></td><td>~90 prompts like &ldquo;I&rsquo;m running testing again&hellip;&rdquo; with numbered observations, mostly Barkhaus. Items fixed in one surface resurfaced in another.</td><td>Split feedback into items, classify each, fix every surface, reply with a retest table, add missing scenarios to the test docs.</td></tr>
+              <tr><td class="grp">supabase-change<span>personal</span></td><td>~95 prompts on SQL, RLS, storage and edge functions: &ldquo;give me the query&rdquo;, &ldquo;schema cron does not exist&rdquo;, files uploaded but not showing.</td><td>Which project and schema, migration file, RLS/grants/storage checklist, schema reload, exact run steps, and a verification query.</td></tr>
+              <tr><td class="grp">ship-and-verify<span>personal</span></td><td>Dozens of &ldquo;is it live?&rdquo;, &ldquo;still the old version&rdquo;, &ldquo;NOT_FOUND after redeploying&rdquo;, &ldquo;redeploy with the cache buster&rdquo;.</td><td>Scoped commit, how each repo deploys, checking the live URL, cache busting, and saying plainly when it couldn&rsquo;t be verified.</td></tr>
+              <tr><td class="grp">surface-parity-check<span>barkhaus</span></td><td>&ldquo;Check that admin Add Booking aligns with booking.html&rdquo;, groomer options differing between flows, daycare pricing wrong only in admin.</td><td>A side-by-side table of every place a rule lives, with the server as the source of truth for money, before anything gets changed.</td></tr>
+              <tr><td class="grp">image-assets<span>mvl</span></td><td>Weeks of player photos and sponsor logos: trims, waist-up crops, uploads, and one bad day when quality dropped and more photos changed than intended.</td><td>Never edit originals, reuse the crop scripts, check a before/after sample, change only the files asked for, then publish with cache busting.</td></tr>
+              <tr><td class="grp">email-template<span>personal</span></td><td>Barkhaus confirmation headers not showing, deliverability fixes, MVL broadcast and vote-receipt emails with photo cards.</td><td>Edit the builder in the edge function, use email-safe HTML, preview with a script, and check the deliverability list.</td></tr>
+              <tr><td class="grp">app-store-release<span>personal</span></td><td>Bonado to TestFlight (&ldquo;not familiar with Xcode&rdquo;), then Sansayaw&rsquo;s listing text, privacy policy and support pages.</td><td>Version bump, Xcode archive steps in plain words, TestFlight notes, and the listing checklist.</td></tr>
+              <tr><td class="grp">handbook-deep-dive<span>personal</span></td><td>This handbook: four deep-dives and three topic sections, each re-explaining the format.</td><td>Start from the published version, research the code, use the fixed section structure, then publish and sync the local copy.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>One skill, in full</h3>
+        <div class="snippet">
+          <p class="snippet-label">~/.claude/skills/qa-pass/SKILL.md &middot; the top of the file</p>
+<pre><code>---
+name: qa-pass
+description: Work through a round of manual testing feedback. Use when Gelo pastes test observations,
+  a numbered list of issues from running a checklist or console test script, or says "I'm testing again",
+  "ran the manual checklist", "seeing the ff", or pastes failing test-script output.
+---
+
+## 1. Split and classify — before touching code
+| # | Observation (short) | Type | Surfaces affected |
+Type is one of: bug · change · question · test-script bug
+
+## 4. Report back as a retest list
+| # | Status | What changed | How to retest |</code></pre>
+        </div>
+        <p>The description repeats your own phrases (&ldquo;testing again&rdquo;, &ldquo;the ff&rdquo;), so it matches the way you actually ask. The steps capture what took many rounds to learn: fix every surface, and end with a list you can retest from.</p>
+
+        <h3>Not worth a skill (yet)</h3>
+        <ul class="findings">
+          <li><b>Adding a Sansayaw studio.</b> It came up only a handful of times, and the scraper code is the real guide. Revisit if studios keep arriving.</li>
+          <li><b>MVL rule changes mid-event.</b> These are covered by <code>supabase-change</code> plus MVL&rsquo;s <code>CLAUDE.md</code> rule to change rules in the database function.</li>
+          <li><b>Code review and security review.</b> Already built in. Run <code>/security-review</code> before anything touching payments or RLS ships.</li>
+        </ul>
+
+        <h3>Rolling them out</h3>
+        <ol class="next">
+          <li>Start with <strong>qa-pass</strong> and <strong>supabase-change</strong>, which cover the most prompts, and install them in <code>~/.claude/skills/</code>.</li>
+          <li>Use them for a week. If a skill didn&rsquo;t load when it should have, reword its description with the phrase you used.</li>
+          <li>When a skill gets something wrong, fix the <code>SKILL.md</code> right then. Same rule as <code>CLAUDE.md</code>: a wrong procedure is worse than none.</li>
+          <li>Commit the project skills (<code>surface-parity-check</code>, <code>image-assets</code>) into their repos so they travel with the code.</li>
+        </ol>
+      </section>
+
+      <section id="mcp">
+        <h2>MCP: giving Claude access</h2>
+        <p><code>CLAUDE.md</code> tells Claude the rules and a skill tells it how to do a task. <strong>MCP</strong> (Model Context Protocol) gives it <em>access</em>: a standard way to connect Claude to a database, a hosting dashboard, or an analytics account. Each connection is an <strong>MCP server</strong>, and each server offers a set of tools, such as &ldquo;list tables&rdquo; or &ldquo;get deployment&rdquo;, that Claude can call when a task needs them.</p>
+        <p>You already use MCP without knowing it: the built-in browser, Chrome control, scheduled tasks and the terminal panel in the desktop app are all MCP servers the app provides. None are connected to your own services yet.</p>
+
+        <h3>Three ways Claude reaches things</h3>
+        <figure class="diagram">
+          <svg viewBox="0 0 720 300" role="img" aria-label="Claude Code at the top connects down to three columns. Your files: read and edit code in ~/Projects directly. Your terminal: command-line tools already installed, gh logged in to GitHub and the supabase CLI, which can write. MCP servers: connections to outside services, such as Supabase read-only scoped to one project and Vercel deployments and build logs. A note says to prefer a command-line tool when one exists, and MCP when there is none or when read-only access is safer.">
+            <defs>
+              <marker id="ahmc" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+              </marker>
+            </defs>
+            <rect class="box" x="235" y="12" width="250" height="44" rx="8"></rect>
+            <text class="t t--title" x="360" y="39" text-anchor="middle" font-size="14">Claude Code</text>
+
+            <polyline class="edge" points="300,56 300,76 120,76 120,96" marker-end="url(#ahmc)"></polyline>
+            <line class="edge" x1="360" y1="56" x2="360" y2="96" marker-end="url(#ahmc)"></line>
+            <polyline class="edge" points="420,56 420,76 600,76 600,96" marker-end="url(#ahmc)"></polyline>
+
+            <rect class="box" x="10" y="98" width="220" height="150" rx="9"></rect>
+            <text class="t t--title" x="120" y="124" text-anchor="middle" font-size="13">Your files</text>
+            <text class="t" x="120" y="150" text-anchor="middle" font-size="11" opacity="0.8">read &amp; edit code</text>
+            <text class="t" x="120" y="167" text-anchor="middle" font-size="11" opacity="0.8">in ~/Projects</text>
+            <text class="lbl" x="120" y="230" text-anchor="middle" font-size="10">always there</text>
+
+            <rect class="box" x="250" y="98" width="220" height="150" rx="9"></rect>
+            <text class="t t--title" x="360" y="124" text-anchor="middle" font-size="13">Your terminal</text>
+            <text class="t" x="360" y="150" text-anchor="middle" font-size="11" opacity="0.8">gh &mdash; logged in to GitHub</text>
+            <text class="t" x="360" y="167" text-anchor="middle" font-size="11" opacity="0.8">supabase CLI &mdash; can write</text>
+            <text class="lbl" x="360" y="230" text-anchor="middle" font-size="10">tools you&rsquo;ve installed</text>
+
+            <rect class="box box--key" x="490" y="98" width="220" height="150" rx="9"></rect>
+            <text class="t t--title" x="600" y="124" text-anchor="middle" font-size="13">MCP servers</text>
+            <text class="t" x="600" y="150" text-anchor="middle" font-size="11" opacity="0.8">Supabase &mdash; read-only,</text>
+            <text class="t" x="600" y="167" text-anchor="middle" font-size="11" opacity="0.8">one project each</text>
+            <text class="t" x="600" y="190" text-anchor="middle" font-size="11" opacity="0.8">Vercel &mdash; deploys &amp; logs</text>
+            <text class="lbl" x="600" y="230" text-anchor="middle" font-size="10">services you connect</text>
+
+            <text class="lbl" x="360" y="282" text-anchor="middle" font-size="10.5">prefer a command-line tool when one exists &middot; MCP when there isn&rsquo;t one, or when read-only is safer</text>
+          </svg>
+          <figcaption>MCP is the third route, not a replacement for the other two. GitHub is already covered by <code>gh</code>. Supabase has a command-line tool too, but it can write to production, and a read-only MCP connection can&rsquo;t.</figcaption>
+        </figure>
+
+        <h3>Why it matters here</h3>
+        <p>About <strong>30 of your past prompts were you pasting data in by hand</strong>: table rows (<code>[{"idx":0,"id":&hellip;</code>), column lists, RLS policy dumps, &ldquo;here&rsquo;s my schema&rdquo;, &ldquo;below is the existing edge function&rdquo;. Every one was a round trip where Claude couldn&rsquo;t look for itself, and the pasted copy could already be out of date. A read-only Supabase connection removes those round trips. A Vercel connection does the same for &ldquo;is it live?&rdquo; and NOT_FOUND after a redeploy.</p>
+
+        <h3>What to connect</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Server</th><th>Use it for</th><th>Set it up as</th><th>Verdict</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Supabase</td><td>Schemas, RLS policies, rows and function logs, read directly</td><td>Read-only, one connection per project: Barkhaus, and the shared <code>sansayaw</code> project</td><td><span class="pill pill--live">Connect first</span></td></tr>
+              <tr><td class="grp">Vercel</td><td>Deployment status and build logs for MVL, Bonado and the Sansayaw site</td><td>As is: its tools only list and inspect</td><td><span class="pill pill--live">Connect</span></td></tr>
+              <tr><td class="grp">Sentry</td><td>Crash reports with stack traces</td><td>After switching on Sentry in Bonado, where it&rsquo;s built but inactive</td><td><span class="pill pill--proto">Later</span></td></tr>
+              <tr><td class="grp">PostHog</td><td>Usage questions about the Sansayaw app</td><td>Read-only questions</td><td><span class="pill pill--proto">If needed</span></td></tr>
+              <tr><td class="grp">GitHub</td><td>PRs, issues, CI runs</td><td>&mdash;</td><td><span class="pill pill--demo">Skip: gh does it</span></td></tr>
+              <tr><td class="grp">Resend</td><td>Email</td><td>&mdash;</td><td><span class="pill pill--demo">Skip for now</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:13px;color:var(--muted)">Resend&rsquo;s server has about 85 tools, including sending broadcasts and creating API keys. Keep outgoing email a deliberate, manual action.</p>
+
+        <h3>Rules for connecting anything</h3>
+        <ul class="findings">
+          <li><b>Read-only for anything in production.</b> Write access to a live database through a connection is the same as handing over the admin password. <code>CLAUDE.md</code> can <em>ask</em> Claude not to apply migrations; a read-only connection makes it impossible.</li>
+          <li><b>One project per connection.</b> Barkhaus&rsquo;s connection shouldn&rsquo;t be able to reach the shared project that holds MVL, Bonado and Sansayaw, and the reverse. Shared blast radius is already this portfolio&rsquo;s biggest structural risk; don&rsquo;t extend it to Claude&rsquo;s access.</li>
+          <li><b>What comes back is data, not instructions.</b> A table row, a log line or an email body can contain text that looks like a command. Claude treats it as content, and so should you when reviewing what it did.</li>
+          <li><b>Connect what you&rsquo;ll use.</b> Each server adds tools Claude has to choose between. The app loads tool details only when needed, but ten idle connections still add noise and more to review.</li>
+        </ul>
+
+        <h3>How the three work together: one Supabase change</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Piece</th><th>Its part in the change</th></tr></thead>
+            <tbody>
+              <tr><td class="grp"><code>CLAUDE.md</code><span>the rule</span></td><td>&ldquo;MVL is the <code>mvl</code> schema in the shared project. Never <code>db push</code>. Ask before applying anything live.&rdquo;</td></tr>
+              <tr><td class="grp">Skill<span>the procedure</span></td><td><code>supabase-change</code>: write a migration file, go through the RLS, grants and storage checklist, then hand over exact run steps and a verification query.</td></tr>
+              <tr><td class="grp">MCP<span>the access</span></td><td>Read-only Supabase: check that RLS is actually on, see the existing policies and columns, and run the verification query after you&rsquo;ve applied the change.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Setting it up</h3>
+        <ul class="findings">
+          <li><b>In the desktop app:</b> add a connector from Claude&rsquo;s settings. Sign-in happens on the service&rsquo;s own page, and you do it yourself.</li>
+          <li><b>For one repo:</b> a <code>.mcp.json</code> file in the repo root lists that repo&rsquo;s servers and is committed with the code. It&rsquo;s the cleanest way to give each repo only its own Supabase project.</li>
+        </ul>
+        <div class="snippet">
+          <p class="snippet-label">mvl/.mcp.json &middot; a sketch; check Supabase&rsquo;s MCP docs for the current options</p>
+<pre><code>{
+  "mcpServers": {
+    "supabase": {
+      "type": "http",
+      "url": "https://mcp.supabase.com/mcp?project_ref=&lt;sansayaw-project-ref&gt;&amp;read_only=true"
+    }
+  }
+}</code></pre>
+        </div>
+        <p>The project ref appears in each repo&rsquo;s Supabase URL (MVL records it in <code>backend/README.md</code>). Barkhaus&rsquo;s file points at Barkhaus&rsquo;s project. Bonado, MVL and <code>dance-scraper</code> each point at <code>sansayaw</code>, and each repo&rsquo;s <code>CLAUDE.md</code> says which schema is its own.</p>
+
+        <h3>Next steps</h3>
+        <ol class="next">
+          <li>Connect <strong>Supabase</strong> read-only and try it on a real question, e.g. &ldquo;which tables in the <code>bonado</code> schema have RLS off?&rdquo;</li>
+          <li>Add a <code>.mcp.json</code> per repo so each one reaches only its own project.</li>
+          <li>Connect <strong>Vercel</strong>, and add &ldquo;check the deployment through Vercel&rdquo; to the <code>ship-and-verify</code> skill.</li>
+          <li>Revisit <strong>Sentry</strong> the day Bonado&rsquo;s error tracking goes live.</li>
+        </ol>
+      </section>
+
+      <section id="scheduled">
+        <h2>Scheduled runs: work while you&rsquo;re away</h2>
+        <p>Everything so far happens while you&rsquo;re in a chat. A <strong>scheduled run</strong> starts Claude on its own, at a set time or when something happens, and leaves the result for you to read. This portfolio already runs scheduled <em>scripts</em>. What it doesn&rsquo;t have yet is anything scheduled that needs judgment.</p>
+
+        <h3>Script or Claude? Pick before you schedule</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th></th><th>Scheduled script</th><th>Scheduled Claude run</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">What runs</td><td>Fixed code that does the same thing every time</td><td>A Claude session that reads, reasons and reports</td></tr>
+              <tr><td class="grp">Already here</td><td>Sansayaw&rsquo;s 6 AM scrape and Barkhaus&rsquo;s 20-minute payment health check (GitHub Actions). Barkhaus&rsquo;s unpaid-hold cancel and Bonado&rsquo;s notification cleanup (<code>pg_cron</code>).</td><td>None yet</td></tr>
+              <tr><td class="grp">Good for</td><td>A clear rule: &ldquo;run the scraper&rdquo;, &ldquo;cancel holds whose payment window expired&rdquo;</td><td>Needs someone to look: &ldquo;does this data seem wrong?&rdquo;, &ldquo;do the docs still match the code?&rdquo;</td></tr>
+              <tr><td class="grp">Cost</td><td>Nearly free</td><td>Each run is a full Claude session against your plan&rsquo;s limits</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p><strong>If you can write the check as an <code>if</code> statement, make it a script.</strong> Save Claude runs for checks where the answer takes reading.</p>
+
+        <h3>Choosing where it runs</h3>
+        <figure class="diagram">
+          <svg viewBox="0 0 720 360" role="img" aria-label="A decision flow. Start: something should happen on a schedule. Question one: can the check be written as a fixed rule? Yes leads to a script, GitHub Actions or pg_cron. No leads to question two: is it only for the chat you're in right now? Yes leads to /loop. No leads to question three: does it need local files, command-line tools or secrets that aren't on GitHub? Yes leads to a desktop scheduled task, which runs on your Mac while the app is open. No leads to a cloud routine, which runs in Anthropic's cloud on your GitHub repos, even with your Mac off.">
+            <defs>
+              <marker id="ahsc" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+              </marker>
+            </defs>
+            <rect class="box" x="10" y="14" width="300" height="46" rx="8"></rect>
+            <text class="t t--title" x="160" y="42" text-anchor="middle" font-size="12.5">Something should happen on a schedule</text>
+            <line class="edge" x1="160" y1="60" x2="160" y2="84" marker-end="url(#ahsc)"></line>
+
+            <rect class="box" x="10" y="86" width="300" height="46" rx="8"></rect>
+            <text class="t" x="160" y="114" text-anchor="middle" font-size="12">Can the check be a fixed rule?</text>
+            <line class="edge" x1="310" y1="109" x2="438" y2="109" marker-end="url(#ahsc)"></line>
+            <text class="lbl" x="374" y="101" text-anchor="middle" font-size="10">yes</text>
+            <rect class="box" x="440" y="86" width="270" height="46" rx="8"></rect>
+            <text class="t t--title" x="575" y="106" text-anchor="middle" font-size="12">Script</text>
+            <text class="t" x="575" y="122" text-anchor="middle" font-size="10.5" opacity="0.65">GitHub Actions &middot; pg_cron</text>
+            <line class="edge" x1="160" y1="132" x2="160" y2="156" marker-end="url(#ahsc)"></line>
+            <text class="lbl" x="172" y="148" font-size="10">no</text>
+
+            <rect class="box" x="10" y="158" width="300" height="46" rx="8"></rect>
+            <text class="t" x="160" y="186" text-anchor="middle" font-size="12">Only for the chat you&rsquo;re in now?</text>
+            <line class="edge" x1="310" y1="181" x2="438" y2="181" marker-end="url(#ahsc)"></line>
+            <text class="lbl" x="374" y="173" text-anchor="middle" font-size="10">yes</text>
+            <rect class="box" x="440" y="158" width="270" height="46" rx="8"></rect>
+            <text class="t t--title" x="575" y="178" text-anchor="middle" font-size="12">/loop</text>
+            <text class="t" x="575" y="194" text-anchor="middle" font-size="10.5" opacity="0.65">ends with the chat</text>
+            <line class="edge" x1="160" y1="204" x2="160" y2="228" marker-end="url(#ahsc)"></line>
+            <text class="lbl" x="172" y="220" font-size="10">no</text>
+
+            <rect class="box" x="10" y="230" width="300" height="56" rx="8"></rect>
+            <text class="t" x="160" y="254" text-anchor="middle" font-size="12">Needs local files, tools or secrets</text>
+            <text class="t" x="160" y="271" text-anchor="middle" font-size="12">that aren&rsquo;t on GitHub?</text>
+            <line class="edge" x1="310" y1="258" x2="438" y2="258" marker-end="url(#ahsc)"></line>
+            <text class="lbl" x="374" y="250" text-anchor="middle" font-size="10">yes</text>
+            <rect class="box box--key" x="440" y="232" width="270" height="52" rx="8"></rect>
+            <text class="t t--title" x="575" y="253" text-anchor="middle" font-size="12">Desktop scheduled task</text>
+            <text class="t" x="575" y="270" text-anchor="middle" font-size="10.5" opacity="0.7">your Mac &middot; while the app is open</text>
+            <polyline class="edge" points="160,286 160,326 438,326" marker-end="url(#ahsc)"></polyline>
+            <text class="lbl" x="172" y="310" font-size="10">no</text>
+            <rect class="box box--key" x="440" y="302" width="270" height="52" rx="8"></rect>
+            <text class="t t--title" x="575" y="323" text-anchor="middle" font-size="12">Cloud routine</text>
+            <text class="t" x="575" y="340" text-anchor="middle" font-size="10.5" opacity="0.7">Anthropic&rsquo;s cloud &middot; GitHub repos &middot; Mac can be off</text>
+          </svg>
+          <figcaption>Most review-style jobs for this portfolio land in the two highlighted boxes. The first question weeds out the jobs that never needed Claude.</figcaption>
+        </figure>
+
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th></th><th>Cloud routine</th><th>Desktop scheduled task</th><th>/loop</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Set up with</td><td><code>/schedule</code></td><td>Asking Claude in the desktop app (&ldquo;every Monday at 9&hellip;&rdquo;)</td><td><code>/loop 5m &hellip;</code> in a chat</td></tr>
+              <tr><td class="grp">Your Mac</td><td>Can be off</td><td>App open; a missed run happens at next launch</td><td>Chat must stay open</td></tr>
+              <tr><td class="grp">Can see</td><td>A fresh copy of your GitHub repos, plus connected services</td><td>Everything local: <code>~/Projects</code>, <code>gh</code>, the <code>supabase</code> command-line tool, connectors</td><td>Whatever the chat can see</td></tr>
+              <tr><td class="grp">Can&rsquo;t see</td><td>Local files, <code>.env</code> secrets, repos with no GitHub remote</td><td>Anything while the app is closed</td><td>Anything after the chat ends</td></tr>
+              <tr><td class="grp">Lasts</td><td>Until paused or deleted</td><td>Until disabled</td><td>The chat; repeating loops stop after 7 days</td></tr>
+              <tr><td class="grp">Extra</td><td>Can also be started by a GitHub event, such as a new PR</td><td>Stored as a <code>SKILL.md</code> in <code>~/.claude/scheduled-tasks/</code></td><td>Good for watching a deploy</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Rules for unattended runs</h3>
+        <ul class="findings">
+          <li><b>Every run starts from nothing.</b> It remembers no chat, so the prompt must say exactly what to check, where, and how to report. It does read each repo&rsquo;s <code>CLAUDE.md</code> and your skills, which is why those came first.</li>
+          <li><b>Report, don&rsquo;t act.</b> With nobody watching, a run reads, checks and writes a report, or at most opens a PR or a draft. It never deploys, applies migrations or sends email. These are the same boundaries as in the <code>CLAUDE.md</code> files, and they matter more here.</li>
+          <li><b>Define &ldquo;nothing to report&rdquo;.</b> A run that says &ldquo;all fine&rdquo; in three paragraphs every week gets ignored. Ask for one line when nothing needs attention.</li>
+          <li><b>Content isn&rsquo;t instructions.</b> A run reading scraped pages or issue comments on its own can meet text that tries to redirect it. Report-only runs limit what that could do.</li>
+          <li><b>Weekly is usually enough.</b> Every Claude run uses your limits. Put anything that needs to run often into a script.</li>
+        </ul>
+
+        <h3>Runs this portfolio would use</h3>
+        <p>Each one closes a gap already listed under a project&rsquo;s &ldquo;Risks &amp; gotchas&rdquo;.</p>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Run</th><th>Kind &middot; when</th><th>What it does</th><th>Gap it closes</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Scrape alert<span>sansayaw</span></td><td><span class="pill pill--demo">Script</span><br>after each scrape</td><td>A step in <code>scrape.yml</code> that sends a message when a run is partial or a studio returns zero classes</td><td>&ldquo;Failures are visible only in a log&rdquo;: the biggest Sansayaw gap, and a clear rule</td></tr>
+              <tr><td class="grp">Data review<span>sansayaw</span></td><td><span class="pill pill--live">Desktop</span><br>weekly</td><td>Studios whose counts dropped sharply, garbled or &ldquo;TBA&rdquo; instructor names, unlinked instructors piling up</td><td>&ldquo;A format change that still parses can quietly publish wrong data&rdquo;</td></tr>
+              <tr><td class="grp">Docs drift check<span>all repos</span></td><td><span class="pill pill--live">Cloud</span><br>weekly</td><td>Compares <code>AGENTS.md</code>, <code>HANDOFF.md</code> and <code>CLAUDE.md</code> with the code and lists the claims that are no longer true</td><td>Barkhaus&rsquo;s payment docs and MVL&rsquo;s handoff both went stale</td></tr>
+              <tr><td class="grp">Security review<span>barkhaus &middot; bonado</span></td><td><span class="pill pill--live">Cloud</span><br>weekly</td><td>Runs <code>/security-review</code> over the week&rsquo;s commits and reports findings only</td><td>Real money and personal data, one maintainer, no second reviewer</td></tr>
+              <tr><td class="grp">Tidy-up report<span>~/Projects</span></td><td><span class="pill pill--live">Desktop</span><br>monthly</td><td>Merged worktrees, stale branches, uncommitted drafts; you decide what to delete</td><td>&ldquo;A tidy-up job once the branches merge&rdquo; (the <code>mvl-*</code> worktrees)</td></tr>
+              <tr><td class="grp">Deploy watch<span>any</span></td><td><span class="pill pill--proto">/loop</span><br>in the moment</td><td>Checks every few minutes until the build finishes, then confirms the live URL</td><td>&ldquo;Is it live yet?&rdquo; during a working session</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="snippet">
+          <p class="snippet-label">Sketch &middot; the Sansayaw data review as a desktop task prompt</p>
+<pre><code>Weekly Sansayaw data review. Report only: do not edit code, data or config.
+
+In ~/Projects/dance-scraper, using the read-only Supabase connection (sansayaw schema):
+1. Compare each studio's class count in the latest scrape_run with its 4-week average.
+   Flag drops over 50% and studios at zero.
+2. List instructor names added this week that look garbled, generic ("TBA", "Sub"),
+   or still unlinked. Count the unlinked backlog.
+3. Check the last 7 scrape_runs: how many were partial, and which studios failed.
+
+Output: if nothing needs attention, reply with one line: "Sansayaw data looks healthy."
+Otherwise a short table: studio · issue · evidence · suggested next step.</code></pre>
+        </div>
+
+        <h3>Next steps</h3>
+        <ol class="next">
+          <li>Add the <strong>scrape alert</strong> step to Sansayaw&rsquo;s workflow. It&rsquo;s a script, so it costs nothing to run.</li>
+          <li>Set up the <strong>Sansayaw data review</strong> as a weekly desktop task once Supabase is connected read-only.</li>
+          <li>Add the <strong>docs drift check</strong> as a cloud routine after the <code>CLAUDE.md</code> files are committed, since they become part of what it checks.</li>
+          <li>After a month, drop any run whose reports you stopped reading.</li>
+        </ol>
+      </section>
+
+      <section id="hooks">
+        <h2>Hooks: rules that enforce themselves</h2>
+        <p>A <strong>hook</strong> is a shell command Claude Code runs automatically at a set moment: before a tool runs, after a file is edited, when Claude is about to finish a reply, when a chat starts. Claude doesn&rsquo;t decide to run it; the app runs it every time. That makes hooks the only piece here that doesn&rsquo;t depend on Claude remembering something.</p>
+
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th></th><th><code>CLAUDE.md</code></th><th>Skill</th><th>MCP</th><th>Hook</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Does</td><td>States the rules</td><td>Describes a procedure</td><td>Gives access</td><td>Enforces or automates</td></tr>
+              <tr><td class="grp">Relies on</td><td>Claude following it</td><td>The description matching</td><td>What&rsquo;s connected</td><td>Nothing: the app runs it</td></tr>
+              <tr><td class="grp">MVL example</td><td>&ldquo;Never <code>db push</code>&rdquo;</td><td><code>supabase-change</code></td><td>Read-only Supabase</td><td><code>db push</code> is refused</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Where hooks sit in a single turn</h3>
+        <figure class="diagram">
+          <svg viewBox="0 0 720 330" role="img" aria-label="A turn from left to right. Your message goes to Claude, which plans using CLAUDE.md and skills. Before each tool call, a PreToolUse hook can block it and send the reason back to Claude, which adjusts. The tool runs. After it, a PostToolUse hook can report a problem, such as a failed nav check, back to Claude. When Claude is about to reply, a Stop hook can send it back to keep working, such as when tests fail. Otherwise the reply reaches you. SessionStart runs once when the chat opens and adds context.">
+            <defs>
+              <marker id="ahhk" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+              </marker>
+            </defs>
+            <text class="lbl" x="84" y="22" text-anchor="middle" font-size="10">SessionStart: adds context once</text>
+
+            <rect class="box" x="10" y="40" width="148" height="62" rx="8"></rect>
+            <text class="t t--title" x="84" y="66" text-anchor="middle" font-size="12.5">Claude plans</text>
+            <text class="t" x="84" y="85" text-anchor="middle" font-size="10.5" opacity="0.65">CLAUDE.md &middot; skills</text>
+
+            <line class="edge" x1="158" y1="71" x2="190" y2="71" marker-end="url(#ahhk)"></line>
+
+            <rect class="box box--key" x="192" y="40" width="148" height="62" rx="8"></rect>
+            <text class="t t--title" x="266" y="66" text-anchor="middle" font-size="12.5">PreToolUse</text>
+            <text class="t" x="266" y="85" text-anchor="middle" font-size="10.5" opacity="0.7">guard: allow or block</text>
+
+            <line class="edge" x1="340" y1="71" x2="372" y2="71" marker-end="url(#ahhk)"></line>
+
+            <rect class="box" x="374" y="40" width="148" height="62" rx="8"></rect>
+            <text class="t t--title" x="448" y="66" text-anchor="middle" font-size="12.5">Tool runs</text>
+            <text class="t" x="448" y="85" text-anchor="middle" font-size="10.5" opacity="0.65">edit &middot; command</text>
+
+            <line class="edge" x1="522" y1="71" x2="554" y2="71" marker-end="url(#ahhk)"></line>
+
+            <rect class="box box--key" x="556" y="40" width="154" height="62" rx="8"></rect>
+            <text class="t t--title" x="633" y="66" text-anchor="middle" font-size="12.5">PostToolUse</text>
+            <text class="t" x="633" y="85" text-anchor="middle" font-size="10.5" opacity="0.7">check: report a problem</text>
+
+            <polyline class="edge" points="266,102 266,142 84,142 84,104" marker-end="url(#ahhk)"></polyline>
+            <text class="lbl" x="175" y="160" text-anchor="middle" font-size="10">exit 2 &rarr; blocked, reason goes to Claude</text>
+
+            <polyline class="edge" points="633,102 633,190 84,190 84,104" stroke-dasharray="4 4" marker-end="url(#ahhk)"></polyline>
+            <text class="lbl" x="440" y="208" text-anchor="middle" font-size="10">problem found &rarr; Claude fixes it next</text>
+
+            <text class="lbl" x="360" y="236" text-anchor="middle" font-size="10">&hellip; more tool calls &hellip;</text>
+
+            <rect class="box box--key" x="192" y="252" width="148" height="62" rx="8"></rect>
+            <text class="t t--title" x="266" y="278" text-anchor="middle" font-size="12.5">Stop</text>
+            <text class="t" x="266" y="297" text-anchor="middle" font-size="10.5" opacity="0.7">is it really done?</text>
+
+            <line class="edge" x1="340" y1="283" x2="554" y2="283" marker-end="url(#ahhk)"></line>
+            <text class="lbl" x="447" y="275" text-anchor="middle" font-size="10">passes</text>
+
+            <rect class="box" x="556" y="252" width="154" height="62" rx="8"></rect>
+            <text class="t t--title" x="633" y="278" text-anchor="middle" font-size="12.5">Reply to you</text>
+
+            <polyline class="edge" points="192,283 40,283 40,104" marker-end="url(#ahhk)"></polyline>
+            <text class="lbl" x="110" y="275" text-anchor="middle" font-size="10">fails &rarr; keep working</text>
+          </svg>
+          <figcaption>The three highlighted checkpoints are where hooks change what happens. A guard stops a bad action before it runs, a check catches a problem right after, and a <code>Stop</code> hook keeps &ldquo;done&rdquo; from being declared early.</figcaption>
+        </figure>
+
+        <h3>The events that matter here</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Event</th><th>Fires</th><th>What a hook can do</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">PreToolUse</td><td>Before a tool runs, e.g. a shell command or a file edit</td><td>Block it, and tell Claude why and what to do instead</td></tr>
+              <tr><td class="grp">PostToolUse</td><td>After a tool succeeds</td><td>It can&rsquo;t undo the action, but it can hand Claude a problem to fix</td></tr>
+              <tr><td class="grp">Stop</td><td>When Claude is about to finish its reply</td><td>Send Claude back to keep working</td></tr>
+              <tr><td class="grp">SessionStart</td><td>When a chat starts or resumes</td><td>Anything it prints becomes context Claude sees</td></tr>
+              <tr><td class="grp">Notification</td><td>When Claude needs your attention</td><td>Nothing for Claude, but it can alert you, e.g. with a Mac notification</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Claude Code passes the hook a description of what&rsquo;s happening, including <code>tool_name</code>, <code>tool_input.command</code> and <code>tool_input.file_path</code>. The hook answers with its exit code: <strong>0</strong> means carry on, <strong>2</strong> means block, and whatever it printed to stderr goes back to Claude as the reason. Hooks live in the same settings files as permissions: <code>~/.claude/settings.json</code> for all projects, <code>.claude/settings.json</code> in a repo (committed), or <code>.claude/settings.local.json</code> (just you).</p>
+
+        <h3>One hook, in full</h3>
+        <div class="snippet">
+          <p class="snippet-label">mvl/.claude/settings.json</p>
+<pre><code>{
+  "hooks": {
+    "PreToolUse": [
+      { "matcher": "Bash",
+        "hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard.sh" }] }
+    ]
+  }
+}</code></pre>
+        </div>
+        <div class="snippet">
+          <p class="snippet-label">mvl/.claude/hooks/guard.sh</p>
+<pre><code>#!/bin/bash
+# Refuse commands that touch the shared production project
+cmd=$(jq -r '.tool_input.command')
+if [[ "$cmd" == *"supabase db push"* ]]; then
+  echo "Blocked: never db push from MVL. The migration history belongs to Sansayaw.
+Use: supabase db query --linked --file &lt;migration&gt;" &gt;&amp;2
+  exit 2
+fi
+exit 0</code></pre>
+        </div>
+        <p>Claude reads the refusal, sees the right command, and changes course. The message is written as an instruction, not just a &ldquo;no&rdquo;, because Claude acts on it.</p>
+
+        <h3>Hooks this portfolio would use</h3>
+        <p>Each one enforces a rule already written in a <code>CLAUDE.md</code> draft, or catches a mistake from your history.</p>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Hook</th><th>Event</th><th>Where</th><th>What it does</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Production guard</td><td>PreToolUse &middot; Bash</td><td>mvl, bonado, dance-scraper</td><td>Refuses <code>supabase db push</code>, <code>supabase functions deploy</code>, <code>git push --force</code>, and <code>python run.py</code> (the scraper writes to the live database)</td></tr>
+              <tr><td class="grp">Applied migrations</td><td>PreToolUse &middot; Edit, Write</td><td>barkhaus, bonado, mvl</td><td>Allows new files in <code>supabase/migrations/</code>; refuses changes to files that already exist there</td></tr>
+              <tr><td class="grp">Secrets guard</td><td>PreToolUse &middot; Read, Edit, Write</td><td>all</td><td>Refuses <code>.env</code> and <code>.env.local</code>, which hold keys, including Sansayaw&rsquo;s service-role key. Built and tested: see <a href="together.html#security-baseline">Security baseline</a>.</td></tr>
+              <tr><td class="grp">Nav check</td><td>PostToolUse &middot; Edit</td><td>mvl</td><td>After an <code>.html</code> edit, runs the nav-hash check. If the navs no longer match, Claude is told right away.</td></tr>
+              <tr><td class="grp">Done means CI passes</td><td>Stop</td><td>bonado</td><td>Runs <code>npm run build &amp;&amp; npm run lint &amp;&amp; npm test</code> when files changed. On failure, Claude keeps working instead of saying &ldquo;done&rdquo;.</td></tr>
+              <tr><td class="grp">Board check</td><td>SessionStart</td><td>barkhaus</td><td>Prints claimed tasks from <code>.agents/BOARD.md</code> so each chat knows what other chats are doing</td></tr>
+              <tr><td class="grp">Needs you</td><td>Notification</td><td>all (user level)</td><td>A Mac notification when a chat is waiting on you, for days with several chats open</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Things to know</h3>
+        <ul class="findings">
+          <li><b>Hooks run with your permissions, automatically.</b> A hook in a repo runs on your Mac as you, which is why project hooks only run once you&rsquo;ve trusted the folder. Read the hooks in any repo you didn&rsquo;t write.</li>
+          <li><b>Keep them fast.</b> A <code>PostToolUse</code> hook runs after every matching edit. The Bonado build-lint-test run belongs in <code>Stop</code> (once per reply), not after each edit.</li>
+          <li><b>A guard is a safety net, not a wall.</b> A text match catches <code>supabase db push</code>, but the same result can be reached another way. Guards catch honest mistakes. Read-only credentials (see <a href="#mcp">MCP</a>) are the real protection for production.</li>
+          <li><b>Keep the rule in <code>CLAUDE.md</code> too.</b> The written rule explains why, so Claude plans around it and rarely hits the guard. The hook is there for the time it forgets.</li>
+        </ul>
+
+        <h3>Next steps</h3>
+        <ol class="next">
+          <li>Install the <strong>production guard</strong> in MVL and test it by asking Claude to <code>db push</code>. It only blocks, so it can&rsquo;t break anything.</li>
+          <li>Copy it to Bonado and <code>dance-scraper</code>, adding <code>python run.py</code> for the scraper.</li>
+          <li>Add the <strong>Stop hook</strong> to Bonado. Watch whether it makes replies noticeably slower, and move it to a lighter check if so.</li>
+          <li>Add <strong>Needs you</strong> at the user level if you often work with several chats open.</li>
+        </ol>
+      </section>
+
+      <section id="subagents">
+        <h2>Subagents: delegating to a separate worker</h2>
+        <p>A <strong>subagent</strong> is a separate Claude worker the main chat sends off on one task. It gets its own <em>context</em>, the working memory of everything read so far, does the work there, and hands back <strong>only a summary</strong>. None of the files it opened or searches it ran end up in your main chat.</p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 720 262" role="img" aria-label="The main chat sends three subagents out in parallel with one instruction each: search the public booking flow, the admin Add Booking panel, and the server functions for hotel pricing. Each subagent reads many files in its own context. Each returns a short report with file and line references. The main chat receives three short reports and builds the comparison table, without the file reads ever entering its own context.">
+            <defs>
+              <marker id="ahag" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+              </marker>
+            </defs>
+            <rect class="box box--key" x="10" y="92" width="190" height="78" rx="9"></rect>
+            <text class="t t--title" x="105" y="120" text-anchor="middle" font-size="13">Main chat</text>
+            <text class="t" x="105" y="140" text-anchor="middle" font-size="10.5" opacity="0.75">&ldquo;where is hotel pricing</text>
+            <text class="t" x="105" y="155" text-anchor="middle" font-size="10.5" opacity="0.75">computed in Barkhaus?&rdquo;</text>
+
+            <rect class="box" x="268" y="14" width="200" height="62" rx="8"></rect>
+            <text class="t t--title" x="368" y="38" text-anchor="middle" font-size="12">Subagent &middot; public booking</text>
+            <text class="t" x="368" y="58" text-anchor="middle" font-size="10.5" opacity="0.65">reads booking.js and friends</text>
+            <rect class="box" x="268" y="100" width="200" height="62" rx="8"></rect>
+            <text class="t t--title" x="368" y="124" text-anchor="middle" font-size="12">Subagent &middot; admin</text>
+            <text class="t" x="368" y="144" text-anchor="middle" font-size="10.5" opacity="0.65">reads the admin source</text>
+            <rect class="box" x="268" y="186" width="200" height="62" rx="8"></rect>
+            <text class="t t--title" x="368" y="210" text-anchor="middle" font-size="12">Subagent &middot; server</text>
+            <text class="t" x="368" y="230" text-anchor="middle" font-size="10.5" opacity="0.65">reads supabase/functions</text>
+
+            <polyline class="edge" points="200,120 234,120 234,45 266,45" marker-end="url(#ahag)"></polyline>
+            <line class="edge" x1="200" y1="131" x2="266" y2="131" marker-end="url(#ahag)"></line>
+            <polyline class="edge" points="200,142 234,142 234,217 266,217" marker-end="url(#ahag)"></polyline>
+
+            <rect class="box" x="536" y="92" width="174" height="78" rx="9"></rect>
+            <text class="t t--title" x="623" y="120" text-anchor="middle" font-size="12.5">Three short reports</text>
+            <text class="t" x="623" y="140" text-anchor="middle" font-size="10.5" opacity="0.75">file:line + how each</text>
+            <text class="t" x="623" y="155" text-anchor="middle" font-size="10.5" opacity="0.75">computes the price</text>
+
+            <polyline class="edge" points="468,45 502,45 502,120 534,120" marker-end="url(#ahag)"></polyline>
+            <line class="edge" x1="468" y1="131" x2="534" y2="131" marker-end="url(#ahag)"></line>
+            <polyline class="edge" points="468,217 502,217 502,142 534,142" marker-end="url(#ahag)"></polyline>
+          </svg>
+          <figcaption>The reading happens in three separate contexts at the same time. The main chat only receives the three reports, then builds the parity table from them. This is what the <code>surface-parity-check</code> skill could do instead of reading every surface itself.</figcaption>
+        </figure>
+
+        <h3>When it pays off, and when it doesn&rsquo;t</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Gain</th><th>Cost</th></tr></thead>
+            <tbody>
+              <tr><td><b>Main chat stays clean.</b> 40 file reads become one paragraph, so every later message in the chat is smaller and cheaper.</td><td><b>Starts from nothing.</b> It doesn&rsquo;t know what the main chat knows; the instruction has to carry the context, or it re-reads.</td></tr>
+              <tr><td><b>Parallel.</b> Several workers search at once.</td><td><b>More tokens in total.</b> The main chat shrinks, but the overall work grows. A worker for a two-file lookup is waste.</td></tr>
+              <tr><td><b>Cheaper model.</b> Searching doesn&rsquo;t need Opus; Haiku or Sonnet will do.</td><td><b>Summaries lose detail.</b> Fine for &ldquo;where is X&rdquo;; risky for &ldquo;is this safe&rdquo;.</td></tr>
+              <tr><td><b>Limited tools.</b> A reviewer that can read but not edit.</td><td><b>No back-and-forth.</b> It works from one instruction and can&rsquo;t ask you anything mid-task.</td></tr>
+              <tr><td><b>Fresh eyes.</b> It doesn&rsquo;t share the assumptions of the chat that wrote the fix.</td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p><strong>Use a subagent when the reading is big and the answer is small.</strong> In this portfolio that means searching across a surface, reviewing before something is applied, or verifying after a fix.</p>
+
+        <h3>Built-in and your own</h3>
+        <ul class="findings">
+          <li><b>Built in.</b> <code>Explore</code> (read-only, fast searching), <code>Plan</code> (designs an implementation without editing), <code>general-purpose</code> (can do anything the main chat can), and <code>claude-code-guide</code> (answers questions about Claude Code).</li>
+          <li><b>Your own.</b> A Markdown file in <code>~/.claude/agents/</code> for all projects, or <code>&lt;repo&gt;/.claude/agents/</code> for one. Like a skill, its <em>description</em> decides when it&rsquo;s used. Unlike a skill, it runs separately with the tools and model you give it.</li>
+          <li><b>Asking for one.</b> Claude doesn&rsquo;t always delegate on its own. Saying &ldquo;use subagents to search each surface in parallel&rdquo; is enough.</li>
+        </ul>
+
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th></th><th>Skill</th><th>Subagent</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Runs in</td><td>Your current chat</td><td>Its own separate context</td></tr>
+              <tr><td class="grp">Is</td><td>Instructions Claude follows</td><td>A worker Claude delegates to</td></tr>
+              <tr><td class="grp">You see</td><td>Every step</td><td>The summary</td></tr>
+              <tr><td class="grp">Best for</td><td>Procedures you want to watch and steer (<code>qa-pass</code>)</td><td>Big reading, parallel work, independent review</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>One subagent, in full</h3>
+        <div class="snippet">
+          <p class="snippet-label">~/.claude/agents/rls-reviewer.md &middot; the top of the file</p>
+<pre><code>---
+name: rls-reviewer
+description: Reviews Supabase SQL — migrations, RLS and storage policies, database functions, grants —
+  before Gelo applies it. Use after writing or changing a migration, before handing SQL over to run,
+  or when data is "saved but not showing" and policies are the suspect.
+tools: Read, Grep, Glob
+model: sonnet
+---
+
+You review Supabase SQL for Gelo's portfolio. You never edit files; you report.
+Bonado, MVL and Sansayaw share ONE project: a mistake outside a repo's own schema
+affects all three live products.
+
+Start with one line: Safe to apply · Apply after fixes · Do not apply.</code></pre>
+        </div>
+        <p>The <code>tools</code> line is the safety feature. With only <code>Read, Grep, Glob</code>, it can&rsquo;t run commands or edit files, whatever a migration contains. The <code>model</code> line keeps a routine review on Sonnet.</p>
+
+        <h3>Subagents this portfolio would use</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Subagent</th><th>Kind</th><th>Use</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Surface search<span>barkhaus</span></td><td>Built-in <code>Explore</code>, one per surface, in parallel</td><td>Public booking, admin and server functions searched at the same time for a parity check</td></tr>
+              <tr><td class="grp">rls-reviewer<span>draft</span></td><td>Custom &middot; read-only &middot; Sonnet</td><td>A second look at every migration before you apply it, for the shared project especially</td></tr>
+              <tr><td class="grp">qa-verifier<span>draft</span></td><td>Custom &middot; read-only plus test commands &middot; Sonnet</td><td>After a <code>qa-pass</code> round, checks each item against your <em>original</em> observation and every surface, then reports verified, partial or not fixed</td></tr>
+              <tr><td class="grp">Handbook research</td><td>Built-in <code>Explore</code>, one per project folder</td><td>A deep-dive&rsquo;s reading (READMEs, migrations, git log) done in parallel while the main chat writes</td></tr>
+              <tr><td class="grp">Parallel features<span>mvl-style</span></td><td><code>general-purpose</code>, each in its own worktree</td><td>The MVL event-crunch pattern (<code>mvl-admin-awards</code>, <code>mvl-scoreboard-finish</code>), with each worker on its own git checkout</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Next steps</h3>
+        <ol class="next">
+          <li>Install <strong>rls-reviewer</strong> in <code>~/.claude/agents/</code> and run it on the next migration before you apply it.</li>
+          <li>Install <strong>qa-verifier</strong> and add a last step to the <code>qa-pass</code> skill: &ldquo;run qa-verifier before reporting items as fixed&rdquo;.</li>
+          <li>Next time you run a parity check, ask for one Explore subagent per surface and compare how much the main chat had to read.</li>
+        </ol>
+      </section>
+    </main>
+  </div>
+
+  <nav class="pager" aria-label="Previous and next part">
+    <a class="prev" href="together.html"><small>Previous</small>Part III &middot; Build playbook</a>
+    <a class="next" href="tools.html"><small>Next</small>Appendix A &middot; Tools &amp; references</a>
+  </nav>
+
+  <footer>The Build So Far &middot; v20 &middot; 19 Sep 2026 &middot; <a href="index.html">all parts</a></footer>
+</div>
+</body>
+</html>

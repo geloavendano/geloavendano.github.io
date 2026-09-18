@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>liquid-glass-js sample</title>
+<style>
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    color: #fff;
+    background:
+      repeating-linear-gradient(115deg, rgba(255,255,255,.14) 0 2px, transparent 2px 26px),
+      radial-gradient(circle at 18% 28%, #ff8a4c 0 18%, transparent 42%),
+      radial-gradient(circle at 82% 22%, #5a72dd 0 20%, transparent 46%),
+      radial-gradient(circle at 60% 88%, #1fbf8f 0 16%, transparent 44%),
+      #141726;
+    overflow: hidden;
+  }
+  .word {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -62%);
+    font-size: clamp(56px, 16vw, 150px); font-weight: 800; letter-spacing: -.04em; line-height: .9;
+    text-align: center; white-space: nowrap; color: #fff;
+  }
+  .word span { display: block; color: #ffd166; }
+  .dock {
+    position: absolute; left: 0; right: 0; bottom: 14%;
+    display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; padding: 0 16px;
+  }
+  .note {
+    position: absolute; left: 14px; top: 12px;
+    font: 500 11px/1.4 ui-monospace, 'SF Mono', Menlo, monospace; letter-spacing: .06em; text-transform: uppercase;
+    color: rgba(255,255,255,.72);
+  }
+  .fallback { position: absolute; inset: auto 0 6% 0; text-align: center; font-size: 13px; color: rgba(255,255,255,.8); }
+</style>
+<style>
+/* glass.css from liquid-glass-js (MIT, Armagan Amcalar) */
+/* Glass Container Styles */
+.glass-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.glass-container-circle {
+  aspect-ratio: 1 / 1; /* Force perfect square ratio */
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.glass-container-pill {
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+/* Glass Button Styles */
+.glass-button {
+  position: relative;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+  pointer-events: auto;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box; /* Ensure padding doesn't affect size calculations */
+}
+
+.glass-button-circle {
+  aspect-ratio: 1 / 1; /* Force perfect square ratio */
+  flex-shrink: 0;
+  flex-grow: 0;
+}
+
+.glass-button-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  pointer-events: none;
+  font-weight: normal;
+  color: white;
+  font-family: system-ui, -apple-system, sans-serif;
+  white-space: nowrap;
+}
+</style>
+</head>
+<body>
+  <p class="note">liquid-glass-js &middot; live &middot; click a button</p>
+  <div class="word" aria-hidden="true">Liquid<span>glass</span></div>
+  <div class="dock" id="dock"></div>
+  <p class="fallback" id="fallback" hidden>WebGL is off in this browser, so the glass can&rsquo;t render.</p>
+
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="vendor/liquid-glass/container.js"></script>
+  <script src="vendor/liquid-glass/button.js"></script>
+  <script>
+    const dock = document.getElementById('dock');
+    if (!document.createElement('canvas').getContext('webgl')) {
+      document.getElementById('fallback').hidden = false;
+    } else {
+      const bar = new Container({ borderRadius: 30, type: 'pill', tintOpacity: 0.18 });
+      ['Book', 'Pay', 'Done'].forEach(label => {
+        bar.addChild(new Button({ text: label, size: '20', type: 'pill', onClick: t => flash(t) }));
+      });
+      dock.appendChild(bar.element);
+      dock.appendChild(new Button({ text: '✓', size: '22', type: 'circle', onClick: () => flash('Saved') }).element);
+    }
+    function flash(text) {
+      const note = document.querySelector('.note');
+      note.textContent = 'liquid-glass-js · clicked: ' + text;
+    }
+  </script>
+</body>
+</html>

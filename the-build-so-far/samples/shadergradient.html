@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ShaderGradient sample</title>
+<script type="importmap">
+{ "imports": {
+  "react": "https://cdn.jsdelivr.net/npm/react@19.2.8/+esm",
+  "react/jsx-runtime": "https://cdn.jsdelivr.net/npm/react@19.2.8/jsx-runtime/+esm",
+  "react-dom/client": "https://cdn.jsdelivr.net/npm/react-dom@19.2.8/client/+esm",
+  "three": "https://cdn.jsdelivr.net/npm/three@0.185.1/+esm",
+  "@react-three/fiber": "https://cdn.jsdelivr.net/npm/@react-three/fiber@9.7.0/+esm",
+  "@shadergradient/react": "https://cdn.jsdelivr.net/npm/@shadergradient/react@2.4.20/dist/index.mjs",
+  "https://cdn.jsdelivr.net/npm/react@19.0.0/": "https://cdn.jsdelivr.net/npm/react@19.2.8/",
+  "https://cdn.jsdelivr.net/npm/react@19.2.0/": "https://cdn.jsdelivr.net/npm/react@19.2.8/",
+  "https://cdn.jsdelivr.net/npm/react@19.2.6/": "https://cdn.jsdelivr.net/npm/react@19.2.8/"
+} }
+</script>
+<style>
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: linear-gradient(135deg, #3a55c8, #8fa2ff 55%, #f6f5f1);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    overflow: hidden;
+  }
+  #stage { position: absolute; inset: 0; }
+  .note, .bar { position: absolute; z-index: 2; }
+  .note {
+    left: 14px; top: 12px; margin: 0;
+    font: 500 11px/1.4 ui-monospace, 'SF Mono', Menlo, monospace; letter-spacing: .06em; text-transform: uppercase;
+    color: rgba(255,255,255,.85); text-shadow: 0 1px 2px rgba(0,0,0,.25);
+  }
+  .bar { left: 50%; bottom: 16px; transform: translateX(-50%); display: flex; gap: 6px; padding: 5px; border-radius: 999px;
+    background: rgba(20,24,40,.42); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  .bar button {
+    font: 500 12px/1 ui-monospace, 'SF Mono', Menlo, monospace; color: #fff; background: none; border: 0;
+    padding: 8px 12px; border-radius: 999px; cursor: pointer;
+  }
+  .bar button[aria-pressed="true"] { background: #fff; color: #1c2024; }
+  .bar button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+</style>
+</head>
+<body>
+  <div id="stage"></div>
+  <p class="note" id="note">ShaderGradient &middot; loading&hellip;</p>
+  <div class="bar" role="group" aria-label="Gradient shape">
+    <button type="button" data-type="plane" aria-pressed="true">plane</button>
+    <button type="button" data-type="sphere" aria-pressed="false">sphere</button>
+    <button type="button" data-type="waterPlane" aria-pressed="false">waterPlane</button>
+  </div>
+
+  <script type="module">
+    import { createElement as h } from 'react';
+    import { createRoot } from 'react-dom/client';
+    import { ShaderGradientCanvas, ShaderGradient } from '@shadergradient/react';
+
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const colors = { color1: '#3a55c8', color2: '#8fa2ff', color3: '#f6f5f1' };
+    const shapes = {
+      plane:      { type: 'plane',      cDistance: 3.6, cPolarAngle: 90,  uStrength: 4,   uDensity: 1.3, uFrequency: 5.5, rotationZ: 50 },
+      sphere:     { type: 'sphere',     cDistance: 7.1, cPolarAngle: 80,  uStrength: 0.4, uDensity: 0.8, uFrequency: 5.5 },
+      waterPlane: { type: 'waterPlane', cDistance: 2.6, cPolarAngle: 115, uStrength: 1.5, uDensity: 1.5, uFrequency: 5.5 }
+    };
+
+    const root = createRoot(document.getElementById('stage'));
+    function render(type) {
+      root.render(
+        h(ShaderGradientCanvas, { style: { position: 'absolute', inset: 0 }, pixelDensity: 1, fov: 45 },
+          h(ShaderGradient, { ...shapes[type], ...colors, animate: still ? 'off' : 'on', uSpeed: 0.3,
+            lightType: '3d', brightness: 1.2, grain: 'off' })));
+      document.getElementById('note').textContent = 'ShaderGradient · live · type="' + type + '"';
+    }
+
+    document.querySelectorAll('.bar button').forEach(btn => btn.addEventListener('click', () => {
+      document.querySelectorAll('.bar button').forEach(b => b.setAttribute('aria-pressed', String(b === btn)));
+      render(btn.dataset.type);
+    }));
+    render('plane');
+  </script>
+</body>
+</html>

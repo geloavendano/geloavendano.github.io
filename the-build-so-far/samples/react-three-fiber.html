@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>react-three-fiber sample</title>
+<script type="importmap">
+{ "imports": {
+  "react": "https://cdn.jsdelivr.net/npm/react@19.2.8/+esm",
+  "react/jsx-runtime": "https://cdn.jsdelivr.net/npm/react@19.2.8/jsx-runtime/+esm",
+  "react-dom/client": "https://cdn.jsdelivr.net/npm/react-dom@19.2.8/client/+esm",
+  "three": "https://cdn.jsdelivr.net/npm/three@0.185.1/+esm",
+  "@react-three/fiber": "https://cdn.jsdelivr.net/npm/@react-three/fiber@9.7.0/+esm",
+  "htm": "https://cdn.jsdelivr.net/npm/htm@3.1.1/+esm",
+  "https://cdn.jsdelivr.net/npm/react@19.0.0/": "https://cdn.jsdelivr.net/npm/react@19.2.8/",
+  "https://cdn.jsdelivr.net/npm/react@19.2.0/": "https://cdn.jsdelivr.net/npm/react@19.2.8/",
+  "https://cdn.jsdelivr.net/npm/react@19.2.6/": "https://cdn.jsdelivr.net/npm/react@19.2.8/"
+} }
+</script>
+<style>
+  html, body { margin: 0; height: 100%; }
+  body { background: #15171b; color: #e6e4df; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; overflow: hidden; }
+  #stage { position: absolute; inset: 0; }
+  .note, .readout { position: absolute; z-index: 2; margin: 0; }
+  .note {
+    left: 14px; top: 12px;
+    font: 500 11px/1.4 ui-monospace, 'SF Mono', Menlo, monospace; letter-spacing: .06em; text-transform: uppercase; color: #9a9ea7;
+  }
+  .readout { left: 0; right: 0; bottom: 16px; text-align: center; font-size: 14px; padding: 0 16px; }
+  .readout b { color: #8fa2ff; font-weight: 600; }
+</style>
+</head>
+<body>
+  <div id="stage"></div>
+  <p class="note">react-three-fiber &middot; live &middot; hover or tap a block</p>
+  <p class="readout" id="readout">Five catalogs, in build order &mdash; foundations first, components last.</p>
+
+  <script type="module">
+    import { useRef, useState, createElement } from 'react';
+    import { createRoot } from 'react-dom/client';
+    import { Canvas, useFrame } from '@react-three/fiber';
+    import htm from 'htm';
+    const html = htm.bind(createElement);
+
+    const catalogs = [
+      { code: 'F', name: 'Foundations', count: 8,  note: 'colour roles, type, spacing, states' },
+      { code: 'S', name: 'Style',       count: 19, note: 'the skin: glass, flat, neubrutalism…' },
+      { code: 'L', name: 'Layout',      count: 16, note: 'the skeleton: shells, bento, split' },
+      { code: 'M', name: 'Motion',      count: 6,  note: 'only where it clarifies' },
+      { code: 'C', name: 'Components',  count: 52, note: 'the parts you assemble last' }
+    ];
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const readout = document.getElementById('readout');
+
+    function Block({ item, index }) {
+      const mesh = useRef();
+      const [hot, setHot] = useState(false);
+      const height = 0.4 + item.count / 22;
+      useFrame((state, delta) => {
+        const target = hot ? 0.35 : 0;
+        mesh.current.position.y += ((height / 2 + target) - mesh.current.position.y) * Math.min(1, delta * 8);
+        if (!still) mesh.current.rotation.y += delta * (hot ? 1.4 : 0.25);
+      });
+      const show = () => {
+        setHot(true);
+        readout.innerHTML = '<b>' + item.code + ' &middot; ' + item.name + '</b> &mdash; ' + item.count + ' entries: ' + item.note;
+      };
+      return html`
+        <mesh ref=${mesh} position=${[(index - 2) * 1.5, height / 2, 0]}
+              onPointerOver=${(e) => { e.stopPropagation(); show(); }}
+              onPointerOut=${() => setHot(false)}
+              onClick=${show}>
+          <boxGeometry args=${[1, height, 1]} />
+          <meshStandardMaterial color=${hot ? '#8fa2ff' : '#3a55c8'} roughness=${0.35} metalness=${0.1} />
+        </mesh>`;
+    }
+
+    function Scene() {
+      return html`
+        <${Canvas} camera=${{ position: [0, 3.6, 8.2], fov: 40 }} dpr=${[1, 2]}
+                  onCreated=${({ camera }) => camera.lookAt(0, 1.1, 0)}>
+          <ambientLight intensity=${0.9} />
+          <directionalLight position=${[4, 8, 5]} intensity=${1.6} />
+          <mesh rotation=${[-Math.PI / 2, 0, 0]}>
+            <planeGeometry args=${[12, 5]} />
+            <meshStandardMaterial color="#23272d" />
+          </mesh>
+          ${catalogs.map((item, i) => html`<${Block} key=${item.code} item=${item} index=${i} />`)}
+        </${Canvas}>`;
+    }
+
+    createRoot(document.getElementById('stage')).render(html`<${Scene} />`);
+  </script>
+</body>
+</html>

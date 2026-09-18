@@ -1,0 +1,964 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Build playbook &middot; The Build So Far</title>
+<meta name="description" content="A reusable playbook for turning an app idea into a safe, testable vertical slice and carrying it through launch and review.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<link rel="stylesheet" href="handbook.css?v=20.1">
+<script src="handbook.js?v=20.3" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <a class="brand" href="index.html">The Build So Far</a>
+  <nav class="parts" aria-label="Parts of the handbook">
+      <a href="concepts.html"><span class="num">I</span>Concepts</a>
+      <a href="deep-dives.html"><span class="num">II</span>Deep-dives</a>
+      <a href="together.html" aria-current="page"><span class="num">III</span>Build playbook</a>
+      <a href="ai.html"><span class="num">IV</span>AI development</a>
+      <a href="tools.html"><span class="num">A</span>Tools</a>
+  </nav>
+</header>
+
+<div class="hb-wrap">
+  <header class="part-head">
+    <p class="part-eyebrow">Part III</p>
+    <h1 class="part-title">Build playbook</h1>
+    <p class="part-sub">A repeatable path from idea to an operable product: define the job, plan every stack layer, build one complete journey, prove production readiness, and learn from the result.</p>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" aria-label="On this page">
+      <p>On this page</p>
+      <a href="#house-default">House defaults</a>
+      <a href="#prebuild">Before the next build</a>
+      <a href="#stack-plan">Plan the full stack</a>
+      <a href="#templates">Working templates</a>
+      <a href="#day-zero">Day zero</a>
+      <a href="#build-loop">Day one to launch</a>
+      <a href="#production-readiness">Production readiness</a>
+      <a href="#security-baseline">Security baseline</a>
+      <a href="#next">What&rsquo;s next</a>
+    </nav>
+
+    <main id="main" class="content prose">
+      <section id="house-default">
+        <h2>House defaults: start here, then earn the exception</h2>
+        <p>Defaults remove repeated decisions; they are not laws. Use the simplest option in the middle column unless the condition in the last column is true. Record every exception in a short <a href="templates/decision-record.md">decision record</a> so the next session knows why it exists.</p>
+
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Decision</th><th>Default</th><th>Change it when&hellip;</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Content-only site</td><td>Semantic HTML + CSS + a little JavaScript</td><td>The interface gains substantial shared state, authentication, or repeated interactive components</td></tr>
+              <tr><td class="grp">Interactive web app</td><td>React + Vite + TypeScript</td><td>You need server-rendered pages, server actions, or route-level data loading; then use Next.js</td></tr>
+              <tr><td class="grp">Mobile app</td><td>Responsive web first; Capacitor when native packaging is required</td><td>The product needs deep native capabilities or app-store UX that a web shell cannot provide</td></tr>
+              <tr><td class="grp">Backend</td><td>One dedicated Supabase project per product, plus a separate staging project</td><td>A written constraint makes isolation impossible; sharing quota, auth configuration, and blast radius must be explicit</td></tr>
+              <tr><td class="grp">Business rules</td><td>Pure typed functions in a shared module</td><td>The rule needs secrets or authority; then enforce it on the server or in the database too</td></tr>
+              <tr><td class="grp">Multi-row writes</td><td>One database function or transaction</td><td>The operation truly has independent steps that may safely succeed separately</td></tr>
+              <tr><td class="grp">Secrets</td><td>Server/edge function + host secret store</td><td>Never for a genuine secret. Browser variables are public, whatever their name</td></tr>
+              <tr><td class="grp">Delivery</td><td>Preview deploys, automated checks, then an explicit production release</td><td>A tiny static site can use a simpler host, but still gets a preview and link check</td></tr>
+              <tr><td class="grp">Observability</td><td>Error tracking, useful structured logs, and 2&ndash;3 product events from the first slice</td><td>Only a disposable prototype may omit it&mdash;and the omission gets a deletion date</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="learning-outcome"><strong>Decision rule</strong><p>Prefer the choice that makes the important rule easy to find, test, and enforce. Familiarity matters, but clarity at the trust boundary matters more.</p></div>
+      </section>
+
+      <section id="prebuild">
+        <h2>Before the next build</h2>
+        <p>The questions to answer <em>before</em> writing code &mdash; each one cheap to answer now and expensive to discover later. Distilled from the Barkhaus retrospective and this walkthrough; it grows as later deep-dives add lessons. The point isn&rsquo;t to answer perfectly &mdash; some complexity only emerges &mdash; but the questions whose wrong answers are expensive to reverse (2, 3, 4, 6, 8) should get a deliberate answer up front, and whatever is most likely to grow should get a clean boundary around it. The answers feed step 1 of <a href="#day-zero">Day zero</a> below.</p>
+
+        <ol class="checklist">
+          <li>
+            <b>Scope &amp; shape &mdash; what are we actually building?</b>
+            <p class="q">Draw the full flow for the most interactive feature &mdash; every step, every branch &mdash; not a one-line description. Count its distinct interactive states and its pieces of changing, shared state. Which parts are <em>content</em> (read once; must be fast and findable) versus a <em>tool</em> (used repeatedly by known users)?</p>
+            <p class="decides">framework or plain files &middot; one frontend or several &middot; how much structure to impose on day one</p>
+          </li>
+          <li>
+            <b>Surfaces &amp; shared logic &mdash; who else will touch the same rules?</b>
+            <p class="q">List every surface, now and planned: public web, staff admin, mobile, partner API, internal scripts. Which business rules (pricing, eligibility, availability, permissions) does each one need?</p>
+            <p class="decides">whether a shared business-logic module exists from commit one &mdash; if two or more surfaces share rules, it must. The single most expensive thing to retrofit.</p>
+          </li>
+          <li>
+            <b>Data &mdash; what are the core things, and what do the fields mean?</b>
+            <p class="q">Name the 5&ndash;10 core entities and how they relate. Write the exact meaning of every date and status field (creation date vs event date; what each status means; which transitions are legal). What must never be lost, even when cancelled or deleted?</p>
+            <p class="decides">prevents a whole class of &ldquo;we each read this field differently&rdquo; bugs &mdash; one page, one hour</p>
+          </li>
+          <li>
+            <b>Trust boundary &mdash; what can&rsquo;t the browser be trusted with?</b>
+            <p class="q">List everything a user could tamper with for gain: prices, totals, discounts, &ldquo;am I allowed&rdquo;, results, counts, &ldquo;have I already done this&rdquo;. What needs a secret key (payments, email, paid APIs)? What must all-succeed-or-all-fail together?</p>
+            <p class="decides">which logic lives in server functions from the start &mdash; rather than added after an incident</p>
+          </li>
+          <li>
+            <b>Environments &mdash; where do we test dangerous changes?</b>
+            <p class="q">Will there be a staging copy, or is it production-only? State it as a yes/no decision, not a default. How do we get realistic non-production data (a seed script)?</p>
+            <p class="decides">makes the &ldquo;we test schema and payment changes on live customer data&rdquo; risk visible while it&rsquo;s still a sentence</p>
+          </li>
+          <li>
+            <b>Deploy &amp; change pipeline &mdash; how does a change reach users?</b>
+            <p class="q">For each surface: is there a build step? Where does the built output go? Who deploys &mdash; a push, a bot, a person? How are database changes applied, and can they be rolled back?</p>
+            <p class="decides">pick the host to fit the build strategy &mdash; instead of retrofitting (committed build output + a bot was Barkhaus&rsquo;s most fragile part)</p>
+          </li>
+          <li>
+            <b>Languages &amp; types &mdash; how many, and typed?</b>
+            <p class="q">Can this be done in one or two languages (usually JavaScript/TypeScript + SQL)? What would force a third? TypeScript from the start &mdash; and types generated from the database schema?</p>
+            <p class="decides">fewer languages = less to hire for and debug &middot; types turn a bug class into editor warnings</p>
+          </li>
+          <li>
+            <b>Build vs buy vs share &mdash; what are we <em>not</em> building, and where does it live?</b>
+            <p class="q">Which parts are solved problems to rent (database, auth, email, error tracking, hosting, payments)? What is genuinely ours and worth the time? And if we already run a project for another product &mdash; do we reuse it or stand up a fresh one?</p>
+            <p class="decides">keeps effort on the product, not infrastructure &middot; a shared project is faster to start but entangles quota, login config, and blast radius (MVL, Bonado and Sansayaw all share one Supabase project &mdash; hard to unpick later)</p>
+          </li>
+          <li>
+            <b>Failure visibility &mdash; how do we find out when something breaks?</b>
+            <p class="q">Error tracking wired in from day one? Is any silent <code>catch</code> allowed, or must every failure surface? What is the one cheap integrity check that would catch data corruption early (e.g. bill total must equal the sum of line items)?</p>
+            <p class="decides">a silent production failure should be impossible by default</p>
+          </li>
+          <li>
+            <b>Team, lifespan &amp; success &mdash; who maintains this, for how long, and how do we know it works?</b>
+            <p class="q">Solo, or rotating contributors and AI sessions? Weeks (throwaway) or years (load-bearing)? What one or two numbers say the product is doing its job, and what events do we capture from day one?</p>
+            <p class="decides">more hands + longer life &rarr; more upfront structure, tests and docs &middot; and you can tell whether the thing works</p>
+          </li>
+        </ol>
+      </section>
+
+      <section id="stack-plan">
+        <h2>Plan the full stack, not only the feature</h2>
+        <p>The ten questions define the product and its expensive decisions. The stack plan turns those answers into a complete operating system for the app. Go through all seven bands even when the answer is &ldquo;not needed yet.&rdquo; An empty slot otherwise defaults to something accidental&mdash;for example, no uptime check means customers become the monitoring system.</p>
+
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Band</th><th>Decide before building</th><th>Evidence before launch</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">01 &middot; Surfaces</td><td>Public, admin, mobile, integrations; shared rules and supported devices</td><td>Every surface completes the critical journey and uses the same authoritative rule</td></tr>
+              <tr><td class="grp">02 &middot; State</td><td>Database, files, cache, search; ownership, retention, deletion, and invalidation</td><td>Constraints and policies hold; realistic data stays queryable; stale copies refresh correctly</td></tr>
+              <tr><td class="grp">03 &middot; Server logic</td><td>Trusted handlers, transactions, jobs, queues; timeouts, retries, idempotency</td><td>Dangerous inputs are rejected and repeated requests cannot duplicate important work</td></tr>
+              <tr><td class="grp">04 &middot; Delivery</td><td>Domain, DNS, CDN, host, regions, TLS, app stores</td><td>Preview, staging, production, redirects, certificates, and supported regions work</td></tr>
+              <tr><td class="grp">05 &middot; Rented capabilities</td><td>Auth, payments, email, maps, AI; secrets, sandboxes, quotas, fallback behavior</td><td>Each dependency has a tested success, failure, timeout, and cost/usage alert</td></tr>
+              <tr><td class="grp">06 &middot; Operations</td><td>Uptime, synthetic journeys, errors, logs, metrics, alerts, analytics, backups</td><td>An outside check detects failure, a person receives it, and a restore has been rehearsed</td></tr>
+              <tr><td class="grp">07 &middot; Workflow</td><td>Git, review, CI, environments, migrations, secrets, flags, release, rollback</td><td>A change follows the same safe path every time and production can return to a known state</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Write scale assumptions before choosing scale tools</h3>
+        <p>&ldquo;Must scale&rdquo; is too vague to design against. Write six numbers: daily active users, peak concurrent users, requests per minute, rows added per month, largest upload, and longest background job. Add a revisit trigger to each. This prevents both under-building and paying complexity tax for traffic that does not exist.</p>
+
+        <div class="learning-outcome">
+          <h3>Two documents, two moments</h3>
+          <ul class="findings">
+            <li><b><a href="templates/stack-plan.md" data-template data-template-title="Full-stack plan" aria-haspopup="dialog">Full-stack plan</a>:</b> design-time choices and assumptions. Fill it before the first vertical slice, then update it when a new capability enters the system.</li>
+            <li><b><a href="templates/production-readiness.md" data-template data-template-title="Production readiness" aria-haspopup="dialog">Production readiness</a>:</b> proof-time checklist. Complete it before launch and repeat it before a major traffic or risk event.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="templates">
+        <h2>Working templates: turn thinking into files</h2>
+        <p>Open a template, edit it for the next project, then copy the result into that repository&rsquo;s <code>docs/</code> folder. Keep these notes short and update them with the code. Their job is to make assumptions visible&mdash;to you, collaborators, and whichever coding agent is helping.</p>
+        <p class="decision-default"><strong>How they connect:</strong> answer the ten questions once in <em>Pre-build decisions</em>. Then move the durable answers into the smaller documents that stay useful during delivery: app brief, data dictionary, Feature X-ray, decision records, and release checklist.</p>
+        <div class="template-grid">
+          <a class="template-card" href="templates/prebuild-decisions.md" data-template aria-haspopup="dialog"><span class="level-tag">Start here</span><h3>Pre-build decisions</h3><p>Answer all ten questions, record unresolved assumptions, and route each answer into the right working document.</p><span class="template-open">Open and edit &rarr;</span></a>
+          <a class="template-card" href="templates/stack-plan.md" data-template aria-haspopup="dialog"><span class="level-tag">Before the first slice</span><h3>Full-stack plan</h3><p>Fill all seven stack bands, scale assumptions, operational ownership, and cross-cutting requirements.</p><span class="template-open">Open and edit &rarr;</span></a>
+          <a class="template-card" href="templates/app-brief.md" data-template aria-haspopup="dialog"><span class="level-tag">After questions 1, 2 &amp; 10</span><h3>App brief</h3><p>User, problem, smallest useful journey, success measure, and deliberate non-goals.</p><span class="template-open">Open and edit &rarr;</span></a>
+          <a class="template-card" href="templates/data-dictionary.md" data-template aria-haspopup="dialog"><span class="level-tag">After question 3</span><h3>Data dictionary</h3><p>Entities, field meanings, ownership, legal states, and retention decisions.</p><span class="template-open">Open and edit &rarr;</span></a>
+          <a class="template-card" href="templates/feature-xray.md" data-template aria-haspopup="dialog"><span class="level-tag">After questions 2 &amp; 4</span><h3>Feature X-ray</h3><p>Trace one user action through UI, logic, server, database, failures, and tests.</p><span class="template-open">Open and edit &rarr;</span></a>
+          <a class="template-card" href="templates/decision-record.md" data-template aria-haspopup="dialog"><span class="level-tag">From questions 5&ndash;8</span><h3>Decision record</h3><p>Context, options, choice, consequences, and the trigger for revisiting it.</p><span class="template-open">Open and edit &rarr;</span></a>
+          <a class="template-card" href="templates/release-checklist.md" data-template aria-haspopup="dialog"><span class="level-tag">From questions 5, 6 &amp; 9</span><h3>Release checklist</h3><p>Automated checks, trust boundaries, migrations, rollback, monitoring, and live verification.</p><span class="template-open">Open and edit &rarr;</span></a>
+          <a class="template-card" href="templates/production-readiness.md" data-template aria-haspopup="dialog"><span class="level-tag">Before launch or a traffic event</span><h3>Production readiness</h3><p>Uptime, volume, quotas, recovery, security, accessibility, and incident ownership.</p><span class="template-open">Open and edit &rarr;</span></a>
+        </div>
+
+<template data-template-source="templates/prebuild-decisions.md">
+# Pre-build decisions: [project]
+
+- **Date:**
+- **Decision owner:**
+- **Next review:**
+
+Answer briefly. If an answer needs a long debate, create a decision record and link it here.
+
+## 1. Scope and shape
+
+- **Who is this for?**
+- **What job must it do?**
+- **Smallest useful user journey:**
+- **Content, tool, or both?**
+- **Important states and branches:**
+
+## 2. Surfaces and shared logic
+
+- **Surfaces now:**
+- **Surfaces likely later:**
+- **Rules shared by two or more surfaces:**
+- **Where those shared rules will live:**
+
+## 3. Data
+
+- **Core entities:**
+- **Important relationships:**
+- **Date and status meanings that must not drift:**
+- **What must be retained after cancellation or deletion:**
+
+## 4. Trust boundary
+
+- **Browser may suggest:**
+- **Server or database must decide:**
+- **Secrets required:**
+- **Writes that must succeed or fail together:**
+
+## 5. Environments
+
+- **Production:**
+- **Staging:** yes / no
+- **How staging gets realistic data:**
+- **What must never be tested in production:**
+
+## 6. Deployment and change pipeline
+
+- **Build step:**
+- **Hosting:**
+- **Preview process:**
+- **Database migration process:**
+- **Rollback or forward-fix plan:**
+
+## 7. Languages and types
+
+- **Languages:**
+- **Why each is necessary:**
+- **Type strategy:**
+- **Database types generated:** yes / no
+
+## 8. Build, buy, or share
+
+| Capability | Build / buy / share | Choice | Why | Risk accepted |
+|---|---|---|---|---|
+| Database | | | | |
+| Authentication | | | | |
+| Hosting | | | | |
+| Payments | | | | |
+| Email | | | | |
+| Analytics | | | | |
+
+## 9. Failure visibility
+
+- **Error tracking:**
+- **Useful logs:**
+- **Alerts:**
+- **Cheap integrity check:**
+- **Silent failures explicitly forbidden:**
+
+## 10. Team, lifespan, and success
+
+- **Maintainers:**
+- **Expected lifespan:**
+- **Primary success measure:**
+- **Events captured from day one:**
+- **Documentation and review discipline:**
+
+## Decisions and outputs
+
+- [ ] Complete `stack-plan.md` from all ten answers and the scale assumptions.
+- [ ] Update `app-brief.md` from questions 1, 2, and 10.
+- [ ] Update `data-dictionary.md` from question 3.
+- [ ] Update the first `feature-xray.md` from questions 2 and 4.
+- [ ] Create a `decision-record.md` for any hard-to-reverse choice in questions 5–8.
+- [ ] Tailor `release-checklist.md` from questions 5, 6, and 9.
+- [ ] Complete `production-readiness.md` before launch or a major traffic event.
+
+## Unresolved questions
+
+| Question | Owner | Needed by | Temporary assumption |
+|---|---|---|---|
+| | | | |
+</template>
+
+<template data-template-source="templates/stack-plan.md">
+# Full-stack plan: [project]
+
+- **Date:**
+- **Owner:**
+- **Critical user journey:**
+
+## Scale assumptions
+
+| Assumption | Launch | Expected peak | Revisit when |
+|---|---:|---:|---|
+| Daily active users | | | |
+| Concurrent users | | | |
+| Requests per minute | | | |
+| Rows added per month | | | |
+| Stored files / largest file | | | |
+| Longest background job | | | |
+
+## 01. Surfaces
+
+- **Public web:**
+- **Admin / internal:**
+- **Mobile / native:**
+- **Public API or integrations:**
+- **Shared business rules and their owner:**
+
+## 02. State
+
+- **Primary database:**
+- **Core entities:**
+- **File storage:**
+- **Cache and invalidation rule:**
+- **Search or analytics store:**
+- **Retention / export / deletion:**
+
+## 03. Trusted server logic
+
+- **Request handlers / edge functions:**
+- **Database functions / transactions:**
+- **Scheduled jobs:**
+- **Queues / workers:**
+- **Realtime:**
+- **Timeout, retry, and idempotency rules:**
+
+## 04. Delivery
+
+- **Domain and registrar:**
+- **DNS / CDN / TLS:**
+- **Frontend host:**
+- **Server or function host:**
+- **App-store distribution:**
+- **Regions / latency requirement:**
+
+## 05. Rented capabilities
+
+| Capability | Provider | Secret location | Sandbox / staging | Failure behavior | Quota / cost trigger |
+|---|---|---|---|---|---|
+| Authentication | | | | | |
+| Payments | | | | | |
+| Email / push / SMS | | | | | |
+| Maps / media / AI / feeds | | | | | |
+
+## 06. Operations
+
+- **Uptime check:**
+- **Synthetic critical journey:**
+- **Error tracking:**
+- **Logs and metrics:**
+- **Alerts and owner:**
+- **Product success events:**
+- **Backup coverage:**
+- **Restore test / RPO / RTO:**
+
+## 07. Delivery workflow
+
+- **Repository and review:**
+- **CI checks:**
+- **Local / preview / staging / production:**
+- **Migration process:**
+- **Secrets and configuration:**
+- **Feature flags:**
+- **Release and rollback:**
+
+## Cross-cutting checks
+
+- **Security:** trust boundaries, least privilege, rate limits, dependency scanning
+- **Privacy:** collection, consent, retention, export, deletion
+- **Accessibility:** keyboard, labels, contrast, zoom, reduced motion
+- **Cost:** budgets, usage alerts, per-event services, likely scale cliff
+
+## Gaps accepted for launch
+
+| Gap | Why acceptable now | Owner | Deadline / trigger |
+|---|---|---|---|
+| | | | |
+</template>
+
+<template data-template-source="templates/app-brief.md">
+# App brief
+
+## The job
+
+- **For:**
+- **Problem:**
+- **One sentence promise:**
+- **Not in scope:**
+
+## Critical user flow
+
+1.
+2.
+3.
+
+### Failure branches
+
+- If:
+- The user sees:
+- The system preserves:
+
+## Surfaces
+
+| Surface | User | Rules it shares |
+|---|---|---|
+| | | |
+
+## Success
+
+- **Primary measure:**
+- **Event captured:**
+- **Review date:**
+</template>
+
+<template data-template-source="templates/data-dictionary.md">
+# Data dictionary
+
+## Core entities
+
+| Entity | One row means | Owner | Deleted how? |
+|---|---|---|---|
+| | | | |
+
+## Fields whose meaning must not drift
+
+| Table.field | Exact meaning | Allowed values / transitions | Source of truth |
+|---|---|---|---|
+| | | | |
+
+## Relationships and invariants
+
+- Every ... must have ...
+- The sum of ... must equal ...
+- A cancelled ... keeps ...
+
+## Personal data
+
+| Field | Why needed | Retention | Export / deletion path |
+|---|---|---|---|
+| | | | |
+</template>
+
+<template data-template-source="templates/feature-xray.md">
+# Feature X-ray: [feature]
+
+## User intent
+
+- **Starts at:**
+- **Done when:**
+
+## Trace
+
+| Step | Layer | File / symbol | Input | Output / side effect |
+|---|---|---|---|---|
+| 1 | UI | | | |
+| 2 | Browser logic | | | |
+| 3 | Server / RPC | | | |
+| 4 | Database | | | |
+| 5 | UI response | | | |
+
+## Trust boundary
+
+- **Browser may suggest:**
+- **Server must decide:**
+- **Secrets used:**
+
+## Failure behavior
+
+| Failure | User sees | Data state | Retry behavior | Alert / log |
+|---|---|---|---|---|
+| | | | | |
+
+## Proof
+
+- **Automated test:**
+- **Manual check:**
+- **Production signal:**
+</template>
+
+<template data-template-source="templates/decision-record.md">
+# Decision: [short title]
+
+- **Date:**
+- **Status:** proposed / accepted / replaced
+- **Hard to reverse because:**
+
+## Context
+
+What problem or constraint forces a decision?
+
+## Options
+
+| Option | Benefits | Costs / risks |
+|---|---|---|
+| | | |
+
+## Decision
+
+What did we choose, and why now?
+
+## Revisit when
+
+Name the measurable condition that would make the decision wrong.
+</template>
+
+<template data-template-source="templates/release-checklist.md">
+# Release checklist
+
+## Understand
+
+- [ ] I can explain the changed flow from screen to stored result.
+- [ ] I know which layer owns each business rule.
+- [ ] I reviewed the diff, not only the agent's summary.
+
+## Verify
+
+- [ ] Build, type-check, lint, and relevant tests pass.
+- [ ] Money, permissions, and multi-row writes have focused tests.
+- [ ] Failure, retry, empty, and loading states were checked.
+- [ ] Database changes ran in staging first and have a rollback or forward-fix plan.
+
+## Operate
+
+- [ ] Logs contain enough context without secrets or personal data.
+- [ ] Error tracking and the relevant alert are active.
+- [ ] Documentation changed in the same commit as behavior.
+- [ ] The deployed URL and production behavior were verified.
+</template>
+
+<template data-template-source="templates/production-readiness.md">
+# Production readiness: [project / release]
+
+- **Owner:**
+- **Target date:**
+- **Critical user journey:**
+- **Expected peak:**
+
+## Availability and detection
+
+- [ ] An external uptime check covers the public entry point.
+- [ ] A synthetic check exercises the critical journey or its safest meaningful subset.
+- [ ] Browser and server error tracking identify the release that failed.
+- [ ] Critical scheduled jobs report both failure and missing runs.
+- [ ] Alerts reach a named person and have a tested destination.
+- [ ] Product events prove that the user outcome completed.
+
+## Performance and volume
+
+- [ ] A performance budget exists for the critical journey: p95 latency, page weight, or completion time.
+- [ ] Staging contains realistic row and file volume.
+- [ ] Expected concurrent load passes within the budget.
+- [ ] A short spike test shows predictable slowdown or rejection without data corruption.
+- [ ] A soak test covers long-running jobs, connections, retries, and queue buildup where relevant.
+- [ ] Slow queries have indexes, bounded pagination, and query plans checked.
+- [ ] Volume tests use generated staging data, not customer production data.
+
+## Limits and dependencies
+
+- [ ] Database connections, storage, bandwidth, function duration, email, maps, AI, and other quotas are recorded.
+- [ ] Usage and cost alerts fire before hard limits.
+- [ ] Expensive or abuse-prone operations are rate-limited.
+- [ ] External calls have timeouts and bounded retries.
+- [ ] Retried writes and webhooks are idempotent.
+- [ ] Each critical dependency has a user-visible failure or fallback behavior.
+
+## Data safety and recovery
+
+- [ ] Database constraints and transactions protect important invariants.
+- [ ] Backup coverage and retention are known for the database and uploaded files.
+- [ ] A restore has been rehearsed into a safe environment.
+- [ ] Recovery point objective (RPO) and recovery time objective (RTO) are written down.
+- [ ] The release has a rollback or forward-fix plan, including database changes.
+- [ ] Data export, retention, and deletion paths work.
+
+## Security and privacy
+
+- [ ] Authentication and authorization are tested separately.
+- [ ] Every exposed table, file bucket, and server function is default-closed and least-privilege.
+- [ ] Prices, permissions, identity claims, and results are rechecked at a trusted boundary.
+- [ ] Secrets are absent from code, logs, analytics, browser bundles, and committed files.
+- [ ] Dependencies and the release diff have been security-reviewed.
+- [ ] Personal data collection, consent, and retention match the privacy policy.
+
+## Accessibility and compatibility
+
+- [ ] The critical journey works with keyboard only.
+- [ ] Controls have useful names, errors are announced, and focus moves intentionally.
+- [ ] Contrast, zoom, reduced motion, loading, empty, error, and offline states are checked.
+- [ ] Supported browsers and devices complete the critical journey.
+
+## Delivery and incident ownership
+
+- [ ] CI passes build, types, lint, tests, link checks, and migration checks.
+- [ ] Preview and staging behavior were verified before production.
+- [ ] Production configuration and feature flags are documented.
+- [ ] A named person can pause jobs, disable the feature, roll back, and restore service.
+- [ ] Incident notes include detect, assess, contain, recover, and learn.
+- [ ] The live URL and critical journey were verified after release.
+
+## Launch decision
+
+- **Decision:** ready / ready with accepted gaps / not ready
+- **Accepted gaps:**
+- **Approver:**
+- **Next readiness review:**
+</template>
+      </section>
+
+      <section id="day-zero">
+        <h2>Day zero: everything in place before the first feature</h2>
+        <p>The ten questions above are decisions. This is the rest of what a new app needs before feature work starts: the notes those decisions should produce, the accounts to open, what the first commit contains, and the agent setup it reuses. Every row is here because one of the four products paid for skipping it.</p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 720 150" role="img" aria-label="Five stages left to right: 1 Decide, answer the ten questions and write them down; 2 Accounts, open the services the app will rent; 3 First commit, the repo's day-one contents; 4 Agent, the per-machine setup every project reuses; 5 Habits, the checks agreed before building. Stages 1 to 3 are done per app; stage 4 is done once per machine.">
+            <defs>
+              <marker id="ahdz" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+              </marker>
+            </defs>
+            <rect class="box box--key" x="4" y="24" width="124" height="70" rx="8"></rect>
+            <text class="t t--title" x="66" y="52" text-anchor="middle" font-size="12.5">1 &middot; Decide</text>
+            <text class="t" x="66" y="72" text-anchor="middle" font-size="10.5" opacity="0.7">write it down</text>
+            <line class="edge" x1="128" y1="59" x2="146" y2="59" marker-end="url(#ahdz)"></line>
+            <rect class="box box--key" x="148" y="24" width="124" height="70" rx="8"></rect>
+            <text class="t t--title" x="210" y="52" text-anchor="middle" font-size="12.5">2 &middot; Accounts</text>
+            <text class="t" x="210" y="72" text-anchor="middle" font-size="10.5" opacity="0.7">open &amp; configure</text>
+            <line class="edge" x1="272" y1="59" x2="290" y2="59" marker-end="url(#ahdz)"></line>
+            <rect class="box box--key" x="292" y="24" width="136" height="70" rx="8"></rect>
+            <text class="t t--title" x="360" y="52" text-anchor="middle" font-size="12.5">3 &middot; First commit</text>
+            <text class="t" x="360" y="72" text-anchor="middle" font-size="10.5" opacity="0.7">the repo&rsquo;s skeleton</text>
+            <line class="edge" x1="428" y1="59" x2="446" y2="59" marker-end="url(#ahdz)"></line>
+            <rect class="box" x="448" y="24" width="124" height="70" rx="8"></rect>
+            <text class="t t--title" x="510" y="52" text-anchor="middle" font-size="12.5">4 &middot; Agent</text>
+            <text class="t" x="510" y="72" text-anchor="middle" font-size="10.5" opacity="0.7">once per machine</text>
+            <line class="edge" x1="572" y1="59" x2="590" y2="59" marker-end="url(#ahdz)"></line>
+            <rect class="box" x="592" y="24" width="124" height="70" rx="8"></rect>
+            <text class="t t--title" x="654" y="52" text-anchor="middle" font-size="12.5">5 &middot; Habits</text>
+            <text class="t" x="654" y="72" text-anchor="middle" font-size="10.5" opacity="0.7">agreed up front</text>
+            <line class="edge" x1="4" y1="116" x2="428" y2="116" stroke-dasharray="4 4"></line>
+            <text class="lbl" x="216" y="136" text-anchor="middle" font-size="10">every new app</text>
+            <line class="edge" x1="448" y1="116" x2="716" y2="116" stroke-dasharray="4 4"></line>
+            <text class="lbl" x="582" y="136" text-anchor="middle" font-size="10">set up once, reused &mdash; mostly prepared already</text>
+          </svg>
+          <figcaption>The highlighted stages are repeated for every app. Stages 4 and 5 carry over, so the second app starts faster than the first.</figcaption>
+        </figure>
+
+        <h3>1 &middot; Decide, and write it down</h3>
+        <p>Answer the <a href="#prebuild">ten questions</a>, then keep the answers as short notes in the repo&rsquo;s <code>docs/</code>. A decision only in your head is invisible to Claude and to you six months later.</p>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Note</th><th>Done when</th><th>Why, from this portfolio</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">One-page brief<span>Q1 &middot; Q10</span></td><td>Who it&rsquo;s for, the one job it does, the busiest flow drawn step by step, and the one or two numbers that say it works</td><td>MVL&rsquo;s raffle rules changed ~10 times mid-event because eligibility was never written down up front</td></tr>
+              <tr><td class="grp">Surfaces &amp; shared rules<span>Q2</span></td><td>Every surface listed (web, admin, mobile, scripts) and which rules each needs; a shared module planned if two share rules</td><td>Barkhaus prices hotels one way in the public site and another in admin</td></tr>
+              <tr><td class="grp">Data dictionary<span>Q3</span></td><td>5&ndash;10 core tables, and the exact meaning of every date and status field</td><td><code>booking_date</code> meant &ldquo;created&rdquo;, and broke the calendar, availability and check-in separately</td></tr>
+              <tr><td class="grp">Trust-boundary list<span>Q4</span></td><td>Everything the server decides: prices, permissions, &ldquo;already done&rdquo;, results; and every secret key the app needs</td><td>A tampered request once let a Barkhaus customer pay &#8369;1</td></tr>
+              <tr><td class="grp">Environments<span>Q5 &middot; Q6</span></td><td>A yes/no on staging, how data gets there (a seed script), and who deploys what</td><td>Every product here is production-only</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 style="font-size:0.95rem;font-weight:600;margin:24px 0 6px;">Challenge the idea before answering the questions</h4>
+        <p>The notes above record decisions. Before making them, have Claude <strong>argue with the idea</strong>: question the request, think about growth, and compare with how similar products solve the same problem. Three pieces do this, and none of them build anything.</p>
+        <figure class="diagram">
+          <svg viewBox="0 0 720 236" role="img" aria-label="A flow from left to right. Your idea goes to the architecture-challenge skill, which runs in your chat: it challenges the request, checks your own history, thinks long-term, compares similar products and walks the ten questions. The draft plan goes to the architecture-critic subagent, which reviews it cold and returns objections. The result is a decision record in the repo's docs folder, which you approve before any code is written. Plan mode surrounds the whole flow so nothing is edited until you approve.">
+            <defs>
+              <marker id="ahac" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+              </marker>
+            </defs>
+            <rect class="box" x="4" y="14" width="712" height="188" rx="10" stroke-dasharray="5 4"></rect>
+            <text class="lbl" x="360" y="32" text-anchor="middle" font-size="10">Plan mode &mdash; Claude can research and propose, but can&rsquo;t edit files until you approve</text>
+
+            <rect class="box" x="20" y="60" width="118" height="110" rx="8"></rect>
+            <text class="t t--title" x="79" y="100" text-anchor="middle" font-size="12.5">Your idea</text>
+            <text class="t" x="79" y="120" text-anchor="middle" font-size="10.5" opacity="0.65">&ldquo;I want to</text>
+            <text class="t" x="79" y="135" text-anchor="middle" font-size="10.5" opacity="0.65">build&hellip;&rdquo;</text>
+            <line class="edge" x1="138" y1="115" x2="160" y2="115" marker-end="url(#ahac)"></line>
+
+            <rect class="box box--key" x="162" y="50" width="206" height="130" rx="8"></rect>
+            <text class="t t--title" x="265" y="72" text-anchor="middle" font-size="12">architecture-challenge</text>
+            <text class="lbl" x="265" y="87" text-anchor="middle" font-size="9.5">skill &middot; in your chat</text>
+            <text class="t" x="178" y="108" font-size="10.5" opacity="0.85">1 challenge the request</text>
+            <text class="t" x="178" y="124" font-size="10.5" opacity="0.85">2 check your own history</text>
+            <text class="t" x="178" y="140" font-size="10.5" opacity="0.85">3 think 10&times; and a year out</text>
+            <text class="t" x="178" y="156" font-size="10.5" opacity="0.85">4 compare similar products</text>
+            <text class="t" x="178" y="172" font-size="10.5" opacity="0.85">5 walk the ten questions</text>
+            <line class="edge" x1="368" y1="115" x2="390" y2="115" marker-end="url(#ahac)"></line>
+
+            <rect class="box box--key" x="392" y="60" width="150" height="110" rx="8"></rect>
+            <text class="t t--title" x="467" y="92" text-anchor="middle" font-size="12">architecture-critic</text>
+            <text class="lbl" x="467" y="107" text-anchor="middle" font-size="9.5">subagent &middot; reads it cold</text>
+            <text class="t" x="467" y="132" text-anchor="middle" font-size="10.5" opacity="0.8">&ldquo;what will hurt</text>
+            <text class="t" x="467" y="147" text-anchor="middle" font-size="10.5" opacity="0.8">in a year?&rdquo;</text>
+            <line class="edge" x1="542" y1="115" x2="564" y2="115" marker-end="url(#ahac)"></line>
+
+            <rect class="box" x="566" y="60" width="140" height="110" rx="8"></rect>
+            <text class="t t--title" x="636" y="92" text-anchor="middle" font-size="12">Decision record</text>
+            <text class="t" x="636" y="112" text-anchor="middle" font-size="10.5" opacity="0.7">docs/decisions/</text>
+            <text class="t" x="636" y="140" text-anchor="middle" font-size="10.5" opacity="0.8">you approve &rarr;</text>
+            <text class="t" x="636" y="155" text-anchor="middle" font-size="10.5" opacity="0.8">then building starts</text>
+
+            <text class="lbl" x="360" y="226" text-anchor="middle" font-size="10">triggered by one line in ~/.claude/CLAUDE.md: &ldquo;before building a new app or major feature, run architecture-challenge&rdquo;</text>
+          </svg>
+          <figcaption>The skill runs where you can steer it, because the decisions are yours. The critic only sees the finished draft, not the conversation that produced it, so it has no reason to defend the plan.</figcaption>
+        </figure>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Piece</th><th>Kind</th><th>Its job</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">architecture-challenge</td><td><a href="ai.html#skills">Skill</a></td><td>Asks the hard questions in plain language, grounds each one in this portfolio&rsquo;s lessons (&ldquo;three products already share one Supabase project; does this one get its own?&rdquo;), researches 2&ndash;4 comparable products, and writes the decision record</td></tr>
+              <tr><td class="grp">architecture-critic</td><td><a href="ai.html#subagents">Subagent</a> &middot; read-only &middot; can search the web</td><td>Reviews the draft cold: scale cliffs, choices that are hard to undo, trust and security gaps, blind spots, and over-building. Opens with <em>Build as planned</em>, <em>Build after changes</em> or <em>Rethink first</em>.</td></tr>
+              <tr><td class="grp">The trigger</td><td>One line in <code>~/.claude/CLAUDE.md</code></td><td>Makes sure the skill runs for every new app or major feature, without a hook firing on every small request</td></tr>
+              <tr><td class="grp">Plan mode</td><td>Built into Claude Code</td><td>Guarantees nothing gets edited while you&rsquo;re still deciding</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p><strong>Why not a hook?</strong> A hook runs a fixed command. It can&rsquo;t reason about an idea, and it would fire on every small request (&ldquo;fix this typo&rdquo;) until you learned to ignore it. The decision record it produces has seven parts: the request and what&rsquo;s out of scope, the recommended architecture with a diagram, alternatives considered, long-term risks, lessons applied, open questions, and the day-zero checklist. It lives in <code>docs/decisions/</code>, so every future chat can read why the app is built the way it is.</p>
+
+        <h3>2 &middot; Accounts and services</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Input</th><th>Done when</th><th>Why, from this portfolio</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">GitHub repo</td><td>Private, with secret scanning and push protection switched on</td><td>Catches your own commits, which Claude&rsquo;s guard doesn&rsquo;t see</td></tr>
+              <tr><td class="grp">Its own Supabase project</td><td>A new project for this app alone, plus a second one for staging</td><td>MVL, Bonado and Sansayaw share one project, quota and blast radius</td></tr>
+              <tr><td class="grp">Host</td><td>Vercel (or GitHub Pages for no-build sites) with environment variables set per environment and preview deploys on</td><td>MVL moved to Vercel for redirects; Barkhaus&rsquo;s committed build output is its most fragile part</td></tr>
+              <tr><td class="grp">Domain, DNS &amp; email</td><td>Domain on Cloudflare DNS; if it sends email, the sending domain verified (SPF, DKIM, DMARC)</td><td>Barkhaus&rsquo;s deliverability fixes came after launch</td></tr>
+              <tr><td class="grp">Payments <span>if it takes money</span></td><td>Sandbox keys only, stored as host secrets; live keys at launch</td><td>Barkhaus swaps providers with one setting because each one was isolated</td></tr>
+              <tr><td class="grp">Monitoring &amp; analytics</td><td>Error tracking wired in; an outside uptime check configured; alert destination tested; the 2&ndash;3 product events chosen</td><td>Error tracking explains crashes; uptime and synthetic checks reveal that a whole journey stopped working</td></tr>
+              <tr><td class="grp">Backup &amp; recovery</td><td>Database and file coverage known; retention, RPO and RTO written; a restore rehearsal scheduled</td><td>A provider saying &ldquo;backups enabled&rdquo; is not proof that you can recover the product</td></tr>
+              <tr><td class="grp">App store <span>if it ships an app</span></td><td>Developer account, bundle ID, and live privacy policy and support pages</td><td>Bonado was &ldquo;code done, waiting on an account&rdquo; for weeks</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>3 &middot; The first commit</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Input</th><th>Done when</th><th>Why, from this portfolio</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Secrets hygiene</td><td><code>.gitignore</code> covers <code>.env*</code> and key files; <code>.env.example</code> lists every variable with placeholders</td><td>The <a href="#security-baseline">secrets guard</a> refuses to write an env file that isn&rsquo;t gitignored</td></tr>
+              <tr><td class="grp">Migrations from table one</td><td><code>supabase/migrations/</code> exists, and changes go to staging first by tool</td><td>&ldquo;Applied by hand&rdquo; is the most repeated risk in this handbook</td></tr>
+              <tr><td class="grp">Types</td><td>TypeScript, with database types generated from the schema</td><td>Bonado&rsquo;s schema types file caught shape mistakes early</td></tr>
+              <tr><td class="grp">Tests + CI</td><td>Tests for money math and access rules; GitHub Actions runs build, lint and tests on every push</td><td>Bonado&rsquo;s tested split math is the reference</td></tr>
+              <tr><td class="grp">Operational checks</td><td>A safe health/smoke check, seed data at realistic volume, and a repeatable load-test script or documented command</td><td>Uptime and volume tests become real only when another person or agent can repeat them</td></tr>
+              <tr><td class="grp">Agent brief</td><td><code>AGENTS.md</code> for Codex and/or <code>CLAUDE.md</code> for Claude, using the <a href="ai.html#agent-adapters">same stable project facts</a></td><td>Without it, every session relearns the project</td></tr>
+              <tr><td class="grp">Agent connections &amp; guards</td><td>Project-scoped, least-privilege connections; safety rules backed by repository checks and CI</td><td>The <a href="ai.html#mcp">MCP rules</a> and <a href="ai.html#hooks">tool-specific guards</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>4 &middot; Coding agents, set up once per machine</h3>
+        <p>The durable ideas are shared: project instructions, reusable skills, least-privilege connections, and verification. The filenames and enforcement mechanisms differ by tool; keep the translation in <a href="ai.html#agent-adapters">AI development</a>.</p>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Input</th><th>Where it lives</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Security baseline rules</td><td>Global tool instructions plus repository <code>AGENTS.md</code> / <code>CLAUDE.md</code></td><td><span class="pill pill--proto">Prepared</span></td></tr>
+              <tr><td class="grp">Secrets guard</td><td>Claude hook where available; secret scanning, pre-commit and CI for every tool</td><td><span class="pill pill--proto">Prepared &middot; tested</span></td></tr>
+              <tr><td class="grp">qa-pass, supabase-change</td><td><code>~/.claude/skills/</code></td><td><span class="pill pill--live">Installed</span></td></tr>
+              <tr><td class="grp">ship-and-verify, email-template, app-store-release, handbook-deep-dive</td><td><code>~/.claude/skills/</code></td><td><span class="pill pill--proto">Prepared</span></td></tr>
+              <tr><td class="grp">rls-reviewer, qa-verifier</td><td><code>~/.claude/agents/</code></td><td><span class="pill pill--proto">Prepared</span></td></tr>
+              <tr><td class="grp">architecture-challenge skill + architecture-critic subagent</td><td><code>~/.claude/skills/</code>, <code>~/.claude/agents/</code>, and a trigger line in <code>~/.claude/CLAUDE.md</code></td><td><span class="pill pill--proto">Prepared</span></td></tr>
+              <tr><td class="grp">Supabase (read-only), Vercel connectors</td><td>The desktop app&rsquo;s connector settings</td><td><span class="pill pill--demo">To do</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>5 &middot; Habits agreed before building</h3>
+        <ul class="findings">
+          <li><b>Every migration goes through <code>rls-reviewer</code> before you apply it,</b> and to staging before production.</li>
+          <li><b>Anything touching payments, auth, RLS or personal data gets <code>/security-review</code></b> before it ships.</li>
+          <li><b>Test rounds use <code>qa-pass</code>, and <code>qa-verifier</code> checks the fixes</b> before anything is called done.</li>
+          <li><b>&ldquo;Shipped&rdquo; means verified on the live URL</b> (<code>ship-and-verify</code>), not pushed.</li>
+          <li><b>Docs change in the same commit as the code that makes them wrong</b>: project instructions, handoff notes, the data dictionary.</li>
+          <li><b>Anything that runs on its own gets an alert,</b> as a script where the check is a clear rule (see <a href="ai.html#scheduled">Scheduled runs</a>).</li>
+        </ul>
+      </section>
+
+      <section id="build-loop">
+        <h2>Day one to launch: build vertical slices</h2>
+        <p>A <strong>vertical slice</strong> is one small user journey that works all the way through the system: screen, validation, trusted logic, data, failure handling, and verification. It teaches more than building all screens first and connecting them later because every architectural assumption meets reality early.</p>
+
+        <div class="phase-grid">
+          <article class="phase-card"><span class="level-tag">01 &middot; Define</span><h3>Smallest useful journey</h3><p>Name one user, one job, the successful outcome, and what is deliberately outside this slice.</p></article>
+          <article class="phase-card"><span class="level-tag">02 &middot; Draw</span><h3>States and failures</h3><p>Sketch empty, loading, ready, invalid, denied, failed, and successful states before polishing the happy path.</p></article>
+          <article class="phase-card"><span class="level-tag">03 &middot; Model</span><h3>Data and ownership</h3><p>Define the records, field meanings, legal transitions, owner, retention, and access policy.</p></article>
+          <article class="phase-card"><span class="level-tag">04 &middot; Bound</span><h3>Trust boundary</h3><p>Mark what the browser may suggest and what the server or database must decide and enforce.</p></article>
+          <article class="phase-card"><span class="level-tag">05 &middot; Build</span><h3>One complete path</h3><p>Wire the thinnest real journey through every layer. Avoid placeholder architecture that has never carried real data.</p></article>
+          <article class="phase-card"><span class="level-tag">06 &middot; Prove</span><h3>Tests and evidence</h3><p>Test the valuable rule and dangerous failure. Inspect the network, database, logs, and rendered result.</p></article>
+          <article class="phase-card"><span class="level-tag">07 &middot; Stage</span><h3>Realistic rehearsal</h3><p>Run the migration, seed realistic volume, exercise permissions and expected load, and verify rollback outside production.</p></article>
+          <article class="phase-card"><span class="level-tag">08 &middot; Observe</span><h3>Make failure visible</h3><p>Add error tracking, structured logs, uptime/synthetic checks, alerts, and the event that confirms the user outcome.</p></article>
+          <article class="phase-card"><span class="level-tag">09 &middot; Learn</span><h3>One real user</h3><p>Watch without coaching. Record where their mental model and the interface disagree.</p></article>
+          <article class="phase-card"><span class="level-tag">10 &middot; Expand</span><h3>Next slice, same discipline</h3><p>Add the next journey only after the first is understandable, protected, and observable.</p></article>
+          <article class="phase-card"><span class="level-tag">11 &middot; Release</span><h3>Ship and verify</h3><p>Pass production readiness, use the release checklist, deploy deliberately, and repeat the journey on the live URL.</p></article>
+          <article class="phase-card"><span class="level-tag">12 &middot; Reflect</span><h3>Update the system</h3><p>Write what surprised you, update decisions and instructions, and improve the house default.</p></article>
+        </div>
+
+        <h3>Definition of done by layer</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Layer</th><th>Done means</th><th>Evidence to keep</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Behaviour</td><td>Happy path, empty state, invalid input, denied access, retry, and recovery are intentional</td><td>Acceptance checks and a short screen recording or screenshots</td></tr>
+              <tr><td class="grp">Rules</td><td>The valuable rule has one clear owner and tests at that boundary</td><td>Test names that read like business rules</td></tr>
+              <tr><td class="grp">Data</td><td>Schema, constraints, indexes, RLS, retention, and migration path are explicit</td><td>Migration, generated types, policy tests</td></tr>
+              <tr><td class="grp">Operations</td><td>Expected demand fits written budgets; failures are detected; deployment, restore, and rollback are rehearsed</td><td>Load result, uptime/synthetic check, alert test, restore evidence, rollback note</td></tr>
+              <tr><td class="grp">Understanding</td><td>You can explain the request path, state locations, trust decisions, and likely failure without asking the agent</td><td>A completed <a href="templates/feature-xray.md">Feature X-ray</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="guided-lab">
+          <span class="level-tag">Practice on the next feature</span>
+          <h3>Stop after the first slice and teach it back</h3>
+          <ol class="exercise-step">
+            <li><strong>Predict:</strong> before opening the code, sketch what should happen from click to stored result.</li>
+            <li><strong>Trace:</strong> find the event handler, rule owner, network call, database change, and visible result.</li>
+            <li><strong>Break:</strong> try an invalid value, a repeat request, no permission, and a failed dependency.</li>
+            <li><strong>Verify:</strong> name the evidence that proves each layer did what you think.</li>
+            <li><strong>Explain:</strong> write a five-sentence teach-back without copying the code.</li>
+          </ol>
+        </div>
+      </section>
+
+      <section id="production-readiness">
+        <h2>Production readiness: prove the app can be operated</h2>
+        <p>A release checklist asks whether one change is safe to ship. Production readiness asks whether the <em>whole product</em> can survive real users, real data, dependency failures, and an incident. Complete it before first launch, then repeat the relevant parts before a major event, payment launch, migration, or expected traffic spike.</p>
+
+        <div class="phase-grid">
+          <article class="phase-card"><span class="level-tag">Detect</span><h3>Know it broke</h3><p>External uptime, a synthetic critical journey, error tracking, missing-job detection, product completion events, and an alert that reaches a named person.</p></article>
+          <article class="phase-card"><span class="level-tag">Withstand</span><h3>Handle expected demand</h3><p>Written scale assumptions, performance budgets, realistic data, load/spike/soak evidence, indexes, quotas, rate limits, and bounded retries.</p></article>
+          <article class="phase-card"><span class="level-tag">Recover</span><h3>Return to safety</h3><p>Backups that include files, a rehearsed restore, RPO/RTO, rollback or forward-fix steps, feature flags, and a person authorized to act.</p></article>
+          <article class="phase-card"><span class="level-tag">Protect</span><h3>Keep trust</h3><p>Authorization, least privilege, secrets, privacy, accessibility, compatibility, dependency review, and honest failure states.</p></article>
+        </div>
+
+        <h3>The minimum test plan</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Proof</th><th>Run against</th><th>Pass when</th><th>Repeat</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Critical-journey synthetic</td><td>Production-safe test account and known record</td><td>The real outside path completes and alerts when deliberately broken</td><td>Every 5&ndash;15 minutes</td></tr>
+              <tr><td class="grp">Expected load</td><td>Staging with realistic data</td><td>p95 latency and error rate remain inside written budgets</td><td>Before launch and meaningful architecture/traffic changes</td></tr>
+              <tr><td class="grp">Spike</td><td>Staging at a modest multiple of expected peak</td><td>Overload is bounded: no duplicate writes, corruption, or unlimited queues</td><td>Before campaigns and live events</td></tr>
+              <tr><td class="grp">Data volume</td><td>Seeded months/years of rows and representative files</td><td>Search, lists, exports, policies, and jobs remain correct and finish in time</td><td>When growth crosses the recorded trigger</td></tr>
+              <tr><td class="grp">Restore rehearsal</td><td>A clean non-production environment</td><td>Database and files restore within RTO and lose no more than RPO allows</td><td>At least quarterly for important data</td></tr>
+              <tr><td class="grp">Live smoke test</td><td>Production after deploy</td><td>The critical journey, configuration, telemetry, and current release are confirmed</td><td>Every release</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="guided-lab">
+          <h3>Do not check boxes without evidence</h3>
+          <div class="exercise-step"><b>Threshold</b><p>Replace &ldquo;fast enough&rdquo; with a number: p95 response time, page weight, job duration, or maximum error rate.</p></div>
+          <div class="exercise-step"><b>Artifact</b><p>Keep the test command/configuration, result, date, environment, and data size so the check is repeatable.</p></div>
+          <div class="exercise-step"><b>Owner</b><p>Name who receives the alert and who can disable, roll back, restore, or communicate.</p></div>
+          <div class="exercise-step"><b>Gap</b><p>If a check is intentionally deferred, record why, the risk accepted, and the date or usage trigger that makes it mandatory.</p></div>
+        </div>
+
+        <p>Use the editable <a href="templates/production-readiness.md" data-template data-template-title="Production readiness" aria-haspopup="dialog">production-readiness template</a>. The underlying concepts&mdash;synthetic checks, load vs spike vs soak, quotas, idempotency, backups, RPO/RTO, and the incident loop&mdash;are explained in <a href="concepts.html#reliability">Part I</a>.</p>
+      </section>
+
+      <section id="security-baseline">
+        <h2>Security baseline: automation plus judgment</h2>
+        <p>Most security failures in this portfolio were either <strong>a leak</strong> (a key in the wrong place) or <strong>a design mistake</strong> (trusting the browser, RLS left off). They need different protection. Patterns catch known leaks; project rules and human review catch design mistakes. The implementation below is the existing Claude adapter. Repository-level secret scanning, tests and CI remain the cross-agent backstop.</p>
+
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th></th><th>Layer 1: automated guard</th><th>Layer 2: project security rules</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Catches</td><td>Keys in code, secrets shipped to the browser, <code>.env</code> read into the chat or committed</td><td>Browser-trusted prices, missing RLS, over-privileged functions, unneeded personal data</td></tr>
+              <tr><td class="grp">How</td><td>Checks every file read, write, edit and shell command before it runs</td><td>Read at the start of every chat, in every project</td></tr>
+              <tr><td class="grp">Reliability</td><td>Every time, for known key formats</td><td>Depends on agent and human review, backed by tests and a security review</td></tr>
+              <tr><td class="grp">File</td><td><code>claude-setup/security/secrets-guard.py</code></td><td><code>claude-setup/claude-md/global/CLAUDE.md</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>What the guard does</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Result</th><th>When</th></tr></thead>
+            <tbody>
+              <tr><td class="grp"><span class="pill pill--demo">Blocked</span></td><td>Writing a private key; a Stripe, PayMongo, Supabase secret, Resend, GitHub, AWS, Anthropic, OpenAI or Slack key; a Supabase <strong>service_role</strong> key; or a database URL with a password into any file or command</td></tr>
+              <tr><td class="grp"><span class="pill pill--demo">Blocked</span></td><td>A secret in a <code>VITE_*</code> or <code>NEXT_PUBLIC_*</code> variable, which ships to every visitor&rsquo;s browser</td></tr>
+              <tr><td class="grp"><span class="pill pill--demo">Blocked</span></td><td>Opening <code>.env</code> or key files (<code>.p8</code>, <code>.pem</code>) with the file reader; <code>git add .env</code>; <code>git add -f</code>; writing an env file that isn&rsquo;t gitignored</td></tr>
+              <tr><td class="grp"><span class="pill pill--proto">Asks you</span></td><td>A hard-coded password-like value, a Google API key (fine only if restricted), the service-role key named in browser code, <code>cat .env</code>, printing environment variables, editing an env file</td></tr>
+              <tr><td class="grp"><span class="pill pill--live">Allowed</span></td><td>The Supabase <strong>anon</strong> key (public by design), placeholders, <code>env(...)</code> references, <code>.env.example</code>, and everything else</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>The Supabase anon and service_role keys look identical from outside. The guard tells them apart by reading the role written inside the key, which is how it can block one and allow the other. When it blocks, it tells Claude where the value belongs instead: a gitignored env file or the host&rsquo;s secret settings, referenced by name.</p>
+
+        <h3>Tested on this portfolio</h3>
+        <ul class="findings">
+          <li><b>16 sample actions, all as expected:</b> 6 blocked, 3 asked, 7 allowed, including a real-looking private key, an anon key (allowed), and Bonado&rsquo;s PEM-parsing code (allowed).</li>
+          <li><b>Every tracked file in 8 repos scanned:</b> no committed secrets. The first pass raised 9 false alarms (PEM-stripping code, <code>env()</code> placeholders, the word <code>service_role</code> in tests and docs, a minified library); the guard was tuned until all 8 came back clean.</li>
+          <li><b>All 5 existing <code>.env</code> files</b> are gitignored and untracked.</li>
+          <li><b>Re-run any time</b> without printing secrets: <code>python3 claude-setup/security/secrets-guard.py --scan ~/Projects/&lt;repo&gt;</code></li>
+        </ul>
+
+        <h3>What the rules say</h3>
+        <div class="snippet">
+          <p class="snippet-label">~/.claude/CLAUDE.md &middot; the sections, abridged</p>
+<pre><code># Security baseline (all projects)
+
+## Secrets
+- Keys live in gitignored env files or host secret settings, never in code, docs, commits, logs or chat.
+- Only public values in VITE_* / NEXT_PUBLIC_* / browser code: the Supabase URL and anon key.
+
+## The browser is untrusted
+- Prices, totals, permissions, results are decided or re-checked on the server.
+- Payment success comes from a verified webhook, never a redirect.
+
+## Database access
+- Every new table: RLS on, a policy per operation. Default to closed.
+- SECURITY DEFINER functions set search_path, check auth.uid(), grant execute narrowly.
+
+## Personal data
+- Collect only what the feature needs. Admin = sign-in AND an allow-list row.
+
+## Before shipping
+- Payments, auth, RLS or personal data: run /security-review and say what it found.</code></pre>
+        </div>
+        <p>Every rule traces back to something in Part II: the &#8369;1 checkout, RLS failing silently in Barkhaus, Sansayaw&rsquo;s tables once writable by anyone, and the shared project.</p>
+
+        <h3>Limits</h3>
+        <ul class="findings">
+          <li><b>Patterns catch known formats.</b> A key in an unusual format, or pieced together from parts, gets through. The rules and <code>/security-review</code> cover what patterns can&rsquo;t.</li>
+          <li><b>It guards Claude, not you.</b> Your own edits and commits aren&rsquo;t checked; GitHub secret scanning covers those.</li>
+          <li><b>Design mistakes still need review.</b> No hook can tell whether a price should have been computed on the server. That&rsquo;s what the rules, <code>rls-reviewer</code> and <code>/security-review</code> are for.</li>
+        </ul>
+
+        <h3>Turning it on</h3>
+        <ol class="next">
+          <li>Copy <code>secrets-guard.py</code> to <code>~/.claude/hooks/</code> and add its <code>hooks</code> block to <code>~/.claude/settings.json</code> (the snippet is in <code>claude-setup/security/</code>).</li>
+          <li>Copy the security rules to <code>~/.claude/CLAUDE.md</code>.</li>
+          <li>Turn on secret scanning and push protection for each GitHub repo.</li>
+          <li>Open a new chat and ask Claude to read a <code>.env</code> file. It should be refused, with the reason.</li>
+        </ol>
+      </section>
+
+      <section id="next">
+        <h2>What&rsquo;s next</h2>
+        <p>Deep-dive order &mdash; most complex first, so the concepts are established before the simpler projects reuse them:</p>
+        <ol class="next">
+          <li><strong>Barkhaus</strong> &mdash; <span class="status-note">done</span> every concept shows up here first</li>
+          <li><strong>MVL 2026</strong> &mdash; <span class="status-note">done</span> geolocation, live scoreboard, event phasing, a shared backend</li>
+          <li><strong>Bonado</strong> &mdash; <span class="status-note">done</span> the same pattern, done deliberately &mdash; the reference build</li>
+          <li><strong>Sansayaw</strong> &mdash; <span class="status-note">done</span> scraping, scheduling, the cache-refresh webhook, two frontends</li>
+          <li><strong>Demos &amp; personal</strong> &mdash; a quick pass &nbsp;&larr;&nbsp;next</li>
+        </ol>
+        <p>Each session replaces that group&rsquo;s &ldquo;deep-dive pending&rdquo; note with the full section &mdash; architecture diagram, systems &amp; why, data model, key flows, risks, and rebuild notes, as in <a href="deep-dives.html#barkhaus">Barkhaus</a> in Part II &mdash; and folds any new lessons into <a href="#prebuild">Before the next build</a>.</p>
+      </section>
+    </main>
+  </div>
+
+  <nav class="pager" aria-label="Previous and next part">
+    <a class="prev" href="deep-dives.html"><small>Previous</small>Part II &middot; The deep-dives</a>
+    <a class="next" href="ai.html"><small>Next</small>Part IV &middot; AI development</a>
+  </nav>
+
+  <footer>The Build So Far &middot; v20 &middot; 19 Sep 2026 &middot; <a href="index.html">all parts</a></footer>
+</div>
+</body>
+</html>

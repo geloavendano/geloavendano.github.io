@@ -1,0 +1,1001 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>The deep-dives &middot; The Build So Far</title>
+<meta name="description" content="One section per project: what it is, how it bends the pattern from Part I, its data model, its key flows, its risks, and what we&rsquo;d change.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<link rel="stylesheet" href="handbook.css?v=20.1">
+<script src="handbook.js?v=20.3" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <a class="brand" href="index.html">The Build So Far</a>
+  <nav class="parts" aria-label="Parts of the handbook">
+      <a href="concepts.html"><span class="num">I</span>Concepts</a>
+      <a href="deep-dives.html" aria-current="page"><span class="num">II</span>Deep-dives</a>
+      <a href="together.html"><span class="num">III</span>Build playbook</a>
+      <a href="ai.html"><span class="num">IV</span>AI development</a>
+      <a href="tools.html"><span class="num">A</span>Tools</a>
+  </nav>
+</header>
+
+<div class="hb-wrap">
+  <header class="part-head">
+    <p class="part-eyebrow">Part II</p>
+    <h1 class="part-title">The deep-dives</h1>
+    <p class="part-sub">One section per project: what it is, how it bends the pattern from Part I, its data model, key flows, real source trails, guided exercises, risks, and what we&rsquo;d change.</p>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" aria-label="On this page">
+      <p>On this page</p>
+      <a href="#landscape">The landscape</a>
+      <a href="#barkhaus">A &nbsp;Barkhaus</a>
+      <a href="#mvl">B &nbsp;MVL 2026</a>
+      <a href="#sansayaw">C &nbsp;Sansayaw</a>
+      <a href="#bonado">D &nbsp;Bonado</a>
+    </nav>
+
+    <main id="main" class="content prose">
+      <section id="landscape">
+        <h2>The landscape</h2>
+        <p>Fourteen folders sit in <code>~/Projects</code>. They collapse into <strong>five groups</strong> &mdash; four real products and a bag of demos. Two folders are noise: <code>mvl-vercel-upload.zip</code> (a stale export) and <code>Sponsor&nbsp;Logos/</code> (just image files).</p>
+        <p>The through-line: almost every product is a <strong>frontend served from a static host</strong>, talking to <strong>a Supabase backend</strong> for data, accounts and files, with a few outside services bolted on for payments, email and maps. Learn that one shape and you understand 80% of everything here. Only Barkhaus has a dedicated Supabase project; Sansayaw, MVL and Bonado share one.</p>
+
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Group</th>
+                <th>What it is</th>
+                <th>Frontend</th>
+                <th>Host</th>
+                <th>Backend</th>
+                <th>Mobile</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="grp">Barkhaus<span>barkhaus.ph</span></td>
+                <td>Pet-services booking platform (daycare, hotel, grooming)</td>
+                <td>Plain HTML/JS site + a separate React admin app</td>
+                <td>GitHub Pages</td>
+                <td>Supabase</td>
+                <td>&mdash;</td>
+                <td><span class="pill pill--live">Live</span></td>
+              </tr>
+              <tr>
+                <td class="grp">MVL 2026<span>metaricevolley.ph</span></td>
+                <td>Volleyball-league tournament site: waivers, raffle, scoreboard</td>
+                <td>Multi-page static site</td>
+                <td>Vercel</td>
+                <td>Supabase <span style="opacity:.6">(shared)</span></td>
+                <td>&mdash;</td>
+                <td><span class="pill pill--live">Live &middot; seasonal</span></td>
+              </tr>
+              <tr>
+                <td class="grp">Sansayaw<span>sansayaw.org</span></td>
+                <td>Directory of dance classes, gathered by scrapers</td>
+                <td>Next.js site + scraper scripts</td>
+                <td>Vercel + GitHub Actions</td>
+                <td>Supabase <span style="opacity:.6">(shared)</span></td>
+                <td>iOS (Capacitor)</td>
+                <td><span class="pill pill--live">Live</span></td>
+              </tr>
+              <tr>
+                <td class="grp">Bonado<span>trip expense splitter</span></td>
+                <td>Split shared trip costs with friends, mobile-first</td>
+                <td>React single-page app</td>
+                <td>Vercel</td>
+                <td>Supabase <span style="opacity:.6">(shared)</span></td>
+                <td>iOS (Capacitor)</td>
+                <td><span class="pill pill--proto">In build</span></td>
+              </tr>
+              <tr>
+                <td class="grp">Demos &amp; personal<span>5 small folders</span></td>
+                <td>A health-records mock, a portfolio, a dashboard proxy, scaffolds</td>
+                <td>Various</td>
+                <td>GitHub Pages / Cloudflare</td>
+                <td>Mostly none</td>
+                <td>&mdash;</td>
+                <td><span class="pill pill--demo">Demo</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:13px;color:var(--muted)">A quiet but important fact: only <strong>Barkhaus</strong> has its own Supabase project. <strong>Sansayaw, MVL, and Bonado all share one project</strong> (each walled into its own database schema). Cheap to set up; it means three live products share one quota, one login config, and one blast radius &mdash; see the MVL and Bonado deep-dives.</p>
+      </section>
+
+      <section id="barkhaus">
+        <h2><span class="letter">A</span> Barkhaus <span class="pill pill--live">Live</span></h2>
+
+        <h3>In one line</h3>
+        <p>A booking platform for a two-branch pet-care business (Estancia &amp; Eastwood, at <strong>barkhaus.ph</strong>) covering daycare, overnight hotel, and grooming &mdash; with a staff admin console behind it. It is the most built-out project here and the only one taking real money from real customers.</p>
+
+        <h3>Architecture</h3>
+        <p>It follows the recurring pattern with one twist: <strong>two separate frontends</strong> share <strong>one Supabase backend</strong>. The public site is plain hand-written HTML and JavaScript (no framework, no build). The admin app is React and has to be compiled; the compiled result is committed into the repo and served alongside the site. Everything sensitive &mdash; payments, email, confirming a booking &mdash; runs in Supabase Edge Functions where the secret keys live.</p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 720 470" role="img" aria-label="Barkhaus architecture: a public site and a React admin app are both served from GitHub Pages; both talk to one Supabase project holding Postgres with row-level security, auth, storage, realtime, about 13 edge functions and a cron job; edge functions call out to Maya, PayMongo, Resend and Google Analytics using secret keys, and payment providers call back via webhook.">
+            <defs>
+              <marker id="aha" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+              </marker>
+            </defs>
+
+            <rect class="box" x="70" y="14" width="290" height="52" rx="8"></rect>
+            <text class="t t--title" x="215" y="34" text-anchor="middle" font-size="14">Public site</text>
+            <text class="t" x="215" y="52" text-anchor="middle" font-size="11.5" opacity="0.66">plain HTML + JavaScript</text>
+
+            <rect class="box" x="380" y="14" width="270" height="52" rx="8"></rect>
+            <text class="t t--title" x="515" y="34" text-anchor="middle" font-size="14">Admin app</text>
+            <text class="t" x="515" y="52" text-anchor="middle" font-size="11.5" opacity="0.66">React, served at /admin/</text>
+
+            <rect class="box" x="70" y="82" width="580" height="34" rx="8"></rect>
+            <text class="t" x="360" y="103" text-anchor="middle" font-size="12">GitHub Pages &middot; barkhaus.ph &mdash; the repository is the website, no build step</text>
+
+            <line class="edge" x1="210" y1="116" x2="210" y2="166" marker-end="url(#aha)"></line>
+            <text class="lbl" x="200" y="140" text-anchor="end" font-size="10.5">anon key &middot; limited by RLS</text>
+            <line class="edge" x1="510" y1="116" x2="510" y2="166" marker-end="url(#aha)"></line>
+            <text class="lbl" x="522" y="140" font-size="10.5">staff Google login</text>
+
+            <rect class="box box--key" x="70" y="168" width="580" height="190" rx="9"></rect>
+            <text class="t t--title" x="360" y="191" text-anchor="middle" font-size="15">Supabase &mdash; one managed backend</text>
+            <text class="t" x="92" y="219" font-size="12.5" opacity="0.85">Postgres database + row-level security &mdash; rules for who can touch each row</text>
+            <text class="t" x="92" y="245" font-size="12.5" opacity="0.85">Auth &mdash; Google sign-in for staff &middot; email one-time codes for customers</text>
+            <text class="t" x="92" y="271" font-size="12.5" opacity="0.85">Storage &mdash; vaccine documents &middot; branch photo galleries</text>
+            <text class="t" x="92" y="297" font-size="12.5" opacity="0.85">Realtime &mdash; the admin calendar updates without a refresh</text>
+            <text class="t" x="92" y="323" font-size="12.5" opacity="0.85">~13 Edge Functions &mdash; payments, email, booking confirmation</text>
+            <text class="t" x="92" y="349" font-size="12.5" opacity="0.85">pg_cron &mdash; cancels unpaid holds every 5 minutes</text>
+
+            <line class="edge" x1="300" y1="358" x2="300" y2="402" marker-end="url(#aha)"></line>
+            <text class="lbl" x="312" y="384" font-size="10.5">secret keys &mdash; only ever server-side</text>
+
+            <rect class="box" x="70" y="404" width="580" height="50" rx="8"></rect>
+            <text class="t" x="360" y="425" text-anchor="middle" font-size="12.5">Maya card checkout &middot; PayMongo (standby) &middot; Resend email &middot; Google Analytics</text>
+            <text class="t" x="360" y="443" text-anchor="middle" font-size="11" opacity="0.6">Maya is the live payment flow; the manual-transfer path is now switched off</text>
+
+            <line class="edge" x1="628" y1="404" x2="628" y2="360" marker-end="url(#aha)"></line>
+            <text class="lbl" x="618" y="386" text-anchor="end" font-size="10.5">payment webhook</text>
+          </svg>
+          <figcaption>Two front doors, one backend. The public site gets a public key and can only do what the row-level-security rules allow; the admin app additionally proves a staff identity. Neither holds a payment key &mdash; those live in the edge functions.</figcaption>
+        </figure>
+
+        <h3>Systems &amp; why</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>System</th><th>What it does here</th><th>Why this choice / the trade-off</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">GitHub Pages</td><td>Serves the public site straight from the repo</td><td>Free, nothing to run. But &ldquo;no build&rdquo; means no framework on the public side, and the React admin has to be pre-built and committed &mdash; which became the most fragile part of the pipeline.</td></tr>
+              <tr><td class="grp">Supabase Postgres&nbsp;+&nbsp;RLS</td><td>The database, plus rules on every table for who may read or write each row</td><td>One managed service instead of a server + database + API. Row-level security is powerful but subtle &mdash; it has failed <em>silently</em> here more than once (see risks).</td></tr>
+              <tr><td class="grp">Supabase Auth</td><td>Google sign-in for staff; email one-time codes for customers</td><td>Two separate &ldquo;who are you&rdquo; systems on one service. A Google login alone grants nothing &mdash; staff access needs a matching row in an <code>admin_users</code> allow-list.</td></tr>
+              <tr><td class="grp">Edge Functions (~13)</td><td>Small server programs for anything the browser can&rsquo;t be trusted with: taking payment, sending email, confirming a booking</td><td>This is where the secret keys live. The count is high because each payment step (start checkout, handle webhook, check status, reconcile, health) is its own function.</td></tr>
+              <tr><td class="grp">pg_cron</td><td>Every 5 minutes, cancels unpaid bookings whose payment window expired</td><td>Stops an abandoned checkout from locking a hotel room or grooming slot indefinitely.</td></tr>
+              <tr><td class="grp">Maya / PayMongo</td><td>Hosted card-payment pages + payment webhooks</td><td>One setting (<code>PAYMENT_GATEWAY_PROVIDER</code>) picks the active provider. It is now <code>'maya'</code> &mdash; card checkout is <strong>live</strong>. PayMongo stays built but on standby; the manual-transfer path is still in the code, now switched off. Swapping providers is a one-line change because each is a self-contained function.</td></tr>
+              <tr><td class="grp">Resend</td><td>Sends booking-confirmation emails from inside the edge functions</td><td>Email is only ever sent server-side; the browser never sends mail. A failed booking email is non-blocking; a failed <em>login</em> email is not.</td></tr>
+              <tr><td class="grp">Google Analytics 4</td><td>Traffic, plus a booking funnel (start &rarr; checkout &rarr; purchase)</td><td>The <code>purchase</code> event fires only after the server confirms payment &mdash; never on a button click or redirect, or refreshes would inflate it.</td></tr>
+              <tr><td class="grp">Realtime</td><td>Pushes booking changes to the admin calendar as they happen</td><td>Staff see new bookings without refreshing. A 60-second poll runs as a backup in case the live connection drops.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Data model &mdash; the shape</h3>
+        <p><code>bookings</code> is the hub, but it does <strong>not</strong> hold the appointment date. That lives in a per-service detail table (<code>grooming_details</code>, <code>hotel_details</code>, &hellip;) as <code>service_date</code>. The <code>booking_date</code> column on the booking row is the date it was <em>created</em> &mdash; a naming trap that has broken the calendar, availability, and check-in code independently.</p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 720 410" role="img" aria-label="Data model hub and spoke: the bookings table links to owners and pets (who), branches and resources (where), a one-to-one per-service detail table holding the real appointment date, an itemised booking_charges table and a payments table; a separate pricing table is read at startup and is not linked by a foreign key.">
+            <defs>
+              <marker id="ahd" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+              </marker>
+            </defs>
+
+            <line class="edge" x1="168" y1="60" x2="298" y2="196"></line>
+            <line class="edge" x1="168" y1="126" x2="298" y2="205"></line>
+            <line class="edge" x1="552" y1="60" x2="432" y2="196"></line>
+            <line class="edge" x1="545" y1="220" x2="432" y2="216"></line>
+            <line class="edge" x1="200" y1="330" x2="320" y2="242"></line>
+            <line class="edge" x1="360" y1="330" x2="366" y2="242"></line>
+            <line class="edge" x1="520" y1="330" x2="420" y2="244" stroke-dasharray="4 4"></line>
+            <line class="edge" x1="106" y1="80" x2="106" y2="104" marker-end="url(#ahd)"></line>
+            <text class="lbl" x="112" y="97" font-size="10">has</text>
+
+            <text class="lbl" x="214" y="120" font-size="10">owner_id</text>
+            <text class="lbl" x="212" y="182" font-size="10">pet_id</text>
+            <text class="lbl" x="474" y="120" font-size="10">branch_id</text>
+            <text class="lbl" x="452" y="205" font-size="10">1:1 &mdash; the date</text>
+            <text class="lbl" x="236" y="290" font-size="10">itemised bill</text>
+            <text class="lbl" x="372" y="298" font-size="10">money trail</text>
+            <text class="lbl" x="470" y="300" font-size="10">read at startup</text>
+
+            <rect class="box box--key" x="300" y="188" width="130" height="60" rx="8"></rect>
+            <text class="t t--title" x="365" y="214" text-anchor="middle" font-size="14">bookings</text>
+            <text class="t" x="365" y="231" text-anchor="middle" font-size="10.5" opacity="0.6">the hub</text>
+
+            <rect class="box" x="44" y="36" width="124" height="44" rx="7"></rect>
+            <text class="t" x="106" y="63" text-anchor="middle" font-size="12.5">owners</text>
+            <rect class="box" x="44" y="104" width="124" height="44" rx="7"></rect>
+            <text class="t" x="106" y="131" text-anchor="middle" font-size="12.5">pets</text>
+
+            <rect class="box" x="552" y="36" width="126" height="44" rx="7"></rect>
+            <text class="t" x="615" y="63" text-anchor="middle" font-size="12.5">branches</text>
+            <rect class="box" x="546" y="196" width="150" height="52" rx="7"></rect>
+            <text class="t" x="621" y="217" text-anchor="middle" font-size="11.5">grooming / hotel /</text>
+            <text class="t" x="621" y="233" text-anchor="middle" font-size="11.5">daycare _details</text>
+
+            <rect class="box" x="120" y="332" width="150" height="52" rx="7"></rect>
+            <text class="t" x="195" y="353" text-anchor="middle" font-size="12">booking_charges</text>
+            <text class="t" x="195" y="369" text-anchor="middle" font-size="10.5" opacity="0.6">the itemised bill</text>
+            <rect class="box" x="290" y="332" width="140" height="52" rx="7"></rect>
+            <text class="t" x="360" y="353" text-anchor="middle" font-size="12">payments</text>
+            <text class="t" x="360" y="369" text-anchor="middle" font-size="10.5" opacity="0.6">money in</text>
+            <rect class="box" x="450" y="332" width="210" height="52" rx="7" stroke-dasharray="4 4"></rect>
+            <text class="t" x="555" y="353" text-anchor="middle" font-size="12">pricing</text>
+            <text class="t" x="555" y="369" text-anchor="middle" font-size="10.5" opacity="0.6">no foreign key &mdash; just read in</text>
+          </svg>
+          <figcaption>Around the hub: who (<code>owners</code>, <code>pets</code>), where (<code>branches</code> &rarr; rooms / groomers / studios), the appointment (a 1:1 detail row per service), and the money (<code>booking_charges</code> = the line-item bill, <code>payments</code> = what was received). Not shown: compliance rows (vaccine declarations, uploaded documents, waivers) and <code>booking_edits</code>, an audit log of every admin change. <code>pricing</code> floats free &mdash; it is loaded into both frontends at startup so rates change without a deploy.</figcaption>
+        </figure>
+
+        <h3>Key flows</h3>
+        <div class="flows">
+          <h4>A booking is born three ways</h4>
+          <p><strong>Online</strong> &mdash; the customer completes the wizard and pays on a hosted page; the <em>payment webhook</em> is what actually creates the confirmed booking and sends the email. <strong>Admin</strong> &mdash; staff use a 6-step panel; the <code>submit-booking</code> function writes it directly and emails immediately. <strong>Walk-in</strong> &mdash; staff mint a single-use token that opens the public wizard in a fee-free mode, also routed through <code>submit-booking</code>.</p>
+
+          <h4>The money path &mdash; and the trust boundary</h4>
+          <figure class="diagram">
+            <svg viewBox="0 0 720 250" role="img" aria-label="The payment flow as four boxes: the browser builds the booking, a checkout function recomputes the price, Maya takes the card payment, and a webhook function is the only thing that confirms the booking and writes the bill. A dashed trust boundary sits between the browser and the checkout function.">
+              <defs>
+                <marker id="ahm" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+                </marker>
+              </defs>
+
+              <line class="edge" x1="184" y1="40" x2="184" y2="176" stroke-dasharray="5 4"></line>
+              <text class="lbl" x="184" y="30" text-anchor="middle" font-size="10.5">trust boundary</text>
+
+              <rect class="box" x="6" y="64" width="150" height="84" rx="8"></rect>
+              <text class="t t--title" x="81" y="100" text-anchor="middle" font-size="13">Browser</text>
+              <text class="t" x="81" y="119" text-anchor="middle" font-size="10.5" opacity="0.65">builds the booking</text>
+
+              <rect class="box" x="212" y="64" width="176" height="84" rx="8"></rect>
+              <text class="t t--title" x="300" y="100" text-anchor="middle" font-size="13">Checkout function</text>
+              <text class="t" x="300" y="119" text-anchor="middle" font-size="10.5" opacity="0.65">recomputes the price</text>
+
+              <rect class="box" x="420" y="64" width="136" height="84" rx="8"></rect>
+              <text class="t t--title" x="488" y="100" text-anchor="middle" font-size="13">Maya</text>
+              <text class="t" x="488" y="119" text-anchor="middle" font-size="10.5" opacity="0.65">takes the payment</text>
+
+              <rect class="box box--key" x="588" y="64" width="128" height="84" rx="8"></rect>
+              <text class="t t--title" x="652" y="97" text-anchor="middle" font-size="13">Webhook fn</text>
+              <text class="t" x="652" y="115" text-anchor="middle" font-size="10.5" opacity="0.72">confirms + bills,</text>
+              <text class="t" x="652" y="129" text-anchor="middle" font-size="10.5" opacity="0.72">once only</text>
+
+              <line class="edge" x1="156" y1="106" x2="210" y2="106" marker-end="url(#ahm)"></line>
+              <text class="lbl" x="183" y="98" text-anchor="middle" font-size="9.5">no price</text>
+              <line class="edge" x1="388" y1="106" x2="418" y2="106" marker-end="url(#ahm)"></line>
+              <line class="edge" x1="556" y1="106" x2="586" y2="106" marker-end="url(#ahm)"></line>
+              <text class="lbl" x="571" y="98" text-anchor="middle" font-size="9.5">paid</text>
+            </svg>
+            <figcaption>The browser&rsquo;s numbers are never trusted. The checkout function recomputes what to charge from the <code>pricing</code> table and re-validates the membership discount; only the webhook &mdash; never the browser&rsquo;s &ldquo;success&rdquo; redirect &mdash; turns a booking confirmed. Before this boundary was enforced, a tampered request let a customer pay <strong>&#8369;1</strong> for a real service.</figcaption>
+          </figure>
+        </div>
+
+        <div class="guided-lab" id="lab-barkhaus-payment">
+          <h3>Feature X-ray &middot; Barkhaus payment</h3>
+          <p><strong>Learning objective:</strong> trace one booking from an untrusted browser total to an authoritative server price and an idempotent payment confirmation.</p>
+          <div class="source-trail"><strong>Source trail</strong><br>
+            <code>barkhaus/booking.js</code> &rarr; <code>submitBooking()</code> &rarr;
+            <code>supabase/functions/create-maya-checkout/index.ts</code> &rarr;
+            <code>_shared/pricing.ts</code> &rarr; Maya &rarr;
+            <code>supabase/functions/handle-payment-webhook/index.ts</code>
+          </div>
+          <div class="snippet">
+            <p class="snippet-label">create-maya-checkout/index.ts &middot; the authority changes here</p>
+            <pre><code>const pricing = await loadPricing(supabase)
+const membership = await validateMembership(supabase, body)
+const priced = computeBookingPrice(body, pricing, membership)
+
+// Browser totals are a tamper signal, never the amount to charge.
+if (parseInt(body.total) !== priced.total) {
+  console.warn('[repricing] client total differs from server total')
+}</code></pre>
+          </div>
+          <div class="exercise-step"><b>Predict</b><p>If the browser sends <code>total: 1</code>, which value reaches Maya? Write the answer before reading the function.</p></div>
+          <div class="exercise-step"><b>Trace</b><p>Find where <code>booking.js</code> sends the payload, where the checkout function ignores its total, and where the webhook compares the paid amount with the pending amount.</p></div>
+          <div class="exercise-step"><b>Change</b><p>On a local branch, add or extend a test for a tampered client total. Change test input only&mdash;never a production setting or live payment key.</p></div>
+          <div class="exercise-step"><b>Break</b><p>Make the expected server amount differ from the simulated paid amount and observe the webhook&rsquo;s rejection path.</p></div>
+          <div class="exercise-step"><b>Verify</b><p>The proof is a passing test for server repricing plus a failing payment-mismatch case, not the browser&rsquo;s success page.</p></div>
+          <div class="exercise-step"><b>Explain</b><p>Why may the browser display an estimate while the server remains the price authority?</p></div>
+        </div>
+
+        <h3>Risks &amp; gotchas</h3>
+        <ul class="findings">
+          <li><b>Production is the only environment.</b> Demo bookings, row-level-security changes, and webhook testing all run against live customer data. A staging project + seed script is the top item on the team&rsquo;s own retrospective.</li>
+          <li><b>37 database changes, applied by hand.</b> Each schema change is a SQL file a person runs against the live database, then a cache-reload command. Forget the reload and the API throws phantom &ldquo;relationship not found&rdquo; errors. There is no automated migration runner.</li>
+          <li><b>The admin app is a built bundle committed to the repo &mdash; and a bot also commits it.</b> This has raced a real fix and reverted it (&ldquo;the regression that kept coming back&rdquo;). The documented fix &mdash; build in CI, stop committing output &mdash; is agreed but not yet done.</li>
+          <li><b>Row-level security has failed silently.</b> An insert-only policy let edits add new charge lines while deletes quietly failed &rarr; duplicated bills (real money data), caught only by a test&rsquo;s totals check. Public availability had to move to narrow server-side functions because a normal query returned &ldquo;no bookings&rdquo; &mdash; making every slot look free &mdash; when the booking rows were private.</li>
+          <li><b>The same business logic lives in three places.</b> Pricing and availability rules are re-implemented in the public site, the admin app, and the test suite, and they have drifted (hotel priced by pet size in one, by cage type in another).</li>
+          <li><b>Payment health needs an outside watchdog.</b> A GitHub Action pings a health function every 20 minutes, because a silently-failing cron &mdash; or a Supabase usage cap that stops functions responding &mdash; would not otherwise be noticed.</li>
+          <li><b>The docs already disagree with the code.</b> <code>AGENTS.md</code> and the technical doc still say &ldquo;manual transfer is active, keep Maya off until launch&rdquo; &mdash; but the live setting is <code>'maya'</code> and card checkout is running. Documentation that isn&rsquo;t updated with the change that invalidates it quietly turns into a trap.</li>
+        </ul>
+
+        <h3>If we rebuilt it</h3>
+        <p>Mostly straight from the team&rsquo;s own retrospective &mdash; the stack was judged right; the discipline around change is what it would upgrade.</p>
+        <ul class="findings">
+          <li><b>Contracts first.</b> Schema in migrations from commit one, generated types, one shared business-logic module every surface imports, and a one-page data dictionary that pins down date semantics.</li>
+          <li><b>Two environments.</b> Production plus a staging Supabase with a seed script, so destructive testing never touches live data.</li>
+          <li><b>CI builds artifacts.</b> Never commit build output; remove the bot&rsquo;s write path entirely.</li>
+          <li><b>Loud failures from day one.</b> No silent <code>catch {}</code>; error tracking (Sentry) on both frontends &mdash; which Bonado already does.</li>
+          <li><b>Keep what worked.</b> Database-driven pricing, the idempotent-webhook + pending-hold + auto-cancel trio, single-use tokens, soft deletes, and the cached-token auth pattern all earned their place.</li>
+        </ul>
+
+        <h3>The four folders in this group</h3>
+        <ul class="subrepos">
+          <li><code>barkhaus</code> &mdash; the live product described above.</li>
+          <li><code>barkhaus-dev</code> &mdash; a companion workspace, not deployed: a self-contained test console (API assertions, paste-in E2E scripts, a 270-item manual checklist), the branded email template, and icon exports.</li>
+          <li><code>barkhaus-booking-staging</code> &mdash; an active experiment rebuilding just the booking flow on a completely different stack (Cloudflare + a Next.js-like framework + a SQL toolkit), including &ldquo;sign in with ChatGPT&rdquo;. A bet on a cleaner foundation, not yet the real thing.</li>
+          <li><code>booking-platform</code> &mdash; not code: a written kit for standing up a <em>separate</em> Barkhaus per client (own database, own deployment). Isolation by structure was chosen over one shared database with a &ldquo;customer&rdquo; column &mdash; see topic 9 in the reading list.</li>
+        </ul>
+
+        <p style="margin-top:20px"><span class="status-note">Deep-dive complete &mdash; Sep 2026</span></p>
+      </section>
+
+      <section id="mvl">
+        <h2><span class="letter">B</span> MVL 2026 <span class="pill pill--live">Live &middot; seasonal</span></h2>
+
+        <h3>In one line</h3>
+        <p>The event site for the Metarice Volleyball League&rsquo;s 2026 invitational (<strong>metaricevolley.ph</strong>) &mdash; five game days across two weekends, Aug 29 to Sep 6. It captures player waivers, runs a game-day raffle, drives the livestream scoreboards, and collects award votes and post-event feedback. Built and re-tuned <em>while the tournament was happening</em>.</p>
+
+        <h3>Architecture</h3>
+        <p>A hand-written multi-page static site (17 pages, ~6,800 lines of plain JavaScript, no framework &mdash; a deliberate choice noted in the repo) on <strong>Vercel</strong>. The distinctive part is the backend: MVL <strong>does not have its own Supabase project</strong>. It lives in a dedicated <code>mvl</code> schema <em>inside the Sansayaw project</em> &mdash; and so does Bonado (its own <code>bonado</code> schema). Three of the four products, one Supabase project.</p>
+        <p>Every browser write goes through a <code>public.</code> database function (same &ldquo;never trust the browser&rdquo; rule as Barkhaus, taken further) &mdash; waivers, raffle check-ins, score entry, and scoreboard control are all server-side functions. The <code>mvl.*</code> tables are read-only to the public for league content; everything else is closed.</p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 720 486" role="img" aria-label="MVL architecture: a multi-page static site on Vercel talks to one Supabase project shared by three products (Sansayaw, MVL, Bonado). MVL is isolated in its own mvl schema. All browser writes go through public database functions. The database uses PostGIS for the geofence; edge functions send email via Resend; the site reports to Google Analytics.">
+            <defs>
+              <marker id="ahv" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+              </marker>
+            </defs>
+
+            <rect class="box" x="70" y="14" width="580" height="52" rx="8"></rect>
+            <text class="t t--title" x="360" y="35" text-anchor="middle" font-size="14">Static multi-page site</text>
+            <text class="t" x="360" y="53" text-anchor="middle" font-size="11.5" opacity="0.66">17 pages, plain JavaScript, no framework &middot; on Vercel (redirects + instant deploy)</text>
+
+            <line class="edge" x1="360" y1="66" x2="360" y2="110" marker-end="url(#ahv)"></line>
+            <line class="edge" x1="360" y1="110" x2="360" y2="66" marker-end="url(#ahv)"></line>
+            <text class="lbl" x="372" y="92" font-size="10.5">every write goes through a server function</text>
+
+            <rect class="box" x="40" y="112" width="640" height="250" rx="9"></rect>
+            <text class="t t--title" x="360" y="134" text-anchor="middle" font-size="13">One Supabase project &mdash; shared</text>
+            <text class="t" x="360" y="152" text-anchor="middle" font-size="10.5" opacity="0.6">the &ldquo;sansayaw&rdquo; project &middot; Sansayaw + MVL + Bonado all live here</text>
+
+            <rect class="box box--key" x="70" y="168" width="580" height="120" rx="8"></rect>
+            <text class="t t--title" x="360" y="189" text-anchor="middle" font-size="13">the &lsquo;mvl&rsquo; schema &mdash; MVL&rsquo;s own corner</text>
+            <text class="t" x="360" y="210" text-anchor="middle" font-size="11.5" opacity="0.85">tables: teams, players, games, game_sets, videos, venues,</text>
+            <text class="t" x="360" y="227" text-anchor="middle" font-size="11.5" opacity="0.85">waiver_submissions, raffle_checkins, scoreboards, admin_users</text>
+            <text class="t" x="360" y="248" text-anchor="middle" font-size="11.5" opacity="0.85">public: read-only for league content &middot; all writes via functions</text>
+            <text class="t" x="360" y="269" text-anchor="middle" font-size="11.5" opacity="0.7">PostGIS extension &mdash; real distance math for the geofence</text>
+
+            <rect class="box" x="70" y="300" width="580" height="46" rx="8"></rect>
+            <text class="t" x="360" y="321" text-anchor="middle" font-size="11.5">Auth (Google sign-in) &mdash; config shared with Bonado &middot; admin allow-list</text>
+            <text class="t" x="360" y="338" text-anchor="middle" font-size="10.5" opacity="0.6">3 Edge Functions &mdash; confirmation emails</text>
+
+            <line class="edge" x1="300" y1="362" x2="300" y2="406" marker-end="url(#ahv)"></line>
+            <text class="lbl" x="312" y="388" font-size="10.5">from the edge functions</text>
+
+            <rect class="box" x="70" y="408" width="580" height="46" rx="8"></rect>
+            <text class="t" x="360" y="435" text-anchor="middle" font-size="12">Resend (3 kinds of confirmation email) &middot; Google Analytics</text>
+          </svg>
+          <figcaption>The twist: no dedicated backend. MVL is a tenant in Sansayaw&rsquo;s Supabase project, walled off in its own <code>mvl</code> schema &mdash; and Bonado is in there too. Cheap to start for a six-week event; the cost is that three products now share one quota, one Auth config, and one blast radius.</figcaption>
+        </figure>
+
+        <h3>Systems &amp; why</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>System</th><th>What it does here</th><th>Why this choice / the trade-off</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Vercel</td><td>Serves the static site; holds the URL redirect rules and the phase config</td><td>Chosen over GitHub Pages because the redirect wall (<code>/raffle</code>, <code>/teaser</code>, &hellip; &rarr; new homes) and clean URLs are config Vercel supports and Pages doesn&rsquo;t. Deploys on push.</td></tr>
+              <tr><td class="grp">Supabase &mdash; shared project</td><td>Database, logins, and email functions &mdash; inside the existing <code>sansayaw</code> project, in an <code>mvl</code> schema (Bonado sits in the same project)</td><td>Reusing a project instead of provisioning one for a 6-week event is fast and free. The cost: quota, Auth config, and blast radius shared across three products, and this repo <em>can&rsquo;t use normal migration tooling</em> &mdash; every schema change is applied by hand.</td></tr>
+              <tr><td class="grp">PostGIS</td><td>Stores the venue as a real map point + radius; computes how far the entrant is</td><td>Proper geospatial math on the server, so a &ldquo;distance&rdquo; can&rsquo;t be forged in the browser. The honest limit: device GPS can still be spoofed at the OS level &mdash; it&rsquo;s location <em>validation</em>, not proof of presence.</td></tr>
+              <tr><td class="grp"><code>public.</code> functions</td><td>The only way the browser writes anything &mdash; waiver, raffle entry, score, scoreboard update</td><td>The server owns every rule: eligibility, dedupe, &ldquo;is today a game day.&rdquo; This is what let the raffle rules be rewritten ~10 times mid-event without touching the frontend.</td></tr>
+              <tr><td class="grp">Google SSO + allow-list</td><td>Gates the admin console (<code>/mvl/admin</code>)</td><td>Same pattern as Barkhaus: a Google login only counts if the email is also in an <code>admin_users</code> table.</td></tr>
+              <tr><td class="grp">Scoreboard control links</td><td>A secret URL lets a volunteer run the scoreboard for the livestream &mdash; no login</td><td>A bearer token in a URL: quick to hand to a scorekeeper, &ldquo;treat it like a password.&rdquo; Fine for a volunteer event; not for anything higher-stakes.</td></tr>
+              <tr><td class="grp">Resend (3 functions)</td><td>Confirmation emails for waiver, check-in, and award vote</td><td>Each email&rsquo;s data comes from a function that returns <em>only</em> what the email needs and is off-limits to the browser. Sent from a verified <code>metaricevolley.ph</code> address.</td></tr>
+              <tr><td class="grp">Google Analytics 4</td><td>Traffic across all pages</td><td>Single property; added when the stream was ready.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Data model &mdash; the shape</h3>
+        <p>Everything sits in the <code>mvl</code> schema. <code>games</code> is the spine; <code>teams</code>, <code>venues</code>, and the two form tables (<code>waiver_submissions</code>, <code>raffle_checkins</code>) hang off it. The public can only <em>read</em> league content; every write goes through a function.</p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 720 400" role="img" aria-label="MVL data model: games is the central table, linked to teams (which have players), game_sets (per-set scores), game_videos, and venues (which carry a map point and radius). Separately, waiver_submissions and raffle_checkins capture form entries, and scoreboards holds live match state with a control token.">
+            <defs>
+              <marker id="ahmd" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+              </marker>
+            </defs>
+
+            <line class="edge" x1="168" y1="60" x2="298" y2="182"></line>
+            <line class="edge" x1="168" y1="128" x2="298" y2="196"></line>
+            <line class="edge" x1="552" y1="60" x2="432" y2="182"></line>
+            <line class="edge" x1="330" y1="176" x2="315" y2="150"></line>
+            <line class="edge" x1="420" y1="178" x2="500" y2="150"></line>
+            <line class="edge" x1="365" y1="228" x2="365" y2="298"></line>
+            <line class="edge" x1="150" y1="300" x2="312" y2="220" stroke-dasharray="4 4"></line>
+            <line class="edge" x1="570" y1="300" x2="428" y2="220" stroke-dasharray="4 4"></line>
+            <line class="edge" x1="106" y1="64" x2="106" y2="104" marker-end="url(#ahmd)"></line>
+            <text class="lbl" x="112" y="90" font-size="10">roster</text>
+
+            <text class="lbl" x="214" y="112" font-size="10">team A / B</text>
+            <text class="lbl" x="470" y="112" font-size="10">at venue</text>
+            <text class="lbl" x="240" y="140" font-size="10">per-set scores</text>
+            <text class="lbl" x="452" y="140" font-size="10">recordings</text>
+            <text class="lbl" x="374" y="266" font-size="10">day &amp; venue drive the raffle gate</text>
+
+            <rect class="box box--key" x="300" y="176" width="130" height="52" rx="8"></rect>
+            <text class="t t--title" x="365" y="199" text-anchor="middle" font-size="13">games</text>
+            <text class="t" x="365" y="216" text-anchor="middle" font-size="10" opacity="0.6">day &middot; status &middot; winner</text>
+
+            <rect class="box" x="44" y="38" width="124" height="42" rx="7"></rect>
+            <text class="t" x="106" y="64" text-anchor="middle" font-size="12.5">teams</text>
+            <rect class="box" x="44" y="104" width="124" height="42" rx="7"></rect>
+            <text class="t" x="106" y="130" text-anchor="middle" font-size="12.5">players</text>
+
+            <rect class="box" x="552" y="38" width="126" height="42" rx="7"></rect>
+            <text class="t" x="615" y="64" text-anchor="middle" font-size="12.5">venues</text>
+            <text class="t" x="615" y="98" text-anchor="middle" font-size="9.5" opacity="0.55">map point + radius</text>
+            <rect class="box" x="238" y="110" width="120" height="38" rx="7"></rect>
+            <text class="t" x="298" y="134" text-anchor="middle" font-size="11.5">game_sets</text>
+            <rect class="box" x="460" y="110" width="150" height="38" rx="7"></rect>
+            <text class="t" x="535" y="134" text-anchor="middle" font-size="11.5">game_videos</text>
+
+            <rect class="box" x="60" y="300" width="180" height="52" rx="7"></rect>
+            <text class="t" x="150" y="321" text-anchor="middle" font-size="12">waiver_submissions</text>
+            <text class="t" x="150" y="337" text-anchor="middle" font-size="10" opacity="0.6">registration + consent</text>
+            <rect class="box" x="270" y="300" width="180" height="52" rx="7"></rect>
+            <text class="t" x="360" y="321" text-anchor="middle" font-size="12">raffle_checkins</text>
+            <text class="t" x="360" y="337" text-anchor="middle" font-size="10" opacity="0.6">location + inside_radius</text>
+            <rect class="box" x="480" y="300" width="180" height="52" rx="7"></rect>
+            <text class="t" x="570" y="321" text-anchor="middle" font-size="12">scoreboards</text>
+            <text class="t" x="570" y="337" text-anchor="middle" font-size="10" opacity="0.6">live state + control token</text>
+          </svg>
+          <figcaption>Solid lines are real database links. The dashed lines are logical, not enforced: a raffle check-in is only accepted when <code>games</code> shows a match <em>today</em> (Manila time), and it&rsquo;s scored against the venue&rsquo;s point and radius &mdash; but the row itself just records what happened. Award-voting, feedback, and raffle-draw tables were added later and aren&rsquo;t shown.</figcaption>
+        </figure>
+
+        <h3>Key flows</h3>
+        <div class="flows">
+          <h4>The game-day raffle check-in &mdash; the signature flow</h4>
+          <p>Two ways in: <strong>self</strong> (your own phone) or <strong>QR</strong> (a booth laptop where staff are signed in as admin). Either way the browser reads your location <em>once</em> &mdash; no manual pin &mdash; and hands it to one server function, which decides everything.</p>
+          <figure class="diagram">
+            <svg viewBox="0 0 720 372" role="img" aria-label="The raffle check-in decision flow: the browser reads location once and calls the server function; the server checks is today a game day, then have you already entered today, then are you inside the venue radius, producing outcomes: raffle closed, already entered, you're in, or recorded but outside and ineligible.">
+              <defs>
+                <marker id="ahk" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+                </marker>
+              </defs>
+
+              <rect class="box" x="250" y="12" width="220" height="46" rx="8"></rect>
+              <text class="t t--title" x="360" y="31" text-anchor="middle" font-size="12.5">Browser</text>
+              <text class="t" x="360" y="47" text-anchor="middle" font-size="10.5" opacity="0.66">reads location once, sends it</text>
+
+              <line class="edge" x1="360" y1="58" x2="360" y2="86" marker-end="url(#ahk)"></line>
+
+              <rect class="box box--key" x="150" y="88" width="420" height="196" rx="9"></rect>
+              <text class="t t--title" x="360" y="110" text-anchor="middle" font-size="12.5">mvl_create_raffle_checkin &mdash; server decides</text>
+
+              <text class="t" x="176" y="140" font-size="11.5" opacity="0.9">1 &nbsp;Is today a game day? (from the schedule, Manila time)</text>
+              <text class="lbl" x="196" y="157" font-size="10">no &rarr; &ldquo;raffle closed&rdquo;</text>
+
+              <text class="t" x="176" y="185" font-size="11.5" opacity="0.9">2 &nbsp;Already entered successfully today?</text>
+              <text class="lbl" x="196" y="202" font-size="10">yes &rarr; &ldquo;you&rsquo;re already in&rdquo; (no duplicate)</text>
+
+              <text class="t" x="176" y="230" font-size="11.5" opacity="0.9">3 &nbsp;Distance to venue &le; radius? (PostGIS)</text>
+              <text class="lbl" x="196" y="247" font-size="10">yes &rarr; entry recorded as inside the venue</text>
+              <text class="lbl" x="196" y="263" font-size="10">no &rarr; entry still recorded, marked ineligible</text>
+
+              <line class="edge" x1="360" y1="284" x2="360" y2="312" marker-end="url(#ahk)"></line>
+              <rect class="box" x="150" y="314" width="420" height="44" rx="8"></rect>
+              <text class="t" x="360" y="341" text-anchor="middle" font-size="11">one clear outcome back to the screen &mdash; nothing decided in the browser</text>
+            </svg>
+            <figcaption>Outside-the-venue attempts are <em>recorded, not rejected</em> (useful data, and they don&rsquo;t block a real entry later the same day). One successful entry per person per day, backed by a database uniqueness rule as a race guard. The rules in steps 1&ndash;3 changed repeatedly during the event &mdash; each change was an edit to this one function.</figcaption>
+          </figure>
+
+          <h4>Live scoreboard</h4>
+          <p>An admin creates a board and gets two links: a <strong>public read-only URL</strong> to drop into the livestream overlay (OBS), and a <strong>secret control URL</strong> a scorekeeper opens on a phone &mdash; no login &mdash; to tap points and sets. Updates are atomic server calls. Saving a set writes into <code>game_sets</code>, so the public schedule and standings update from the same record instantly. Court-side and big-screen views render the same board.</p>
+
+          <h4>The phase flip</h4>
+          <p>The site changes shape between &ldquo;registration&rdquo; and &ldquo;game day&rdquo; by editing <strong>one word</strong> in <code>site-config.js</code>. That swaps every page&rsquo;s navigation (Rules/Waiver &rarr; Schedule/Videos/Teams/Rules/Check-In). The nav is one byte-identical block copied onto every page and stamped before the page paints, so wrong-phase links never flash. A one-line script checks that every page&rsquo;s nav block is identical &mdash; the entire mechanism for &ldquo;no page drifts out of sync.&rdquo; Old URLs stay alive through a wall of redirects in <code>vercel.json</code>.</p>
+        </div>
+
+        <div class="guided-lab" id="lab-mvl-raffle">
+          <h3>Feature X-ray &middot; MVL raffle check-in</h3>
+          <p><strong>Learning objective:</strong> see why one database function is easier to change and harder to cheat than eligibility rules copied into several pages.</p>
+          <div class="source-trail"><strong>Source trail</strong><br>
+            check-in page &rarr; Supabase RPC <code>public.mvl_create_raffle_checkin</code> &rarr;
+            <code>mvl.games</code> + <code>mvl.venues</code> + <code>mvl.raffle_checkins</code> &rarr; one result row
+          </div>
+          <div class="snippet">
+            <p class="snippet-label">20260717000100_raffle_checkin_rules.sql &middot; server-owned rules</p>
+            <pre><code>if found then
+  return query select v_existing.id,
+    v_existing.inside_radius, v_existing.distance_m, true;
+  return;
+end if;
+
+inside_radius := st_distance(v_point, v_venue.location)
+  &lt;= v_venue.checkin_radius_m;</code></pre>
+          </div>
+          <div class="exercise-step"><b>Predict</b><p>What should happen when someone first checks in outside the radius, then later checks in inside it on the same day?</p></div>
+          <div class="exercise-step"><b>Trace</b><p>Locate the game-day gate, duplicate-success check, distance calculation, and unique index. Identify which is friendly behavior and which is the race-condition backstop.</p></div>
+          <div class="exercise-step"><b>Change</b><p>In a disposable local database or SQL test, vary the venue radius and record the changed outcome. Do not run the migration against the shared production project.</p></div>
+          <div class="exercise-step"><b>Verify</b><p>Prove four outcomes: closed day, first inside entry, repeated inside entry, and outside attempt that remains eligible to retry.</p></div>
+          <div class="exercise-step"><b>Explain</b><p>Why is the browser allowed to supply coordinates but not decide <code>inside_radius</code>?</p></div>
+        </div>
+
+        <h3>Risks &amp; gotchas</h3>
+        <ul class="findings">
+          <li><b>The &ldquo;one project per product&rdquo; rule is broken here.</b> MVL, Bonado, and Sansayaw all run inside <em>one</em> Supabase project (each in its own schema). Consequences: a redirect-list slip sends MVL&rsquo;s admin login to Bonado&rsquo;s site; Sansayaw&rsquo;s daily scrapes and MVL&rsquo;s game-day traffic share one quota; a migration mistake touches a database two other live products depend on. And this repo can&rsquo;t use standard migration tooling &mdash; every schema change is run by hand against the live shared database.</li>
+          <li><b>The docs are badly out of date.</b> <code>HANDOFF.md</code> still describes July: &ldquo;raffle BUILT, pending one migration,&rdquo; &ldquo;remaining: team detail pages,&rdquo; &ldquo;phase deliberately not flipped.&rdquo; Reality: the tournament ran, ~67 migrations landed, the phase is flipped, and there&rsquo;s award voting, player check-ins, a raffle-draw system, a synchronized public draw display, and a feedback form. Same disease as the Barkhaus payment docs.</li>
+          <li><b>Two sources of truth for league data.</b> <code>js/league-data.js</code> (teams, games, sponsors) was the original data source and is <em>still</em> used to render parts of the site, even though the same data lives in Supabase. The schedule page re-implements the standings ranking in JavaScript &ldquo;until the page is wired to Supabase.&rdquo; They can disagree.</li>
+          <li><b>Raffle rules changed ~10 times mid-event.</b> Repeat winners, exclude-winner-dates, exclude teams, roster QR entries&hellip; the client re-decided eligibility game by game. This only worked because the logic was one server-side function to edit &mdash; a browser implementation would have needed a redeploy each time and drifted between the check-in page and the draw.</li>
+          <li><b>Scorekeeping by secret link.</b> The scoreboard control URL is a bearer token &mdash; whoever has the link can score the match. Fine for a trusted volunteer on the day; it would need real accounts at any larger scale.</li>
+          <li><b>A hardcoded venue ID.</b> The whole check-in flow depends on a magic UUID (<code>11111111-&hellip;</code>) pasted into the frontend. That venue row was once seeded with an empty location, which silently failed every check-in until a migration set the real coordinates.</li>
+          <li><b>Changes went straight to a production database during a live event.</b> Raffle-rule migrations carried the note &ldquo;get client go-ahead before applying &mdash; it&rsquo;s their production DB.&rdquo; There is no staging copy.</li>
+        </ul>
+
+        <h3>If we rebuilt it</h3>
+        <ul class="findings">
+          <li><b>Its own Supabase project.</b> A free six-week event doesn&rsquo;t justify entangling three products&rsquo; Auth, quota, and migration history. A new project costs nothing; unpicking this later is real work.</li>
+          <li><b>One data source.</b> Once the pages read Supabase, retire <code>league-data.js</code> as a runtime source &mdash; keep it only as a seed file.</li>
+          <li><b>Keep the function-per-write discipline.</b> It&rsquo;s exactly what made the mid-event rule churn survivable. This is the pattern to carry forward, not fix.</li>
+          <li><b>Keep the one-word phase flip and the nav-sync check.</b> Small, cheap, and it held up.</li>
+          <li><b>A staging copy.</b> Same gap as Barkhaus &mdash; rule changes shouldn&rsquo;t go straight to the live database mid-tournament.</li>
+          <li><b>Real accounts for scorekeepers</b> if the event grows; the secret-link approach is an event-day expedient.</li>
+        </ul>
+
+        <h3>The sibling folders</h3>
+        <ul class="subrepos">
+          <li><code>mvl</code> &mdash; the site described above (repo <code>mvl-site</code>).</li>
+          <li><code>mvl-admin-awards</code>, <code>mvl-raffle-repeat-winners</code>, <code>mvl-scoreboard-finish</code> &mdash; <strong>not separate projects</strong>. They&rsquo;re git <em>worktrees</em>: the same repository checked out to three different in-progress feature branches at once, so parallel work during the event crunch didn&rsquo;t collide. A useful pattern to see &mdash; and a tidy-up job once the branches merge.</li>
+        </ul>
+
+        <p style="margin-top:20px"><span class="status-note">Deep-dive complete &mdash; Sep 2026</span></p>
+      </section>
+
+      <section id="sansayaw">
+        <h2><span class="letter">C</span> Sansayaw <span class="pill pill--live">Live</span></h2>
+
+        <h3>In one line</h3>
+        <p>A directory of drop-in dance classes across Manila studios (<strong>sansayaw.org</strong>), plus an iOS app. Its defining trait: <strong>nobody types the data in</strong>. Every morning, robots read ~13 studios&rsquo; booking systems, clean up the results, and publish them.</p>
+
+        <h3>Architecture</h3>
+        <p>Three parts in one repository, one job each: a set of <strong>Python scrapers</strong>, a <strong>Next.js website</strong>, and a small <strong>iOS app</strong>. The scrapers run on a schedule and write to Supabase; the website and the app read from it. The seam between the two halves is a single <em>&ldquo;refresh your cache now&rdquo;</em> webhook.</p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 720 250" role="img" aria-label="Sansayaw daily pipeline: GitHub Actions fires at 6am, running Python scrapers that read about 13 studio sources; they write classes into the sansayaw schema in Supabase using the service-role key; then they POST a revalidate webhook that clears the Next.js site's cache. The site reads Supabase with the anon key, select-only. The iOS app reads the same data directly.">
+            <defs>
+              <marker id="ahs" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+              </marker>
+            </defs>
+
+            <rect class="box" x="12" y="42" width="150" height="58" rx="8"></rect>
+            <text class="t t--title" x="87" y="66" text-anchor="middle" font-size="12.5">GitHub Actions</text>
+            <text class="t" x="87" y="84" text-anchor="middle" font-size="10.5" opacity="0.66">6 AM daily</text>
+
+            <rect class="box" x="200" y="42" width="172" height="58" rx="8"></rect>
+            <text class="t t--title" x="286" y="66" text-anchor="middle" font-size="12.5">Scrapers (Python)</text>
+            <text class="t" x="286" y="84" text-anchor="middle" font-size="10.5" opacity="0.66">~13 sources &middot; browser for 3</text>
+
+            <rect class="box box--key" x="410" y="32" width="150" height="78" rx="8"></rect>
+            <text class="t t--title" x="485" y="56" text-anchor="middle" font-size="12.5">Supabase</text>
+            <text class="t" x="485" y="74" text-anchor="middle" font-size="10.5" opacity="0.8">sansayaw schema</text>
+            <text class="t" x="485" y="90" text-anchor="middle" font-size="9.5" opacity="0.6">studios &middot; instructors &middot; classes</text>
+
+            <rect class="box" x="596" y="42" width="112" height="58" rx="8"></rect>
+            <text class="t t--title" x="652" y="66" text-anchor="middle" font-size="12.5">Next.js site</text>
+            <text class="t" x="652" y="84" text-anchor="middle" font-size="10.5" opacity="0.66">on Vercel</text>
+
+            <line class="edge" x1="162" y1="71" x2="198" y2="71" marker-end="url(#ahs)"></line>
+            <text class="lbl" x="180" y="63" text-anchor="middle" font-size="9.5">run</text>
+            <line class="edge" x1="372" y1="71" x2="408" y2="71" marker-end="url(#ahs)"></line>
+            <text class="lbl" x="390" y="63" text-anchor="middle" font-size="9">write</text>
+            <line class="edge" x1="560" y1="71" x2="594" y2="71" marker-end="url(#ahs)"></line>
+            <text class="lbl" x="577" y="63" text-anchor="middle" font-size="9">read</text>
+
+            <polyline class="edge" points="286,100 286,138 650,138 650,102" marker-end="url(#ahs)"></polyline>
+            <text class="lbl" x="468" y="154" text-anchor="middle" font-size="10">then: revalidate webhook &mdash; clears the site&rsquo;s cache</text>
+
+            <text class="t" x="360" y="196" text-anchor="middle" font-size="11" opacity="0.62">Scrapers write with the service-role key. The site and the iOS app read with the</text>
+            <text class="t" x="360" y="212" text-anchor="middle" font-size="11" opacity="0.62">public key, select-only &mdash; they can never change the data.</text>
+          </svg>
+          <figcaption>&ldquo;Users enter data&rdquo; is replaced by a timed job. The scraper is the only writer; the website and app are read-only. Between them sits one webhook: when the scrape finishes, it tells the site to drop its cached copy so the next visitor sees fresh classes. If that webhook fails, the site just catches up on its own timer &mdash; nothing breaks.</figcaption>
+        </figure>
+
+        <h3>Systems &amp; why</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>System</th><th>What it does here</th><th>Why this choice / the trade-off</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Python + Playwright</td><td>The scraping job: read ~13 studios&rsquo; booking systems (Wix, Mindbody, Shopify, widget APIs&hellip;), parse and clean</td><td>Python has the best ecosystem for &ldquo;drive a browser, parse messy data, normalise it.&rdquo; A real browser (Playwright) is only needed for 3 of 13; the rest read data endpoints directly. Deliberately the <em>only</em> Python in the portfolio.</td></tr>
+              <tr><td class="grp">GitHub Actions (cron)</td><td>Runs the scraper every day at 6 AM Manila time</td><td>A free scheduled runner &mdash; no server to keep alive. Learned the hard way: a 30-minute timeout (a hung run once held a runner for 6 hours) and unbuffered logs (a killed job used to lose all its output).</td></tr>
+              <tr><td class="grp">Supabase</td><td>Holds studios, instructors, classes, and one row per scrape run &mdash; in the shared project&rsquo;s <code>sansayaw</code> schema</td><td>The scraper writes with the powerful service-role key; the site and app read with the public key, restricted to SELECT. Clean split of &ldquo;who can change this&rdquo; from &ldquo;who can see it.&rdquo;</td></tr>
+              <tr><td class="grp">Next.js + Vercel (ISR)</td><td>Server-renders the site; fetches the whole dataset once into a cached function</td><td>Every visitor gets the cached copy (fast, cheap), and the scraper&rsquo;s webhook is what makes it refresh &mdash; so the site is never more than one scrape-cycle stale.</td></tr>
+              <tr><td class="grp">The revalidate webhook</td><td>One authenticated <code>POST</code> from the scraper that clears the site&rsquo;s cache tag</td><td>The entire coupling between the two halves. Guarded by a shared secret; non-blocking &mdash; a failed call just means the site refreshes on its own timer instead.</td></tr>
+              <tr><td class="grp">Capacitor (iOS) + PostHog</td><td>A small React app wrapped for the App Store, with a home-screen widget for today&rsquo;s classes; product analytics</td><td>The widget and native share need an app. It reads the same Supabase data &mdash; but it&rsquo;s a <em>separate</em> codebase from the website, so features get ported between the two.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Data model &mdash; the shape</h3>
+        <p>Four tables in the <code>sansayaw</code> schema. <code>classes</code> is the output; each row is tagged with the <code>scrape_run</code> that produced it, the <code>studio</code> it&rsquo;s at, and (if resolved) an <code>instructor</code>. A private rules table, <code>instructor_aliases</code>, is what turns a scraped name into a real identity.</p>
+        <figure class="diagram">
+          <svg viewBox="0 0 720 250" role="img" aria-label="Sansayaw data model: classes is the central output table, each row linked to a scrape_run, a studio, and optionally an instructor. instructor_aliases is a private rules table that maps scraped names to instructor identities.">
+            <defs>
+              <marker id="ahsd" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+              </marker>
+            </defs>
+            <line class="edge" x1="168" y1="58" x2="292" y2="112"></line>
+            <line class="edge" x1="552" y1="58" x2="428" y2="112"></line>
+            <line class="edge" x1="552" y1="150" x2="428" y2="130"></line>
+            <line class="edge" x1="360" y1="196" x2="360" y2="164" stroke-dasharray="4 4" marker-end="url(#ahsd)"></line>
+
+            <text class="lbl" x="214" y="92" font-size="10">tagged with the run</text>
+            <text class="lbl" x="470" y="92" font-size="10">at studio</text>
+            <text class="lbl" x="470" y="140" font-size="10">taught by (maybe)</text>
+            <text class="lbl" x="374" y="184" font-size="10">resolves scraped names</text>
+
+            <rect class="box box--key" x="292" y="108" width="136" height="52" rx="8"></rect>
+            <text class="t t--title" x="360" y="131" text-anchor="middle" font-size="13">classes</text>
+            <text class="t" x="360" y="148" text-anchor="middle" font-size="10" opacity="0.6">one row per class</text>
+
+            <rect class="box" x="40" y="36" width="140" height="44" rx="7"></rect>
+            <text class="t" x="110" y="57" text-anchor="middle" font-size="12">scrape_runs</text>
+            <text class="t" x="110" y="72" text-anchor="middle" font-size="9.5" opacity="0.55">one per daily run</text>
+
+            <rect class="box" x="552" y="36" width="130" height="44" rx="7"></rect>
+            <text class="t" x="617" y="62" text-anchor="middle" font-size="12">studios</text>
+            <rect class="box" x="552" y="128" width="130" height="44" rx="7"></rect>
+            <text class="t" x="617" y="154" text-anchor="middle" font-size="12">instructors</text>
+
+            <rect class="box" x="250" y="198" width="220" height="44" rx="7" stroke-dasharray="4 4"></rect>
+            <text class="t" x="360" y="219" text-anchor="middle" font-size="12">instructor_aliases</text>
+            <text class="t" x="360" y="234" text-anchor="middle" font-size="9.5" opacity="0.55">the rules table &middot; not readable by the public</text>
+          </svg>
+          <figcaption>A view (<code>classes_display</code>) serves each date from the latest run that <em>covered</em> that date, so a studio dropping out of one morning&rsquo;s run doesn&rsquo;t erase yesterday&rsquo;s classes. Some <code>studios</code> fields (map link, photo) are curated by hand and the scraper is careful never to overwrite them.</figcaption>
+        </figure>
+
+        <h3>Key flows</h3>
+        <div class="flows">
+          <h4>The daily pipeline</h4>
+          <p>The cron fires &rarr; the scraper opens a run record &rarr; each studio scraper pulls its data (a real browser for only 3 of them) &rarr; names, genres and casing are normalised &rarr; instructor names are resolved to identities &rarr; the classes are bulk-inserted &rarr; the run is marked <em>success</em> or <em>partial</em> (partial only if a <em>core</em> scraper failed &mdash; flaky studios don&rsquo;t drag the whole run down) &rarr; the revalidate webhook fires. About seven minutes end to end.</p>
+
+          <h4>Turning &ldquo;Coach Ana &amp; Bea&rdquo; into two people</h4>
+          <p>A scraped instructor string is messy &mdash; honorifics, multiple names joined by <code>&amp;</code> or <code>x</code>, &ldquo;(Sub)&rdquo; suffixes. The matcher splits it, strips titles, then tries in order: a studio-specific alias rule, an exact match to a known instructor, then a fuzzy match &mdash; but only auto-links a fuzzy match above 0.92 <em>with a clear lead</em>. Anything else is left unlinked and queued for a human to confirm.</p>
+          <figure class="diagram">
+            <svg viewBox="0 0 720 266" role="img" aria-label="Instructor identity resolution: the scraped text is split into individual names with titles stripped; for each name the matcher checks an alias rule, then an exact match, then a fuzzy match at 0.92 or above with a clear lead; otherwise the name is left blank and queued for human review.">
+              <defs>
+                <marker id="ahsi" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+                </marker>
+              </defs>
+              <rect class="box" x="230" y="12" width="260" height="38" rx="8"></rect>
+              <text class="t" x="360" y="36" text-anchor="middle" font-size="12">scraped: &ldquo;Coach Ana &amp; Bea&rdquo;</text>
+              <line class="edge" x1="360" y1="50" x2="360" y2="72" marker-end="url(#ahsi)"></line>
+              <rect class="box" x="180" y="74" width="360" height="34" rx="8"></rect>
+              <text class="t" x="360" y="96" text-anchor="middle" font-size="11.5">split into people, strip titles &rarr; &ldquo;Ana&rdquo;, &ldquo;Bea&rdquo;</text>
+              <line class="edge" x1="360" y1="108" x2="360" y2="130" marker-end="url(#ahsi)"></line>
+
+              <rect class="box box--key" x="150" y="132" width="420" height="88" rx="9"></rect>
+              <text class="t t--title" x="360" y="152" text-anchor="middle" font-size="11.5">for each name, in order:</text>
+              <text class="t" x="176" y="172" font-size="10.5" opacity="0.9">1 &nbsp;a rule for this name at this studio? &rarr; use it</text>
+              <text class="t" x="176" y="189" font-size="10.5" opacity="0.9">2 &nbsp;exact match to a known instructor? &rarr; link</text>
+              <text class="t" x="176" y="206" font-size="10.5" opacity="0.9">3 &nbsp;fuzzy match &ge; 0.92 with a clear lead? &rarr; link</text>
+
+              <line class="edge" x1="360" y1="220" x2="360" y2="242" marker-end="url(#ahsi)"></line>
+              <text class="t" x="360" y="254" text-anchor="middle" font-size="10.5" opacity="0.7">otherwise &rarr; left blank, queued for human review</text>
+            </svg>
+            <figcaption>The scraper never invents an identity. Unresolved names keep an empty link until someone runs the review tool &mdash; a deliberate &ldquo;don&rsquo;t guess&rdquo; stance, at the cost of a standing manual chore.</figcaption>
+          </figure>
+        </div>
+
+        <div class="guided-lab" id="lab-sansayaw-pipeline">
+          <h3>Feature X-ray &middot; Sansayaw data pipeline</h3>
+          <p><strong>Learning objective:</strong> follow data created by a scheduled worker, understand a pure matching function, and see how cache invalidation completes the flow.</p>
+          <div class="source-trail"><strong>Source trail</strong><br>
+            <code>.github/workflows/</code> schedule &rarr; <code>run.py</code> &rarr;
+            <code>scrapers/match.py</code> &rarr; <code>scrapers/db.py</code> &rarr;
+            Supabase &rarr; <code>web/app/api/revalidate/route.js</code>
+          </div>
+          <div class="snippet">
+            <p class="snippet-label">scrapers/match.py + revalidate/route.js &middot; judgment, then cache refresh</p>
+            <pre><code>AUTO = 0.92
+MARGIN = 0.08
+
+// The webhook is useful but not trusted without its secret.
+if (!process.env.REVALIDATE_SECRET || secret !== process.env.REVALIDATE_SECRET) {
+  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+}
+revalidateTag('app-data')</code></pre>
+          </div>
+          <div class="exercise-step"><b>Predict</b><p>Should a 0.93 fuzzy match auto-link if the runner-up scores 0.90? The threshold alone is not the whole rule.</p></div>
+          <div class="exercise-step"><b>Trace</b><p>Follow one raw instructor string through token cleaning, alias lookup, exact match, fuzzy match, database write, and site refresh.</p></div>
+          <div class="exercise-step"><b>Change</b><p>Add a fixture to <code>tests/test_match.py</code> for a messy but realistic name. Change the test and pure matcher only; do not run <code>run.py</code> against production.</p></div>
+          <div class="exercise-step"><b>Break</b><p>Use an invalid revalidation secret locally and confirm the endpoint returns 401 without changing cached data.</p></div>
+          <div class="exercise-step"><b>Verify</b><p>The matcher test passes, an ambiguous name stays unresolved, and the revalidation route accepts only the correct secret.</p></div>
+          <div class="exercise-step"><b>Explain</b><p>Why is &ldquo;leave it unlinked&rdquo; a feature rather than a failure?</p></div>
+        </div>
+
+        <h3>Risks &amp; gotchas</h3>
+        <ul class="findings">
+          <li><b>Scrapers are structurally fragile.</b> ~13 different studio booking systems, any of which can redesign, change a widget, or block a bot with no warning. There are partial defences &mdash; a studio returning <em>zero</em> classes is treated as an error, not a quiet week &mdash; but a format change that still parses can slip through and quietly publish wrong data.</li>
+          <li><b>Failures are visible only in a log.</b> A <em>partial</em> run, or a studio dropping to zero, shows up in the GitHub Actions output &mdash; nothing pages anyone. For a data product whose whole value is freshness and accuracy, that&rsquo;s the biggest gap.</li>
+          <li><b>The security was once theatre.</b> Row-level security was switched <em>off</em> on these tables while &ldquo;public read&rdquo; policies existed &mdash; so Postgres ignored the policies, and the underlying grants actually let the public key <em>insert, update, and delete</em>. Anyone loading the site could have wiped the data. Fixed by a hardening migration (RLS on, writes revoked, the rules table fully closed) &mdash; but it was live for a while.</li>
+          <li><b>Two frontends, one dataset.</b> The website and the iOS app are separate codebases reading the same tables; a feature built on the web (instructor pages) had to be <em>ported</em> to the app. The Barkhaus public/admin duplication tax, again.</li>
+          <li><b>Identity resolution needs a human.</b> Unmatched instructor/studio pairs sit unlinked until someone runs the review CLI &mdash; low-tech and correct, but a standing chore.</li>
+          <li><b>Shared project, single environment.</b> Same as MVL and Bonado: one Supabase project for three products, and the scraper writes straight to production &mdash; no staging.</li>
+          <li><b>Repo clutter.</b> An earlier prototype (<code>frontend/</code>, <code>data.json</code>) still sits alongside the real <code>web/</code> &mdash; harmless but confusing.</li>
+        </ul>
+
+        <h3>If we keep building it</h3>
+        <ul class="findings">
+          <li><b>Alert on scrape health.</b> A partial run or a studio at zero should send a message, not just sit in a log. Highest-value addition for a scraper product.</li>
+          <li><b>Per-scraper &ldquo;expected shape&rdquo; checks.</b> Assert each studio returns a plausible count and structure, so a silent format drift becomes a loud failure.</li>
+          <li><b>Decide the two-frontend question.</b> Either share one codebase, or keep them separate on purpose and factor the shared data/render logic into a package.</li>
+          <li><b>Keep:</b> the service-role-writes / public-reads split, the pure tested matcher, the webhook seam, and treating &ldquo;0 classes&rdquo; as an error.</li>
+        </ul>
+
+        <p style="margin-top:20px"><span class="status-note">Deep-dive complete &mdash; Sep 2026</span></p>
+      </section>
+
+      <section id="bonado">
+        <h2><span class="letter">D</span> Bonado <span class="pill pill--proto">In build &middot; on TestFlight</span></h2>
+
+        <h3>In one line</h3>
+        <p>A mobile-first app for splitting shared trip expenses with friends &mdash; add expenses, see who owes whom, settle up. Same core stack as the others, but built <strong>deliberately</strong>: it is roughly the &ldquo;if we rebuilt it&rdquo; list from Barkhaus, executed. 15 build phases, ~47 database migrations, automated tests + CI, shipped to iOS TestFlight.</p>
+
+        <h3>Architecture</h3>
+        <p>A <strong>React single-page app</strong> (Vite + TypeScript + Tailwind, also an offline-capable PWA) on Vercel, wrapped for iOS with <strong>Capacitor</strong>. The backend is Supabase, in its own <code>bonado</code> schema. What sets it apart isn&rsquo;t the pieces &mdash; it&rsquo;s the discipline around them: typed code, tested money math, proper migration tooling, error tracking wired in, and nearly every write routed through an all-or-nothing database function.</p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 720 426" role="img" aria-label="Bonado architecture: a React single-page app that is also a PWA, on Vercel, and wrapped for iOS with Capacitor; it talks to a Supabase bonado schema with Postgres and row-level security, Auth supporting anonymous, Google and Apple sign-in, two storage buckets, two edge functions, and scheduled jobs; edge functions and the database reach out to Google Places via a proxy, Unsplash, a currency-rate API, and Firebase and Sentry which are dormant.">
+            <defs>
+              <marker id="ahba" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+              </marker>
+            </defs>
+
+            <rect class="box" x="90" y="14" width="250" height="54" rx="8"></rect>
+            <text class="t t--title" x="215" y="35" text-anchor="middle" font-size="13.5">React app (SPA + PWA)</text>
+            <text class="t" x="215" y="53" text-anchor="middle" font-size="11" opacity="0.66">Vite + TypeScript + Tailwind</text>
+
+            <rect class="box" x="360" y="14" width="260" height="54" rx="8"></rect>
+            <text class="t t--title" x="490" y="35" text-anchor="middle" font-size="13.5">Capacitor iOS shell</text>
+            <text class="t" x="490" y="53" text-anchor="middle" font-size="11" opacity="0.66">same app, wrapped for the App Store</text>
+
+            <rect class="box" x="90" y="80" width="530" height="30" rx="7"></rect>
+            <text class="t" x="355" y="100" text-anchor="middle" font-size="11.5">Vercel (static host) &middot; GitHub Actions runs tests + lint on every push</text>
+
+            <line class="edge" x1="355" y1="110" x2="355" y2="150" marker-end="url(#ahba)"></line>
+            <line class="edge" x1="355" y1="150" x2="355" y2="110" marker-end="url(#ahba)"></line>
+            <text class="lbl" x="367" y="134" font-size="10.5">writes go through database functions</text>
+
+            <rect class="box box--key" x="70" y="152" width="580" height="166" rx="9"></rect>
+            <text class="t t--title" x="360" y="174" text-anchor="middle" font-size="14">Supabase &mdash; the <tspan>bonado</tspan> schema</text>
+            <text class="t" x="92" y="200" font-size="12" opacity="0.85">Postgres + row-level security &middot; ~47 numbered migrations, applied by tool</text>
+            <text class="t" x="92" y="223" font-size="12" opacity="0.85">Auth &mdash; guest (anonymous) &middot; Google &middot; Apple &middot; guest can claim a real account</text>
+            <text class="t" x="92" y="246" font-size="12" opacity="0.85">Storage &mdash; receipts (private) &middot; trip covers (public)</text>
+            <text class="t" x="92" y="269" font-size="12" opacity="0.85">2 Edge Functions &mdash; Places proxy &middot; push dispatch</text>
+            <text class="t" x="92" y="292" font-size="12" opacity="0.7">pg_cron (purge old notifications) &middot; pg_net (fire-and-forget push trigger)</text>
+
+            <line class="edge" x1="300" y1="318" x2="300" y2="358" marker-end="url(#ahba)"></line>
+            <text class="lbl" x="312" y="340" font-size="10.5">keys stay server-side</text>
+
+            <rect class="box" x="70" y="360" width="580" height="52" rx="8"></rect>
+            <text class="t" x="360" y="381" text-anchor="middle" font-size="12">Google Places (via proxy) &middot; Unsplash &middot; currency-rate API</text>
+            <text class="t" x="360" y="399" text-anchor="middle" font-size="11" opacity="0.6">Firebase (push) &amp; Sentry (crash reports) &mdash; wired but dormant until keys are set</text>
+          </svg>
+          <figcaption>The same building blocks as Barkhaus and MVL. The difference is everything around them: TypeScript throughout, unit-tested split math, migrations run by tooling (not by hand), CI on every push, and error reporting ready to switch on. Not isolated, though: Bonado, MVL and Sansayaw all sit inside <em>one</em> Supabase project, each in its own schema.</figcaption>
+        </figure>
+
+        <h3>Systems &amp; why</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>System</th><th>What it does here</th><th>Why this choice / the trade-off</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">React + Vite + TypeScript</td><td>A single-page app with an app-like feel &mdash; transitions, gestures, offline</td><td>The UI is genuinely app-shaped (many interlinked stateful screens), so a framework earns its place here &mdash; unlike the Barkhaus marketing site. TypeScript catches shape mistakes; the cost is a build step and more concepts.</td></tr>
+              <tr><td class="grp">PWA + Capacitor</td><td>Installs from the browser; the <em>same</em> code ships to iOS via Capacitor</td><td>Explicit decision: the UI is already mobile-first and the PWA exists, so React Native would throw away the whole frontend for no gain. Capacitor wraps it instead.</td></tr>
+              <tr><td class="grp"><code>SECURITY DEFINER</code> functions</td><td>Every meaningful write &mdash; create trip, join, add expense, settle, delete account</td><td>Two reasons: multi-row writes stay all-or-nothing, and a subtle rule &mdash; a just-created trip isn&rsquo;t &ldquo;yours&rdquo; until its membership row exists, so a plain insert can&rsquo;t even read its own result. See the flow below.</td></tr>
+              <tr><td class="grp">Supabase Auth</td><td>Guest (anonymous), Google, and Apple sign-in; a guest can later claim a real account</td><td>Lowest-friction join (tap a link, you&rsquo;re in) without losing the guest&rsquo;s data when they upgrade. Apple sign-in is an App Store requirement.</td></tr>
+              <tr><td class="grp">Edge Function proxies</td><td>Google Places autocomplete runs through an authenticated function</td><td>Keeps the API key out of the app entirely, and Google&rsquo;s key restrictions don&rsquo;t accept a native app&rsquo;s origin anyway. A gap here was caught during TestFlight and closed.</td></tr>
+              <tr><td class="grp">Currency-rate API + cache</td><td>Each expense stores the exchange rate <em>as of that day</em>; rates cached daily</td><td>Snapshotting the rate means history doesn&rsquo;t silently move when rates change later. The cache keeps it to one lookup per day.</td></tr>
+              <tr><td class="grp">Unsplash</td><td>Suggests a cover photo for the trip&rsquo;s location</td><td>Real photos with attribution and the required download ping &mdash; respecting the API terms, not just pulling images.</td></tr>
+              <tr><td class="grp">Sentry / Firebase</td><td>Crash reporting; push notifications</td><td>Both fully coded but dormant &mdash; Sentry is even loaded only if a key is present, so it costs nothing until switched on. Same &ldquo;built but dark&rdquo; pattern as Barkhaus&rsquo;s spare payment provider.</td></tr>
+              <tr><td class="grp">GitHub Actions</td><td>Build, type-check, lint, and run tests on every push and pull request</td><td>The safety net Barkhaus&rsquo;s retrospective asked for, present here from early on.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Data model &mdash; the shape</h3>
+        <p><code>trips</code> at the centre; <code>users</code> (registered or guest) join through <code>memberships</code>. Expenses are <code>entries</code>, each with rows for who paid (<em>payers</em>) and how it splits (<em>shares</em>, via line items). <code>settlements</code> record money actually moving between people. Every <code>entry</code> id is <strong>generated on the phone</strong>, not the server &mdash; so an expense created offline and synced twice lands once.</p>
+        <figure class="diagram">
+          <svg viewBox="0 0 720 294" role="img" aria-label="Bonado data model: trips is central; users join via memberships; entries (expenses) belong to a trip and split into payer rows and share rows through line items; settlements record transfers between two users; entry_attachments holds receipt photos.">
+            <defs>
+              <marker id="ahbd" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+              </marker>
+            </defs>
+            <line class="edge" x1="168" y1="70" x2="298" y2="150"></line>
+            <line class="edge" x1="168" y1="150" x2="298" y2="162"></line>
+            <line class="edge" x1="365" y1="180" x2="365" y2="228"></line>
+            <line class="edge" x1="552" y1="70" x2="432" y2="150"></line>
+            <line class="edge" x1="552" y1="150" x2="432" y2="162"></line>
+            <line class="edge" x1="106" y1="70" x2="106" y2="112" marker-end="url(#ahbd)"></line>
+            <text class="lbl" x="112" y="96" font-size="10">a person</text>
+            <text class="lbl" x="196" y="108" font-size="10">joins via</text>
+            <text class="lbl" x="452" y="108" font-size="10">has expenses</text>
+            <text class="lbl" x="374" y="212" font-size="10">who paid + how it splits</text>
+
+            <rect class="box box--key" x="300" y="128" width="130" height="52" rx="8"></rect>
+            <text class="t t--title" x="365" y="151" text-anchor="middle" font-size="13">trips</text>
+            <text class="t" x="365" y="168" text-anchor="middle" font-size="10" opacity="0.6">the shared ledger</text>
+
+            <rect class="box" x="44" y="46" width="124" height="42" rx="7"></rect>
+            <text class="t" x="106" y="72" text-anchor="middle" font-size="12.5">users</text>
+            <rect class="box" x="44" y="130" width="124" height="42" rx="7"></rect>
+            <text class="t" x="106" y="156" text-anchor="middle" font-size="12">memberships</text>
+
+            <rect class="box" x="552" y="46" width="130" height="42" rx="7"></rect>
+            <text class="t" x="617" y="72" text-anchor="middle" font-size="12">settlements</text>
+            <text class="t" x="617" y="150" text-anchor="middle" font-size="9.5" opacity="0.55">money moved, person &rarr; person</text>
+
+            <rect class="box" x="270" y="230" width="190" height="46" rx="7"></rect>
+            <text class="t" x="365" y="251" text-anchor="middle" font-size="12">entries (expenses)</text>
+            <text class="t" x="365" y="267" text-anchor="middle" font-size="10" opacity="0.6">id made on the phone</text>
+
+            <line class="edge" x1="270" y1="253" x2="180" y2="253"></line>
+            <line class="edge" x1="460" y1="253" x2="550" y2="253"></line>
+            <rect class="box" x="40" y="230" width="120" height="46" rx="7" stroke-dasharray="4 4"></rect>
+            <text class="t" x="100" y="251" text-anchor="middle" font-size="11">payer rows</text>
+            <text class="t" x="100" y="266" text-anchor="middle" font-size="9.5" opacity="0.55">who paid</text>
+            <rect class="box" x="558" y="230" width="128" height="46" rx="7" stroke-dasharray="4 4"></rect>
+            <text class="t" x="622" y="251" text-anchor="middle" font-size="11">share rows</text>
+            <text class="t" x="622" y="266" text-anchor="middle" font-size="9.5" opacity="0.55">how it splits</text>
+          </svg>
+          <figcaption>An expense is never one row &mdash; it&rsquo;s the entry plus its payer rows plus its share rows, which is exactly why creating one goes through a single function that writes them together or not at all. Not shown: categories, payment accounts, receipt attachments, comments, notifications, and the exchange-rate cache.</figcaption>
+        </figure>
+
+        <h3>Key flows</h3>
+        <div class="flows">
+          <h4>Why writes go through a function &mdash; the concrete reason</h4>
+          <figure class="diagram">
+            <svg viewBox="0 0 720 290" role="img" aria-label="Comparison. Left: a plain insert of a trip row succeeds but reading it back fails, because the security check asks whether you are a member of this trip and your membership row does not exist yet. Right: calling create_trip runs with full rights, inserts the trip and your membership together or neither, then returns the trip.">
+              <defs>
+                <marker id="ahbw" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+                </marker>
+              </defs>
+
+              <line class="edge" x1="355" y1="16" x2="355" y2="278" stroke-dasharray="5 4"></line>
+
+              <text class="lbl" x="175" y="16" text-anchor="middle" font-size="10.5">plain insert &mdash; breaks</text>
+              <rect class="box" x="24" y="30" width="300" height="48" rx="8"></rect>
+              <text class="t" x="174" y="59" text-anchor="middle" font-size="12">Browser inserts a trip row</text>
+              <line class="edge" x1="174" y1="78" x2="174" y2="110" marker-end="url(#ahbw)"></line>
+              <text class="lbl" x="186" y="98" font-size="9.5">then read it back</text>
+              <rect class="box" x="24" y="112" width="300" height="84" rx="8"></rect>
+              <text class="t" x="174" y="138" text-anchor="middle" font-size="11.5">Security check: are you a member</text>
+              <text class="t" x="174" y="155" text-anchor="middle" font-size="11.5">of this trip?</text>
+              <text class="t" x="174" y="180" text-anchor="middle" font-size="11" opacity="0.7">No &mdash; your membership row</text>
+              <text class="t" x="174" y="195" text-anchor="middle" font-size="11" opacity="0.7">doesn&rsquo;t exist yet &nbsp;&#10007;</text>
+
+              <text class="lbl" x="536" y="16" text-anchor="middle" font-size="10.5">create_trip() &mdash; works</text>
+              <rect class="box" x="388" y="30" width="308" height="48" rx="8"></rect>
+              <text class="t" x="542" y="59" text-anchor="middle" font-size="12">Browser calls create_trip()</text>
+              <line class="edge" x1="542" y1="78" x2="542" y2="110" marker-end="url(#ahbw)"></line>
+              <rect class="box box--key" x="388" y="112" width="308" height="84" rx="8"></rect>
+              <text class="t" x="542" y="136" text-anchor="middle" font-size="11.5">Function, full rights:</text>
+              <text class="t" x="542" y="155" text-anchor="middle" font-size="11.5">1 insert the trip &nbsp; 2 insert your</text>
+              <text class="t" x="542" y="170" text-anchor="middle" font-size="11.5">membership &mdash; both, or neither</text>
+              <line class="edge" x1="542" y1="196" x2="542" y2="228" marker-end="url(#ahbw)"></line>
+              <rect class="box" x="388" y="230" width="308" height="44" rx="8"></rect>
+              <text class="t" x="542" y="257" text-anchor="middle" font-size="12">returns the trip &nbsp;&#10003;</text>
+            </svg>
+            <figcaption>The same pattern covers adding an expense (the entry + payer rows + share rows in one call) and account deletion (reassign a whole history, then remove the account). Add-expense also takes a phone-generated id, so a retried or double-tapped submit creates exactly one expense.</figcaption>
+          </figure>
+
+          <h4>Guest &rarr; real account</h4>
+          <p>Tap an invite link and you&rsquo;re in as a <strong>guest</strong> &mdash; a real but anonymous session, no sign-up. Your expenses attach to a <code>users</code> row flagged &ldquo;not registered.&rdquo; Later, &ldquo;claim your account&rdquo; <em>links</em> a Google or Apple identity onto that <em>same</em> row &mdash; nothing is copied or lost, the row just gains a real identity. If you never claim it, you stay a working guest.</p>
+
+          <h4>Native sign-in done properly</h4>
+          <p>Inside the iOS app, Google sign-in <strong>opens the system browser</strong>, not an in-app web view (Google blocks OAuth in embedded views), returns through a <code>bonado://</code> link the app catches, and the session is stored in app-scoped storage rather than the web view&rsquo;s evictable storage. Small details, but they&rsquo;re the difference between &ldquo;sign-in works&rdquo; and &ldquo;sign-in randomly fails.&rdquo;</p>
+        </div>
+
+        <div class="guided-lab" id="lab-bonado-expense">
+          <h3>Feature X-ray &middot; Bonado expense creation</h3>
+          <p><strong>Learning objective:</strong> understand atomic multi-row writes and idempotency&mdash;two techniques that make retries safe.</p>
+          <div class="source-trail"><strong>Source trail</strong><br>
+            <code>src/pages/AddExpense.tsx</code> &rarr; <code>src/hooks/useCreateExpense.ts</code> &rarr;
+            offline queue or RPC <code>bonado.create_expense_idempotent</code> &rarr;
+            entries + payments + line items + shares &rarr; cache invalidation
+          </div>
+          <div class="snippet">
+            <p class="snippet-label">useCreateExpense.ts &middot; one identity survives a lost response</p>
+            <pre><code>const pendingEntryId = useRef&lt;string | null&gt;(null)
+
+function claimEntryId() {
+  pendingEntryId.current ??= crypto.randomUUID()
+  return pendingEntryId.current
+}
+
+// A retry reuses p_entry_id; the database returns the existing expense.
+p_entry_id: claimEntryId()</code></pre>
+          </div>
+          <div class="exercise-step"><b>Predict</b><p>The server commits an expense but the response disappears. What happens when the phone retries with the same ID? What if it generates a new ID?</p></div>
+          <div class="exercise-step"><b>Trace</b><p>Follow <code>p_entry_id</code> from the hook into migration <code>0030_idempotent_expense_creation.sql</code>, then find the early return for an existing entry.</p></div>
+          <div class="exercise-step"><b>Change</b><p>Add a unit test for an equal split whose cents do not divide evenly. Verify the allocation still totals the original amount exactly.</p></div>
+          <div class="exercise-step"><b>Break</b><p>Simulate a lost response followed by a retry with the same ID in a local/test database. There should still be one entry.</p></div>
+          <div class="exercise-step"><b>Verify</b><p>Count the entry and child rows, check totals, and run the existing build, lint, and test commands.</p></div>
+          <div class="exercise-step"><b>Explain</b><p>Why are both a client-generated ID and a database transaction required?</p></div>
+        </div>
+
+        <h3>Risks &amp; gotchas</h3>
+        <ul class="findings">
+          <li><b>High client complexity.</b> A polished, app-feel SPA is a big surface: ~55 hooks and components, ~50 helper modules, plus native-shell and screen-transition machinery. It&rsquo;s well-organised, but it&rsquo;s a lot for one person to hold in their head.</li>
+          <li><b>The client-side data layer is hand-rolled, and a rewrite is deferred.</b> Fetching and caching live across dozens of bespoke hooks; consolidating onto a standard library (TanStack Query) is explicitly parked as &ldquo;fix it later.&rdquo; The longer that waits, the more hooks there are to migrate.</li>
+          <li><b>Still one environment.</b> Migrations are pushed to the linked project; the roadmap is full of &ldquo;applied to production&rdquo; notes. No staging &mdash; the same gap as Barkhaus and MVL.</li>
+          <li><b>Offline is create-only.</b> New expenses queue offline; edits, deletes, and settlements need a connection. A deliberate scope cut, but a real limitation to communicate.</li>
+          <li><b>A lot is &ldquo;code done, waiting on an account.&rdquo;</b> Apple sign-in, push (Firebase/APNs), crash reporting, universal links &mdash; all built, all gated on a person creating the external account and pasting a key. The app isn&rsquo;t fully live until those are done.</li>
+          <li><b>Not isolated.</b> Bonado, MVL, and Sansayaw all run inside one Supabase project (each in its own schema). A quota spike, an Auth-config change, or a bad migration has a three-product blast radius. Only Barkhaus has its own project.</li>
+          <li><b>Big roadmap, one maintainer.</b> 15 phases and a deep TestFlight-feedback pass is impressive throughput, but it&rsquo;s a large, growing surface relative to the team.</li>
+        </ul>
+
+        <h3>If we keep building it</h3>
+        <ul class="findings">
+          <li><b>Do the data-layer consolidation before the hooks multiply further.</b> It&rsquo;s the one piece of debt that compounds.</li>
+          <li><b>Add a staging project.</b> Bonado has the tooling for it (migrations already run by CLI) &mdash; it just needs a second project to point at.</li>
+          <li><b>Treat it as the reference.</b> Contracts (TypeScript + a schema types file), tested pure logic, CI, atomic writes, idempotent creates, dormant error tracking &mdash; this is the shape the Barkhaus retrospective asked for, already working. New projects should start from here.</li>
+        </ul>
+
+        <p style="margin-top:20px"><span class="status-note">Deep-dive complete &mdash; Sep 2026</span></p>
+      </section>
+
+      <section class="group" id="demos">
+        <h2><span class="letter">E</span> Demos &amp; personal <span class="pill pill--demo">Demo</span></h2>
+        <p>Smaller things &mdash; useful as references or one-offs, not products.</p>
+        <dl class="mini">
+          <dt><code>MyTingin-Demo</code></dt>
+          <dd>A clickable, <strong>no-backend</strong> mock of a patient health-record platform built on the FHIR healthcare data standard. A &ldquo;provider&rdquo; phone scans a &ldquo;patient&rdquo; QR code and adds a record that appears live &mdash; all faked in the browser&rsquo;s local storage. A pitch/prototype artefact.</dd>
+          <dt><code>geloavendano.github.io</code></dt>
+          <dd>The portfolio site (static, GitHub Pages) &mdash; showcases Barkhaus, Bonado, Sansayaw and MVL.</dd>
+          <dt><code>personal-dashboard</code></dt>
+          <dd>A single Cloudflare Worker that quietly proxies the Notion API (to dodge browser cross-origin limits) and keeps a Google token alive, feeding a private dashboard.</dd>
+          <dt><code>Scratch-Comuna</code></dt>
+          <dd>An empty Next.js starter &mdash; a scratch space, nothing built yet.</dd>
+          <dt><code>ux-design-kit-gelo</code></dt>
+          <dd>A single-file UX reference document.</dd>
+        </dl>
+        <p class="pending"><b>Deep-dive:</b> light pass only &mdash; MyTingin&rsquo;s mock approach and the dashboard proxy are the only parts worth a diagram.</p>
+      </section>
+    </main>
+  </div>
+
+  <nav class="pager" aria-label="Previous and next part">
+    <a class="prev" href="concepts.html"><small>Previous</small>Part I &middot; Concepts</a>
+    <a class="next" href="together.html"><small>Next</small>Part III &middot; Build playbook</a>
+  </nav>
+
+  <footer>The Build So Far &middot; v20 &middot; 19 Sep 2026 &middot; <a href="index.html">all parts</a></footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Concepts &middot; The Build So Far</title>
+<meta name="description" content="The vocabulary, the shared architecture, and the full menu of pieces a working product needs &mdash; independent of any one project. Everything after this assumes it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<link rel="stylesheet" href="handbook.css?v=20.1">
+<script src="handbook.js?v=20.3" defer></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="topbar">
+  <a class="brand" href="index.html">The Build So Far</a>
+  <nav class="parts" aria-label="Parts of the handbook">
+      <a href="concepts.html" aria-current="page"><span class="num">I</span>Concepts</a>
+      <a href="deep-dives.html"><span class="num">II</span>Deep-dives</a>
+      <a href="together.html"><span class="num">III</span>Build playbook</a>
+      <a href="ai.html"><span class="num">IV</span>AI development</a>
+      <a href="tools.html"><span class="num">A</span>Tools</a>
+  </nav>
+</header>
+
+<div class="hb-wrap">
+  <header class="part-head">
+    <p class="part-eyebrow">Part I</p>
+    <h1 class="part-title">Concepts</h1>
+    <p class="part-sub">The vocabulary and mental models underneath the portfolio: how requests, truth, and changes move through a full stack, and how a real product stays observable, fast, recoverable, and safe.</p>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" aria-label="On this page">
+      <p>On this page</p>
+      <a href="#principles">Core principles</a>
+      <a href="#kinds">What each tool is</a>
+      <a href="#request-journey">A click&rsquo;s journey</a>
+      <a href="#system-views">Three views of an app</a>
+      <a href="#code-reading">Reading code</a>
+      <a href="#state">Where state lives</a>
+      <a href="#debugging">Debugging by evidence</a>
+      <a href="#learning-loop">The learning loop</a>
+      <a href="#pattern">The recurring pattern</a>
+      <a href="#stack-map">The stack map</a>
+      <a href="#building-blocks">&nbsp;&nbsp;Scaling building blocks</a>
+      <a href="#reliability">Reliability &amp; scale</a>
+      <a href="#reading-list">Deeper concepts</a>
+    </nav>
+
+    <main id="main" class="content prose">
+      <section id="principles">
+        <h2>Core principles</h2>
+        <p>Before the projects: the vocabulary, and the handful of decisions that repeat across almost everything here. If the rest of the handbook assumes something, it&rsquo;s probably explained in this section.</p>
+
+        <h3>Words you&rsquo;ll need</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Term</th><th>What it means</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Frontend</td><td>The part that runs in the visitor&rsquo;s browser or phone &mdash; what they see and click. Also called the <em>client</em>.</td></tr>
+              <tr><td class="grp">Backend</td><td>The part that runs on a computer you control &mdash; the database, and code that does things the visitor can&rsquo;t be trusted to do. Also called the <em>server</em>.</td></tr>
+              <tr><td class="grp">Static site</td><td>A frontend that is just pre-written files (HTML/JS/CSS) handed to the browser as-is. No per-visitor work on the server. Cheap and fast.</td></tr>
+              <tr><td class="grp">SPA</td><td>&ldquo;Single-page app&rdquo; &mdash; a frontend that loads once and then re-draws itself as you navigate, like a desktop program in a browser tab. Still just files to the host, but more of them and more complex.</td></tr>
+              <tr><td class="grp">Framework</td><td>A pre-built foundation you write your app on top of (React, Next.js). Saves work; adds a <em>build step</em> and a learning curve.</td></tr>
+              <tr><td class="grp">Build step</td><td>A compile that turns source code into the files a browser actually runs. Frameworks need one; plain HTML/JS doesn&rsquo;t.</td></tr>
+              <tr><td class="grp">Repo</td><td>The project&rsquo;s folder under version control (git) &mdash; every change tracked, attributable, reversible. Lives on GitHub.</td></tr>
+              <tr><td class="grp">Host / deploy</td><td>The host is the service that serves your site to the world (Vercel, GitHub Pages, Cloudflare). To deploy is to push a new version live.</td></tr>
+              <tr><td class="grp">Migration</td><td>One written, ordered change to the database&rsquo;s structure (a new table, a new column, a new rule). Applied deliberately, because it can&rsquo;t be undone with a click.</td></tr>
+              <tr><td class="grp">Managed service</td><td>Infrastructure you rent instead of run: Supabase (database), Resend (email), Sentry (error tracking). Someone else patches and scales it.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>The trust boundary &mdash; and why it matters</h3>
+        <p>Code runs in several contexts &mdash; the browser, a native shell, build and scheduled jobs, server functions, and the database. The security decision is simpler: code on the user&rsquo;s device is <strong>untrusted</strong>; trusted backend code re-checks anything that affects money, permissions, inventory, or other people&rsquo;s data.</p>
+        <figure class="diagram">
+          <svg viewBox="0 0 720 190" role="img" aria-label="Two boxes split by a dashed trust boundary. Left: the browser, on the customer's device, where anyone can read the code and fake what it sends. Right: the server, Supabase functions and database rules, which holds the secret keys and decides money, results, and who sees what.">
+            <rect class="box" x="16" y="34" width="324" height="120" rx="9"></rect>
+            <text class="t t--title" x="178" y="60" text-anchor="middle" font-size="14">Browser</text>
+            <text class="t" x="178" y="79" text-anchor="middle" font-size="11" opacity="0.6">the customer&rsquo;s device</text>
+            <text class="t" x="178" y="107" text-anchor="middle" font-size="12">anyone can read the code</text>
+            <text class="t" x="178" y="127" text-anchor="middle" font-size="12">anyone can fake what it sends</text>
+
+            <line class="edge" x1="360" y1="20" x2="360" y2="168" stroke-dasharray="5 4"></line>
+            <text class="lbl" x="360" y="14" text-anchor="middle" font-size="10.5">trust boundary</text>
+
+            <rect class="box box--key" x="380" y="34" width="324" height="120" rx="9"></rect>
+            <text class="t t--title" x="542" y="60" text-anchor="middle" font-size="14">Server</text>
+            <text class="t" x="542" y="79" text-anchor="middle" font-size="11" opacity="0.6">Supabase functions + database rules</text>
+            <text class="t" x="542" y="107" text-anchor="middle" font-size="12">holds the secret keys</text>
+            <text class="t" x="542" y="127" text-anchor="middle" font-size="12">decides money, results, who sees what</text>
+          </svg>
+          <figcaption>The rule every project here follows (some learned the hard way): treat everything the browser sends as a suggestion. Prices, totals, &ldquo;I&rsquo;m allowed to do this&rdquo; &mdash; all re-checked on the server before anything real happens.</figcaption>
+        </figure>
+
+        <h3>Environments: local &rarr; staging &rarr; production</h3>
+        <p>The same app is run in up to three settings, each with a different job.</p>
+        <figure class="diagram">
+          <svg viewBox="0 0 720 240" role="img" aria-label="Three boxes left to right: Local on your laptop for free experimentation with fake data; Staging, a private copy that matches production, safe to break, with seeded data; Production, real customers and real money, changed carefully. Arrows labelled promote and release run between them. A note says Barkhaus currently has only local and production.">
+            <defs>
+              <marker id="ahe" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+              </marker>
+            </defs>
+            <rect class="box" x="14" y="44" width="200" height="64" rx="8"></rect>
+            <text class="t t--title" x="114" y="72" text-anchor="middle" font-size="14">Local</text>
+            <text class="t" x="114" y="91" text-anchor="middle" font-size="11" opacity="0.62">your laptop</text>
+            <text class="t" x="114" y="134" text-anchor="middle" font-size="11.5" opacity="0.8">experiment freely,</text>
+            <text class="t" x="114" y="151" text-anchor="middle" font-size="11.5" opacity="0.8">fake data</text>
+
+            <rect class="box" x="260" y="44" width="200" height="64" rx="8"></rect>
+            <text class="t t--title" x="360" y="72" text-anchor="middle" font-size="14">Staging</text>
+            <text class="t" x="360" y="91" text-anchor="middle" font-size="11" opacity="0.62">a private copy</text>
+            <text class="t" x="360" y="134" text-anchor="middle" font-size="11.5" opacity="0.8">matches production,</text>
+            <text class="t" x="360" y="151" text-anchor="middle" font-size="11.5" opacity="0.8">safe to break</text>
+
+            <rect class="box box--key" x="506" y="44" width="200" height="64" rx="8"></rect>
+            <text class="t t--title" x="606" y="72" text-anchor="middle" font-size="14">Production</text>
+            <text class="t" x="606" y="91" text-anchor="middle" font-size="11" opacity="0.62">real users</text>
+            <text class="t" x="606" y="134" text-anchor="middle" font-size="11.5" opacity="0.8">real customers, real money;</text>
+            <text class="t" x="606" y="151" text-anchor="middle" font-size="11.5" opacity="0.8">change carefully</text>
+
+            <line class="edge" x1="214" y1="76" x2="258" y2="76" marker-end="url(#ahe)"></line>
+            <text class="lbl" x="236" y="68" text-anchor="middle" font-size="9.5">promote</text>
+            <line class="edge" x1="460" y1="76" x2="504" y2="76" marker-end="url(#ahe)"></line>
+            <text class="lbl" x="482" y="68" text-anchor="middle" font-size="9.5">release</text>
+
+            <line class="edge" x1="114" y1="185" x2="606" y2="185" stroke-dasharray="4 5"></line>
+            <text class="lbl" x="360" y="205" text-anchor="middle" font-size="10.5">Barkhaus has only Local + Production today &mdash; the missing middle is the risk</text>
+          </svg>
+          <figcaption>More environments cost a little setup and buy a lot of safety: a place to test destructive changes (schema edits, payment webhooks) without touching customer data. Every current product still lacks a separate backend staging environment; that repeated gap is why the build playbook makes staging a default.</figcaption>
+        </figure>
+
+        <h3>Languages, and why these</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Language</th><th>Used for</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">JavaScript / TypeScript</td><td>Browser code, Supabase Edge Functions, build tooling</td><td>JavaScript is the browser&rsquo;s main programming language, and the server functions run it too &mdash; so one language covers most of the stack. TypeScript is JavaScript plus static type information that catches shape mistakes before the code runs.</td></tr>
+              <tr><td class="grp">SQL</td><td>Every database &mdash; tables, access rules, and functions that run inside Postgres</td><td>It&rsquo;s the language the database speaks; unavoidable, and often the <em>safest</em> place to put a rule (an access check or an all-or-nothing write).</td></tr>
+              <tr><td class="grp">Python</td><td>The Sansayaw scrapers only</td><td>Best-in-class ecosystem for &ldquo;drive a browser, pull data, clean it.&rdquo; Deliberately quarantined to the one job that benefits.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <ul class="findings">
+          <li><b>Speak the platform&rsquo;s language.</b> The browser runs JavaScript; the database runs SQL. Working against that grain costs more than it saves.</li>
+          <li><b>Fewer languages per project.</b> Barkhaus, Bonado and MVL are essentially JavaScript + SQL and nothing else. Each language you drop is one less thing to learn, hire for, and debug.</li>
+          <li><b>Typed over untyped when it&rsquo;s cheap.</b> TypeScript keeps ordinary JavaScript syntax while adding types where they protect important shapes and contracts. Newer projects here lean this way; the older Barkhaus public site predates the habit.</li>
+        </ul>
+
+        <h3>The house stack &mdash; and when it strains</h3>
+        <p>The four real products are all the same deliberate choice: a frontend that&rsquo;s just files, <strong>one managed backend</strong> (Supabase), a <strong>static host</strong> (Vercel or GitHub Pages), and a few <strong>rented services</strong> for the specialist jobs (payments, email, error tracking). The diagram in <a href="#pattern">The recurring pattern</a> is this stack.</p>
+        <ul class="findings">
+          <li><b>Great at:</b> one or two people shipping fast; near-zero fixed cost; no servers to patch or scale. Each product <em>can</em> be fully isolated in its own project &mdash; though in this portfolio only Barkhaus is; the other three share one.</li>
+          <li><b>Strains when:</b> you need heavy background processing, operations that must all-succeed-or-all-fail across several services at once, very high traffic on a tight latency budget, or you outgrow a vendor &mdash; moving off it is real work (&ldquo;lock-in&rdquo;).</li>
+          <li><b>Roads not taken:</b> one large backend application (Rails / Django / Laravel) &mdash; more structure, one thing to deploy, but a server to run; a hand-built API (Node / Go) &mdash; total control, total maintenance; big-cloud serverless (AWS Lambda &amp; friends) &mdash; endlessly flexible, and a part-time job to operate. At this portfolio&rsquo;s scale the house stack is the right call &mdash; Barkhaus&rsquo;s own retrospective says so in as many words.</li>
+        </ul>
+
+        <h3>Operating principles that repeat</h3>
+        <ul class="findings">
+          <li><b>Rent undifferentiated infrastructure; build only the product.</b> Databases, logins, email, error tracking, hosting are solved problems. Effort goes into what&rsquo;s actually yours.</li>
+          <li><b>Changes ship through git.</b> Edit &rarr; commit &rarr; push &rarr; the host redeploys on its own. Every change is recorded, attributable, and reversible.</li>
+          <li><b>Database changes ride a separate, slower track.</b> They don&rsquo;t auto-deploy &mdash; each is a migration applied on purpose, because a bad one can&rsquo;t be rolled back with a click.</li>
+          <li><b>Secrets never live in the repo.</b> API keys sit in the host&rsquo;s environment settings. Assume the repo is readable.</li>
+          <li><b>Feature flags keep things &ldquo;built but dark.&rdquo;</b> Card checkout in Barkhaus is fully written and switched off by one setting &mdash; you can build ahead of launch without exposing it.</li>
+        </ul>
+      </section>
+
+      <section id="kinds">
+        <h2>What each tool actually is</h2>
+        <p>A common source of confusion is treating every named technology as the same kind of thing. They sit at different layers. React does not replace JavaScript; Vite does not replace React; Supabase does not replace Vercel. Each has a different job.</p>
+
+        <div class="learning-outcome">
+          <h3>After this section</h3>
+          <ul class="findings">
+            <li>You should be able to describe a technology by its <strong>kind</strong> and its <strong>job</strong>, not only by its name.</li>
+            <li>You should be able to remove one box from a stack and predict what responsibility becomes yours.</li>
+          </ul>
+        </div>
+
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Kind</th><th>Job</th><th>Examples here</th><th>What it does not do</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Language</td><td>The grammar used to express instructions and data operations.</td><td>JavaScript, TypeScript, Python, SQL</td><td>It does not decide the project structure or host the app.</td></tr>
+              <tr><td class="grp">Framework</td><td>A structure and set of conventions for building an application.</td><td>React, Next.js</td><td>It does not replace the language; React code is still JavaScript or TypeScript.</td></tr>
+              <tr><td class="grp">Build tool</td><td>Turns source files and dependencies into browser-ready output.</td><td>Vite, the Next.js build</td><td>It does not serve production traffic by itself.</td></tr>
+              <tr><td class="grp">Styling system</td><td>Expresses visual rules and reusable design tokens.</td><td>CSS, Tailwind</td><td>It does not own application state or business rules.</td></tr>
+              <tr><td class="grp">Runtime</td><td>The environment where code is actually executing.</td><td>Browser, Deno Edge Function, Python runner, Postgres</td><td>It is not necessarily where the code was written or built.</td></tr>
+              <tr><td class="grp">Backend platform</td><td>Bundles data, accounts, storage, functions, and related operations.</td><td>Supabase</td><td>It does not serve the public frontend in these projects.</td></tr>
+              <tr><td class="grp">Host</td><td>Builds and/or delivers frontend files to users.</td><td>Vercel, GitHub Pages, Cloudflare</td><td>It does not automatically own the product database.</td></tr>
+              <tr><td class="grp">Native bridge</td><td>Wraps a web app so it can use selected phone capabilities and ship through an app store.</td><td>Capacitor</td><td>It does not turn web components into fully native Swift or Kotlin UI.</td></tr>
+              <tr><td class="grp">External service</td><td>Performs one rented specialist job.</td><td>Resend, Maya, Google Places, Sentry</td><td>It should not become the place where your core business rules live.</td></tr>
+              <tr><td class="grp">Protocol / format</td><td>Defines how systems communicate or structure data.</td><td>HTTP, JSON, OAuth, webhooks</td><td>It is not a product or a server.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="guided-lab">
+          <h3>Quick classification</h3>
+          <div class="exercise-step"><b>Predict</b><p>If Vercel disappeared from Bonado, which parts would still exist? The React source and Supabase data remain; the build and delivery path needs a replacement.</p></div>
+          <div class="exercise-step"><b>Explain</b><p>Say this out loud: &ldquo;Vite builds the React app; Vercel hosts its output; Supabase stores and protects its data.&rdquo; If those roles are clear, the stack is no longer a list of brand names.</p></div>
+        </div>
+      </section>
+
+      <section id="request-journey">
+        <h2>What happens when you click a button</h2>
+        <p>Most application behavior is the same journey with different details. A user event changes local state, browser code may send an HTTP request, trusted code validates it, the database reads or writes rows, and a response redraws the screen.</p>
+
+        <div class="flow-strip" aria-label="The journey of a request">
+          <div class="flow-step"><b>1 &middot; Event</b>A click, submit, scan, timer, or app launch starts the work.</div><span class="flow-arrow">&rarr;</span>
+          <div class="flow-step"><b>2 &middot; Handler</b>A function reads the current inputs and decides what to do next.</div><span class="flow-arrow">&rarr;</span>
+          <div class="flow-step"><b>3 &middot; Request</b>The client sends JSON to an API, RPC, or Edge Function.</div><span class="flow-arrow">&rarr;</span>
+          <div class="flow-step"><b>4 &middot; Rule</b>Trusted code re-checks identity, permissions, totals, and invariants.</div><span class="flow-arrow">&rarr;</span>
+          <div class="flow-step"><b>5 &middot; State</b>The database commits all valid writes or none of them.</div><span class="flow-arrow">&rarr;</span>
+          <div class="flow-step"><b>6 &middot; Render</b>The response becomes success, failure, loading, or retry UI.</div>
+        </div>
+
+        <h3>The same shape in code</h3>
+        <div class="snippet">
+          <p class="snippet-label">browser &rarr; trusted server &rarr; database &rarr; browser</p>
+          <pre><code>async function saveExpense(form) {
+  setStatus('saving')                         // local UI state
+  const response = await fetch('/expenses', { // HTTP request
+    method: 'POST',
+    body: JSON.stringify(form)
+  })
+  if (!response.ok) return setStatus('error') // failure is a real state
+  const saved = await response.json()
+  setExpenses(current =&gt; [...current, saved]) // render server truth
+}</code></pre>
+        </div>
+        <p>The names change between projects, but the questions do not: What starts the flow? What crosses the network? What is trusted? What persists? What proves success? The feature X-rays in Part II answer those questions with real files.</p>
+
+        <h3>Five execution contexts</h3>
+        <div class="concept-grid">
+          <article class="concept-card"><h3>Client</h3><p>Browser or web view. Great for interaction; readable and tamperable by the user.</p></article>
+          <article class="concept-card"><h3>Build / CI</h3><p>Vite, Next.js builds, lint, type checks, and tests. Runs before users receive code.</p></article>
+          <article class="concept-card"><h3>Server / edge</h3><p>Holds secrets, calls paid services, and validates requests.</p></article>
+          <article class="concept-card"><h3>Database</h3><p>Stores durable state and enforces constraints, transactions, and row access.</p></article>
+          <article class="concept-card"><h3>Worker / schedule</h3><p>Runs without a user watching: scrapes, cleanup, health checks, notifications.</p></article>
+        </div>
+      </section>
+
+      <section id="system-views">
+        <h2>Three views of the same app</h2>
+        <p>A full stack is not a shopping list of technologies. It is one system viewed through three different stories. If you can tell all three stories, you understand the architecture well enough to change it.</p>
+
+        <div class="concept-grid">
+          <article class="concept-card"><span class="level-tag now">Runtime</span><h3>The request story</h3><p>What happens from a user action to a visible answer? Follow the event, network request, trusted rule, data change, response, and rendered state.</p></article>
+          <article class="concept-card"><span class="level-tag now">Ownership</span><h3>The truth story</h3><p>Where does each fact live, and which layer has authority to change it? Separate display copies and caches from the source of truth.</p></article>
+          <article class="concept-card"><span class="level-tag now">Delivery</span><h3>The change story</h3><p>How does an edit become production behavior? Follow source, tests, build, configuration, migration, deployment, monitoring, and rollback.</p></article>
+        </div>
+
+        <h3>One feature, seen three ways</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>View</th><th>Barkhaus checkout example</th><th>The question it catches</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Request</td><td>Booking form &rarr; checkout function &rarr; server repricing &rarr; Maya &rarr; verified webhook &rarr; confirmed booking</td><td>Can the browser fake the amount or the success result?</td></tr>
+              <tr><td class="grp">Truth</td><td>The browser holds an estimate; pricing tables and server computation own the amount; the webhook owns payment confirmation</td><td>Which copy is authoritative when two values disagree?</td></tr>
+              <tr><td class="grp">Change</td><td>Pricing code and tests change &rarr; preview/staging checkout &rarr; function deploy &rarr; synthetic payment-health check</td><td>How will we prove the new behavior reached production and stayed healthy?</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Why all three matter</h3>
+        <ul class="findings">
+          <li><b>The request story finds broken flows.</b> A button can render correctly while its request fails, or a request can succeed while the UI never reflects the result.</li>
+          <li><b>The truth story finds disagreement bugs.</b> Barkhaus&rsquo;s duplicated pricing and Sansayaw&rsquo;s cache invalidation are both cases where two places could claim to know the same fact.</li>
+          <li><b>The change story finds operational gaps.</b> Correct code is not a working feature until its migration, configuration, deployment, monitoring, and recovery path exist.</li>
+        </ul>
+
+        <div class="guided-lab">
+          <h3>Explain one feature without brand names</h3>
+          <div class="exercise-step"><b>Request</b><p>Describe the user action, trusted decision, stored result, and visible response.</p></div>
+          <div class="exercise-step"><b>Truth</b><p>Name the source of truth, any temporary copies, and what invalidates each cache.</p></div>
+          <div class="exercise-step"><b>Change</b><p>Name the tests, environment, deployment, live check, alert, and rollback.</p></div>
+          <div class="exercise-step"><b>Then tools</b><p>Only after the responsibilities are clear, name React, Supabase, Vercel, Sentry, or whichever products fill them.</p></div>
+        </div>
+      </section>
+
+      <section id="code-reading">
+        <h2>Reading code without reading every line</h2>
+        <p>Code is easier to understand when you identify its shape before its syntax. Start at the entry point, follow data, and stop when the behavior is explained.</p>
+
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Concept</th><th>Plain meaning</th><th>What to look for</th><th>Portfolio example</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Variable</td><td>A named value remembered for later.</td><td><code>const</code>, <code>let</code>, or a Python assignment.</td><td><code>PAYMENT_GATEWAY_PROVIDER</code> selects Barkhaus&rsquo;s active payment path.</td></tr>
+              <tr><td class="grp">Function</td><td>A named procedure: inputs go in, work happens, a result or side effect comes out.</td><td><code>function</code>, <code>=&gt;</code>, <code>def</code>, SQL functions.</td><td>MVL&rsquo;s raffle RPC owns the whole eligibility decision.</td></tr>
+              <tr><td class="grp">Condition</td><td>A branch: choose this path only when something is true.</td><td><code>if</code>, <code>else</code>, <code>case</code>.</td><td>If a raffle entrant is already eligible today, return the existing row.</td></tr>
+              <tr><td class="grp">Loop</td><td>Repeat the same operation for a collection.</td><td><code>for</code>, <code>map</code>, <code>reduce</code>, SQL set operations.</td><td>Bonado maps payers and shares into the payload for an expense.</td></tr>
+              <tr><td class="grp">Module</td><td>A file exposing reusable names to other files.</td><td><code>import</code>, <code>export</code>, Python imports.</td><td>Sansayaw&rsquo;s pure matcher is imported by the scraper and review tool.</td></tr>
+              <tr><td class="grp">Event handler</td><td>A function called because something happened.</td><td><code>onClick</code>, <code>submit</code>, webhook handler, scheduled entry point.</td><td>Barkhaus&rsquo;s booking submit handler starts checkout.</td></tr>
+              <tr><td class="grp">Async work</td><td>Work that finishes later, usually network or file I/O.</td><td><code>async</code>, <code>await</code>, promises, loading/error state.</td><td>A browser waits for Supabase before showing saved data.</td></tr>
+              <tr><td class="grp">Type / interface</td><td>A contract describing a value&rsquo;s expected shape.</td><td><code>type</code>, <code>interface</code>, generated database types.</td><td>Bonado defines payer and expense payload shapes in TypeScript.</td></tr>
+              <tr><td class="grp">Transaction</td><td>Several writes that must all succeed or all disappear.</td><td>One database function containing related inserts.</td><td>An expense, its payers, and its shares are one atomic operation.</td></tr>
+              <tr><td class="grp">Idempotency</td><td>Repeating the same request has the same effect as doing it once.</td><td>A stable request ID plus a uniqueness check.</td><td>Bonado keeps one phone-generated entry ID across a lost-response retry.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="guided-lab">
+          <h3>The five-question scan</h3>
+          <ol class="next">
+            <li>What calls this function?</li>
+            <li>What inputs can vary?</li>
+            <li>Which branches change the outcome?</li>
+            <li>What state does it read or change?</li>
+            <li>How does failure travel back to the user or operator?</li>
+          </ol>
+        </div>
+      </section>
+
+      <section id="state">
+        <h2>Where state lives</h2>
+        <p><strong>State</strong> is any fact the program must remember. Bugs often happen because the same fact is copied into two places and the copies disagree.</p>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>State</th><th>Lifetime</th><th>Good for</th><th>Typical failure</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Local UI state</td><td>Until the component/page closes</td><td>Open sheets, selected tabs, unsaved form values</td><td>A refresh clears it.</td></tr>
+              <tr><td class="grp">URL state</td><td>Shareable and survives refresh</td><td>Filters, selected records, invite tokens</td><td>Secrets placed in URLs leak through history and logs.</td></tr>
+              <tr><td class="grp">Session state</td><td>Until sign-out or expiry</td><td>Who the user is and their current access token</td><td>Identity is mistaken for authorization.</td></tr>
+              <tr><td class="grp">Server state</td><td>Until the backend process or request ends</td><td>Validated intermediate work</td><td>Serverless code assumes memory survives another request.</td></tr>
+              <tr><td class="grp">Database state</td><td>Durable</td><td>Bookings, expenses, classes, audit trails</td><td>Two writers disagree or a partial write is committed.</td></tr>
+              <tr><td class="grp">Cache</td><td>Until expiry or invalidation</td><td>Answers that are expensive but safe to reuse</td><td>Stale data looks like truth.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>A useful rule: keep the authoritative fact in one place, derive the display from it, and make cache expiry explicit. MVL&rsquo;s duplicated league data and Barkhaus&rsquo;s repeated pricing rules are examples of what happens when that rule is broken.</p>
+      </section>
+
+      <section id="debugging">
+        <h2>Debugging by evidence</h2>
+        <p>Do not begin with &ldquo;the app is broken.&rdquo; Locate the first layer where expected and actual behavior diverge. Each layer leaves different evidence.</p>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Layer</th><th>Evidence</th><th>Question</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">UI</td><td>Exact steps, screenshot, visible state</td><td>Did the handler run, or is the problem before any request?</td></tr>
+              <tr><td class="grp">Browser code</td><td>Console error and stack trace</td><td>Which function and source line failed first?</td></tr>
+              <tr><td class="grp">Network</td><td>Request URL, payload, status, response body</td><td>Did the client send the intended data, and what did the server say?</td></tr>
+              <tr><td class="grp">Server</td><td>Function logs and correlation/reference ID</td><td>Which validation, external call, or branch rejected it?</td></tr>
+              <tr><td class="grp">Database</td><td>Rows, constraints, RLS policies, transaction result</td><td>Was nothing written, partly written, or written but hidden?</td></tr>
+              <tr><td class="grp">Deploy</td><td>Commit SHA, build log, live asset/version</td><td>Is the code being inspected actually the code users received?</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout"><p><strong>The minimum useful bug report:</strong> exact reproduction steps, expected versus actual result, first error text, the network request/response when one exists, and the relevant record or schema shape with secrets removed.</p></div>
+      </section>
+
+      <section id="learning-loop">
+        <h2>The learning loop</h2>
+        <p>Reading creates recognition; changing and verifying creates understanding. Use this six-step loop for every project lab.</p>
+        <div class="phase-grid">
+          <article class="phase-card"><span class="phase-number">01</span><h3>Predict</h3><p>State what you expect before running anything.</p></article>
+          <article class="phase-card"><span class="phase-number">02</span><h3>Trace</h3><p>Follow the data from entry point to stored result.</p></article>
+          <article class="phase-card"><span class="phase-number">03</span><h3>Change</h3><p>Make one safe, reversible local modification.</p></article>
+          <article class="phase-card"><span class="phase-number">04</span><h3>Break</h3><p>Trigger one controlled failure and observe the evidence.</p></article>
+          <article class="phase-card"><span class="phase-number">05</span><h3>Verify</h3><p>Use a test, query, log, or rendered result as proof.</p></article>
+          <article class="phase-card"><span class="phase-number">06</span><h3>Explain</h3><p>Describe why the rule lives in that layer and what would fail if it moved.</p></article>
+        </div>
+      </section>
+
+      <section id="pattern">
+        <h2>The recurring pattern</h2>
+        <p>Barkhaus, MVL, Sansayaw and Bonado are four takes on the same architecture. Rather than redraw it four times, here it is once. Each project&rsquo;s deep-dive will describe how it bends this shape.</p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 720 512" role="img" aria-label="A layered diagram: a browser loads a frontend from a static host; the frontend talks directly to Supabase for data, logins and files; sensitive work is routed through Edge Functions to outside services holding secret keys.">
+            <defs>
+              <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+              </marker>
+            </defs>
+
+            <rect class="box" x="150" y="16" width="420" height="52" rx="8"></rect>
+            <text class="t t--title" x="360" y="47" text-anchor="middle" font-size="15">Browser or installed app</text>
+
+            <line class="edge" x1="360" y1="68" x2="360" y2="110" marker-end="url(#ah)"></line>
+            <text class="lbl" x="372" y="93" font-size="11">loads the page</text>
+
+            <rect class="box" x="150" y="112" width="420" height="60" rx="8"></rect>
+            <text class="t t--title" x="360" y="138" text-anchor="middle" font-size="15">Frontend</text>
+            <text class="t" x="360" y="158" text-anchor="middle" font-size="12.5" opacity="0.72">static site or single-page app &middot; just files</text>
+
+            <line class="edge" x1="360" y1="172" x2="360" y2="214" marker-end="url(#ah)"></line>
+            <line class="edge" x1="360" y1="214" x2="360" y2="172" marker-end="url(#ah)"></line>
+            <text class="lbl" x="372" y="197" font-size="11">reads &amp; writes data &middot; signs in</text>
+
+            <rect class="box box--key" x="150" y="216" width="420" height="96" rx="8"></rect>
+            <text class="t t--title" x="360" y="242" text-anchor="middle" font-size="15">Supabase &mdash; the backend</text>
+            <text class="t" x="360" y="264" text-anchor="middle" font-size="12.5" opacity="0.82">Postgres database + row-level security rules</text>
+            <text class="t" x="360" y="284" text-anchor="middle" font-size="12.5" opacity="0.82">Accounts &middot; File storage &middot; Live updates</text>
+            <text class="t" x="360" y="303" text-anchor="middle" font-size="12.5" opacity="0.62">Edge Functions (small server programs)</text>
+
+            <line class="edge" x1="360" y1="312" x2="360" y2="356" marker-end="url(#ah)"></line>
+            <text class="lbl" x="372" y="339" font-size="11">sensitive work only</text>
+
+            <rect class="box" x="150" y="358" width="420" height="52" rx="8"></rect>
+            <text class="t t--title" x="360" y="389" text-anchor="middle" font-size="15">Outside services</text>
+
+            <line class="edge" x1="360" y1="410" x2="360" y2="452" marker-end="url(#ah)"></line>
+            <text class="lbl" x="372" y="435" font-size="11">API calls with secret keys</text>
+
+            <rect class="box" x="150" y="454" width="420" height="46" rx="8"></rect>
+            <text class="t" x="360" y="482" text-anchor="middle" font-size="12.5" opacity="0.82">email (Resend) &middot; card payments &middot; Google &middot; maps &middot; photos</text>
+          </svg>
+          <figcaption>The frontend is <em>untrusted</em> on purpose &mdash; it holds no secrets and does not get final authority over money or permissions. Anything that needs a private key or must not be faked (charging a card, sending mail, deciding a result) runs inside Supabase, not in the browser. The blue box is the piece every product leans on.</figcaption>
+        </figure>
+      </section>
+
+      <section id="stack-map">
+        <h2>The stack map</h2>
+        <p>The recurring pattern above is <em>one</em> way to fill in a working system. This is the whole menu. Every piece of working software has the same set of <strong>slots</strong>. What differs is who fills each one: you, a rented service, or nobody (and "nobody" still counts as an answer). The slots group into seven bands, and each band answers one question.</p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 720 650" role="img" aria-label="Seven stacked bands. 01 Surfaces, where the user meets the product: web client, mobile app, desktop app, embedded widget, public API, internal tools. 02 State, where the data lives: primary database, cache, file and object storage, search index, analytics warehouse. 03 Server logic, the code a user can't tamper with: request handlers, database functions, scheduled jobs, queues and workers, realtime. 04 Delivery, how a request reaches your code: domain registrar, DNS, CDN and edge, host, TLS, app-store distribution. 05 Rented capabilities, what you deliberately don't build: identity, payments, email, push and SMS, maps, media, AI, data feeds. 06 Operations, how you find out it broke: error tracking, uptime checks, logs, alerting, product analytics, traffic analytics, backups. 07 Workflow, how a change gets from your laptop to a user: editor, version control, review, CI, environments, migrations, secrets, flags, tests. Bands 01, 04 and 07 are highlighted as unavoidable. A note says security, cost, privacy and accessibility are properties of every band, not bands.">
+            <rect class="box box--key" x="10" y="30" width="700" height="78" rx="9"></rect>
+            <text class="lbl" x="26" y="57" font-size="11">01</text>
+            <text class="t t--title" x="52" y="57" font-size="13.5">Surfaces</text>
+            <text class="lbl" x="694" y="57" text-anchor="end" font-size="10.5">where the user meets the product</text>
+            <text class="t" x="26" y="80" font-size="11" opacity="0.85">web client &middot; mobile app &middot; desktop app &middot; embedded widget &middot; public API &middot; internal tools</text>
+            <text class="t" x="26" y="97" font-size="10.5" opacity="0.58">plain files &rarr; SPA &rarr; meta-framework &rarr; web app in a native shell &rarr; fully native</text>
+
+            <rect class="box" x="10" y="114" width="700" height="78" rx="9"></rect>
+            <text class="lbl" x="26" y="141" font-size="11">02</text>
+            <text class="t t--title" x="52" y="141" font-size="13.5">State</text>
+            <text class="lbl" x="694" y="141" text-anchor="end" font-size="10.5">where the data lives</text>
+            <text class="t" x="26" y="164" font-size="11" opacity="0.85">primary database &middot; cache &middot; file &amp; object storage &middot; search index &middot; analytics warehouse</text>
+            <text class="t" x="26" y="181" font-size="10.5" opacity="0.58">one Postgres &rarr; + file storage &rarr; + cache &rarr; + search &rarr; + warehouse</text>
+
+            <rect class="box" x="10" y="198" width="700" height="78" rx="9"></rect>
+            <text class="lbl" x="26" y="225" font-size="11">03</text>
+            <text class="t t--title" x="52" y="225" font-size="13.5">Server logic</text>
+            <text class="lbl" x="694" y="225" text-anchor="end" font-size="10.5">the code a user can&rsquo;t tamper with</text>
+            <text class="t" x="26" y="248" font-size="11" opacity="0.85">request handlers &middot; database functions &middot; scheduled jobs &middot; queues &amp; workers &middot; realtime</text>
+            <text class="t" x="26" y="265" font-size="10.5" opacity="0.58">database functions &rarr; platform functions &rarr; serverless &rarr; a long-running server</text>
+
+            <rect class="box box--key" x="10" y="282" width="700" height="78" rx="9"></rect>
+            <text class="lbl" x="26" y="309" font-size="11">04</text>
+            <text class="t t--title" x="52" y="309" font-size="13.5">Delivery</text>
+            <text class="lbl" x="694" y="309" text-anchor="end" font-size="10.5">how a request reaches your code</text>
+            <text class="t" x="26" y="332" font-size="11" opacity="0.85">domain registrar &middot; DNS &middot; CDN &amp; edge &middot; load balancer &middot; host / compute &middot; TLS &middot; app store</text>
+            <text class="t" x="26" y="349" font-size="10.5" opacity="0.58">repo-as-site &rarr; building host &rarr; edge platform &rarr; container host &rarr; your own cloud</text>
+
+            <rect class="box" x="10" y="366" width="700" height="78" rx="9"></rect>
+            <text class="lbl" x="26" y="393" font-size="11">05</text>
+            <text class="t t--title" x="52" y="393" font-size="13.5">Rented capabilities</text>
+            <text class="lbl" x="694" y="393" text-anchor="end" font-size="10.5">what you deliberately don&rsquo;t build</text>
+            <text class="t" x="26" y="416" font-size="11" opacity="0.85">identity &middot; payments &middot; transactional email &middot; push &amp; SMS &middot; maps &middot; media &middot; AI &middot; data feeds</text>
+            <text class="t" x="26" y="433" font-size="10.5" opacity="0.58">rent it &rarr; rent it behind your own function &rarr; build it (rarely worth it)</text>
+
+            <rect class="box" x="10" y="450" width="700" height="78" rx="9"></rect>
+            <text class="lbl" x="26" y="477" font-size="11">06</text>
+            <text class="t t--title" x="52" y="477" font-size="13.5">Operations</text>
+            <text class="lbl" x="694" y="477" text-anchor="end" font-size="10.5">how you find out it broke</text>
+            <text class="t" x="26" y="500" font-size="11" opacity="0.85">error tracking &middot; uptime checks &middot; logs &middot; alerting &middot; product analytics &middot; traffic analytics &middot; backups</text>
+            <text class="t" x="26" y="517" font-size="10.5" opacity="0.58">a customer tells you &rarr; errors get reported &rarr; someone gets alerted &rarr; you see it coming</text>
+
+            <rect class="box box--key" x="10" y="534" width="700" height="78" rx="9"></rect>
+            <text class="lbl" x="26" y="561" font-size="11">07</text>
+            <text class="t t--title" x="52" y="561" font-size="13.5">Workflow</text>
+            <text class="lbl" x="694" y="561" text-anchor="end" font-size="10.5">how a change reaches users</text>
+            <text class="t" x="26" y="584" font-size="11" opacity="0.85">editor &middot; version control &middot; review &middot; CI &middot; environments &middot; migrations &middot; secrets &middot; flags &middot; tests</text>
+            <text class="t" x="26" y="601" font-size="10.5" opacity="0.58">push to main &rarr; CI checks &rarr; preview deploys &rarr; staging &rarr; gated release</text>
+
+            <text class="lbl" x="360" y="638" text-anchor="middle" font-size="10.5">security &middot; cost &middot; privacy &middot; accessibility &mdash; not bands; properties every band must satisfy</text>
+          </svg>
+          <figcaption>Each band&rsquo;s first line lists its slots. The second line runs from the simplest answer to the heaviest. The three highlighted bands can&rsquo;t be skipped: even a one-page site has a surface, a host, and a repo. The other four are switched on by what the product does.</figcaption>
+        </figure>
+
+        <h3>The irreducible minimum</h3>
+        <p>Five slots can&rsquo;t be skipped, even for a one-page brochure site: <strong>a surface</strong> (01), <strong>a host and a domain</strong> (04), <strong>version control</strong> (07), and <strong>some way to find out it broke</strong> (06). Everything else is switched on by something the product does. Use the table below as a completeness check, not a shopping list. Before building, go down the left column. Every &ldquo;yes&rdquo; adds the slots on the right, whether or not you plan for them.</p>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>If this is true&hellip;</th><th>&hellip;you&rsquo;ve just added</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">You take money</td><td>Payments, a server that recomputes the price, a webhook that can&rsquo;t be faked, and an audit trail. <span style="opacity:.6">(02 &middot; 03 &middot; 05)</span></td></tr>
+              <tr><td class="grp">People have accounts</td><td>Identity, per-row access rules, session recovery, and an account-deletion path. <span style="opacity:.6">(02 &middot; 05)</span></td></tr>
+              <tr><td class="grp">Users upload files</td><td>Object storage, size and type limits, and a public-vs-private decision per file. <span style="opacity:.6">(02)</span></td></tr>
+              <tr><td class="grp">Something runs with nobody watching</td><td>A scheduler or queue, <em>and</em> an alert for when a run silently stops. <span style="opacity:.6">(03 &middot; 06)</span></td></tr>
+              <tr><td class="grp">Two people edit the same thing</td><td>Realtime updates or conflict handling, plus a rule for who wins. <span style="opacity:.6">(03)</span></td></tr>
+              <tr><td class="grp">It ships in an app store</td><td>A native shell, developer accounts, signing keys, and a release train measured in days. <span style="opacity:.6">(01 &middot; 04)</span></td></tr>
+              <tr><td class="grp">You recompute the same expensive answer</td><td>A cache, plus a rule for when the cached answer is stale. <span style="opacity:.6">(02)</span></td></tr>
+              <tr><td class="grp">You notify people</td><td>Email or push, domain authentication, permission prompts, and an unsubscribe. <span style="opacity:.6">(05)</span></td></tr>
+              <tr><td class="grp">There&rsquo;s more than one surface</td><td>One shared business-logic module, built <em>before</em> the second surface exists. <span style="opacity:.6">(01 &middot; 03)</span></td></tr>
+              <tr><td class="grp">The data is personal or regulated</td><td>A retention rule, an export path, a deletion path, and a known location for where it&rsquo;s stored. <span style="opacity:.6">(02 &middot; 05)</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>01 &middot; Surfaces</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Option</th><th>What it is &middot; what it costs you</th><th>Pick it when</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Plain HTML/CSS/JS</td><td>No build step, no dependencies. Everything is wired by hand, and sharing logic between pages is manual.</td><td>The page is mostly content with a handful of interactive states. Barkhaus public site; all 17 MVL pages.</td></tr>
+              <tr><td class="grp">SPA framework<span>React &middot; Vue &middot; Svelte</span></td><td>Loads once, then redraws itself. You gain components and state management, and pay with a build step, a dependency tree, and extra SEO work.</td><td>Many connected screens share changing state, so it&rsquo;s a tool rather than a page. Bonado.</td></tr>
+              <tr><td class="grp">Meta-framework<span>Next.js &middot; Nuxt &middot; Astro</span></td><td>A framework with its own server layer that adds server rendering, routing, caching, and page revalidation.</td><td>Pages must be both indexable by search engines and driven by live data. Sansayaw.</td></tr>
+              <tr><td class="grp">Web app in a shell<span>Capacitor &middot; Tauri &middot; Electron</span></td><td>Your existing web app inside a native container, with plugins for push, camera, and files. Less native feel.</td><td>The web app already exists and you need the store, an icon, or a few native APIs. Bonado, Sansayaw.</td></tr>
+              <tr><td class="grp">Cross-platform native<span>React Native &middot; Flutter</span></td><td>One codebase that compiles to real native UI. It feels better than a shell, but you can&rsquo;t reuse your web frontend.</td><td>Mobile is the main product and the web version doesn&rsquo;t exist or doesn&rsquo;t matter.</td></tr>
+              <tr><td class="grp">Fully native<span>Swift &middot; Kotlin</span></td><td>Two separate codebases, one per platform. Best integration and performance, double the work.</td><td>The OS integration is the product: background location, heavy graphics, deep widgets.</td></tr>
+              <tr><td class="grp">PWA</td><td>A website that can be installed and work offline, with no store and no review queue. On iOS, notifications and install prompts are more limited.</td><td>You want installability for almost nothing. It usually comes free with an SPA; Bonado has both.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>02 &middot; State</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Option</th><th>What it is &middot; what it costs you</th><th>Pick it when</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Relational<span>Postgres &middot; MySQL</span></td><td>Tables, relationships, constraints, and all-or-nothing transactions. SQL skills carry over to any job.</td><td>Nearly always. Your data has relationships, and you want the database to enforce them.</td></tr>
+              <tr><td class="grp">Document<span>MongoDB &middot; Firestore</span></td><td>Each record can have a different shape, so adding a field needs no migration. Joins and consistency across records become your job.</td><td>Record shapes genuinely vary and relationships are shallow. That&rsquo;s rare for products like these.</td></tr>
+              <tr><td class="grp">Cache<span>Redis &middot; Upstash &middot; Cloudflare KV</span></td><td>A fast second store for counters, rate limits, locks, and saved results. The cost is deciding what happens when the cache and the database disagree.</td><td>You can name the exact query or computation it saves. A cache added &ldquo;for speed&rdquo; with no named target tends to cause stale-data bugs.</td></tr>
+              <tr><td class="grp">Object storage<span>S3 &middot; R2 &middot; Supabase Storage</span></td><td>Files served from a URL, each marked public or private.</td><td>Any upload or generated file. Barkhaus vaccine documents, Bonado receipts. Never store the file itself in a database row.</td></tr>
+              <tr><td class="grp">Search<span>Postgres full-text &rarr; Typesense &middot; Algolia</span></td><td>Ranked results, typo tolerance, filters. A separate search index is a second copy of the data that has to stay in sync.</td><td>Start with Postgres full-text search. Move up when users say search misses obvious things.</td></tr>
+              <tr><td class="grp">Warehouse<span>BigQuery &middot; ClickHouse</span></td><td>A separate database built for analysis queries.</td><td>Reporting queries start slowing the database your users rely on. Not before.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>03 &middot; Server logic</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Option</th><th>What it is &middot; what it costs you</th><th>Pick it when</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Database functions<span>Postgres RPC</span></td><td>Logic that runs inside the database. Writes across several rows are all-or-nothing by default. The hardest option to test and version.</td><td>A write touches several tables and must never half-happen. Bonado&rsquo;s <code>create_trip</code>, MVL&rsquo;s check-in.</td></tr>
+              <tr><td class="grp">Platform functions<span>Supabase Edge &middot; Firebase</span></td><td>Small programs next to your database. They hold the secret keys.</td><td>Calling a paid API, sending email, or taking a payment: anything that needs a key the browser can&rsquo;t hold.</td></tr>
+              <tr><td class="grp">Serverless<span>Vercel &middot; Lambda &middot; Workers</span></td><td>Runs once per request and scales to zero when idle. Expect slow first starts after idle time and a hard time limit per run.</td><td>The work is triggered by a request and finishes in seconds.</td></tr>
+              <tr><td class="grp">Long-running server<span>Rails &middot; Django &middot; Express</span></td><td>A process that stays up, so it can handle long jobs, persistent connections, and in-memory state. You now have a server to patch, and you pay while it sits idle.</td><td>Jobs take minutes, connections must stay open, or the codebase belongs in one place.</td></tr>
+              <tr><td class="grp">Queue / workflow<span>Inngest &middot; Trigger.dev &middot; Temporal</span></td><td>Background jobs that survive failures, with retries and step-by-step visibility.</td><td>A job can fail halfway through, it must resume, and you need to see that it did.</td></tr>
+              <tr><td class="grp">Scheduler<span>pg_cron &middot; GitHub Actions</span></td><td>Runs something at a set time with nobody watching. Barkhaus uses pg_cron; Sansayaw uses Actions.</td><td>Any recurring job. The real decision isn&rsquo;t which tool, it&rsquo;s how you&rsquo;ll learn that a run silently stopped.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>04 &middot; Delivery</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Option</th><th>What it is &middot; what it costs you</th><th>Pick it when</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Registrar<span>Namecheap &middot; Porkbun &middot; Cloudflare</span></td><td>Where you rent the domain name. Cloudflare charges at cost. Watch renewal prices, which is where GoDaddy gets expensive.</td><td>Always. The registrar and DNS are separate jobs, and you can move one without the other.</td></tr>
+              <tr><td class="grp">DNS<span>Cloudflare &middot; Route 53</span></td><td>Points your name at your host. Cloudflare&rsquo;s free tier adds caching, a web application firewall (WAF), and rate limiting.</td><td>Always. Cloudflare DNS is a sensible default even when the domain is registered elsewhere.</td></tr>
+              <tr><td class="grp">Repo-as-site<span>GitHub Pages</span></td><td>The repository <em>is</em> the site. Free, no config, and no build step, so framework output has to be committed.</td><td>A static site with no build. Barkhaus, where the committed admin bundle is the direct cost.</td></tr>
+              <tr><td class="grp">Building host<span>Vercel &middot; Netlify &middot; CF Pages</span></td><td>Builds on every push, gives each branch a preview URL, and handles redirects and server rendering.</td><td>There&rsquo;s a build step, redirect rules, or a need for previews. MVL chose Vercel for its redirects alone.</td></tr>
+              <tr><td class="grp">Edge platform<span>Cloudflare Workers</span></td><td>Code that runs in data centers close to users. Fast and cheap, but some libraries won&rsquo;t run there.</td><td>You need to sit in front of every request or to proxy an API. <code>personal-dashboard</code>.</td></tr>
+              <tr><td class="grp">Container host<span>Fly &middot; Render &middot; Railway</span></td><td>You ship a packaged app (a container image) and it keeps running.</td><td>You picked a long-running server in band 03.</td></tr>
+              <tr><td class="grp">App store<span>App Store &middot; Play</span></td><td>A second, slower release process with human review, developer accounts, and signing keys.</td><td>You ship a mobile app. Plan releases in days, not minutes. Bonado, via TestFlight.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>05 &middot; Rented capabilities</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Option</th><th>What it is &middot; what it costs you</th><th>Pick it when</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Identity<span>Supabase Auth &middot; Clerk &middot; Auth0</span></td><td>Sign-in, sessions, providers, recovery. Bundled auth is free and good enough. Dedicated services add polished UI and team/organization features.</td><td>Always rent it. The hard parts are guest sessions, linking accounts, and what a login actually <em>grants</em>.</td></tr>
+              <tr><td class="grp">Payments<span>Stripe &middot; Maya &middot; Paddle</span></td><td>Hosted checkout plus webhooks. Merchant-of-record services like Paddle also handle sales tax and VAT for you.</td><td>Use a local gateway for local customers (Maya, PayMongo). With any provider, the webhook confirms the sale, not the redirect back to your site.</td></tr>
+              <tr><td class="grp">Email<span>Resend &middot; Postmark &middot; SES</span></td><td>Mail that has to arrive. Postmark specializes in deliverability; SES is cheapest but takes the most setup.</td><td>Always send from the server. The hidden work is domain authentication (SPF, DKIM, DMARC) and tracking bounces.</td></tr>
+              <tr><td class="grp">Push &amp; SMS<span>FCM + APNs &middot; OneSignal &middot; Twilio</span></td><td>Notifications to a device or phone number.</td><td>You have an app and a real reason to interrupt someone. You only get one clean chance to ask for permission.</td></tr>
+              <tr><td class="grp">Maps &amp; places<span>Google Places &middot; Mapbox</span></td><td>Address lookup, autocomplete, map tiles. The keys are billed per use, so call them through a server-side proxy.</td><td>Location is part of the product. Bonado routes Places calls through a function.</td></tr>
+              <tr><td class="grp">Media<span>Cloudinary &middot; Unsplash</span></td><td>Image resizing and delivery, or stock photos with attribution rules.</td><td>You serve user images at volume, or need images you don&rsquo;t have.</td></tr>
+              <tr><td class="grp">AI<span>Claude &middot; OpenAI APIs</span></td><td>Generation, classification, extraction. Billed per use, answers vary from run to run, and it&rsquo;s slower than the rest of the stack.</td><td>The feature really needs judgment. Same rule as other keys: call it from the server and check the output before trusting it.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>06 &middot; Operations</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Option</th><th>What it is &middot; what it costs you</th><th>Pick it when</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Error tracking<span>Sentry &middot; Rollbar</span></td><td>Captures each crash with the stack trace, the release it happened in, and what the user did first.</td><td>From day one, on every surface. Barkhaus&rsquo;s retrospective asks for it by name.</td></tr>
+              <tr><td class="grp">Uptime checks<span>BetterStack &middot; UptimeRobot &middot; Checkly</span></td><td>Checks a URL, or walks through a whole flow, from outside your own infrastructure.</td><td>Anything must stay up. Barkhaus pings its payment health function every 20 minutes.</td></tr>
+              <tr><td class="grp">Logs<span>built-in &middot; BetterStack &middot; Axiom</span></td><td>A searchable record of what happened.</td><td>The host&rsquo;s own dashboard stops being enough. A log nobody reads is not monitoring.</td></tr>
+              <tr><td class="grp">Alerting<span>Slack &middot; email &middot; PagerDuty</span></td><td>Where bad news gets sent, and who is expected to act on it.</td><td>A failure could otherwise go unnoticed. This is Sansayaw&rsquo;s biggest gap.</td></tr>
+              <tr><td class="grp">Product analytics<span>PostHog &middot; Amplitude</span></td><td>What people actually do: funnels, retention, session replays. PostHog also includes feature flags.</td><td>You have a question about behavior. Choose the two or three events to track before you need them.</td></tr>
+              <tr><td class="grp">Traffic analytics<span>GA4 &middot; Plausible &middot; Fathom</span></td><td>Who arrived and from where. GA4 is free but clunky; Plausible and Fathom are simple and privacy-first.</td><td>Almost always, since it&rsquo;s cheap. It answers a different question than product analytics.</td></tr>
+              <tr><td class="grp">Backups</td><td>Whatever your provider includes, plus the paid tier that can restore to an exact point in time.</td><td>Before you need it. The real test is whether you&rsquo;ve ever actually restored one.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>07 &middot; Workflow</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Option</th><th>What it is &middot; what it costs you</th><th>Pick it when</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Editor<span>VS Code &middot; Cursor &middot; Xcode</span></td><td>Where you write code. Xcode is required for iOS because it handles signing, simulators, and builds for the store.</td><td>Personal preference, except Xcode for iOS.</td></tr>
+              <tr><td class="grp">Version control<span>git + GitHub</span></td><td>Every change recorded, credited, and reversible. CI, code review, and deploys all hang off it.</td><td>Always, from the first commit.</td></tr>
+              <tr><td class="grp">CI<span>GitHub Actions</span></td><td>Runs the build, type checks, lint, and tests on every push.</td><td>As soon as a mistake could reach users. It&rsquo;s also where builds should run, so build output never gets committed.</td></tr>
+              <tr><td class="grp">Environments</td><td>Local &rarr; preview &rarr; staging &rarr; production.</td><td>Aim for production plus at least one more. Every project here is production-only.</td></tr>
+              <tr><td class="grp">Migrations<span>Supabase CLI &middot; Drizzle &middot; Prisma</span></td><td>Schema changes that are ordered, reviewed, and can be replayed.</td><td>From the very first table. &ldquo;Applied by hand&rdquo; is the most repeated risk in this handbook.</td></tr>
+              <tr><td class="grp">Secrets<span>host env vars &middot; Doppler</span></td><td>Keys kept outside the repo and injected when the app runs.</td><td>Always. Assume anyone can read the repo.</td></tr>
+              <tr><td class="grp">Feature flags<span>a constant &middot; PostHog &middot; GrowthBook</span></td><td>Ship code switched off, then turn it on separately.</td><td>Code lands before launch. A single constant is often enough, and that&rsquo;s how Barkhaus swaps payment providers.</td></tr>
+              <tr><td class="grp">Tests<span>Vitest &middot; Playwright</span></td><td>Automatic checks on the things that must not be wrong.</td><td>At a minimum, test money math and access rules. Tests on both caught real bugs here.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 id="building-blocks">Five scaling building blocks <span class="level-tag later">Recognize for later</span></h3>
+        <p>The tables above list <em>products</em>. Underneath them sit a handful of general <em>techniques</em> that any system uses once it has to be fast, cheap, or survive traffic. You rarely buy these directly; they&rsquo;re built into the products you rent. Each one exists to solve one specific problem.</p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 720 520" role="img" aria-label="Five rows. 01 Object storage: photo, video and PDF files go through an API into a bucket, where each file gets its own URL. 02 CDN: an origin server copies content out to three edge locations, each close to a user. 03 Caching: an app asks a cache first; a hit answers immediately, a miss goes to the database and is remembered. 04 Serverless: events wake a function; a warm one is already running, a cold one has to boot first. 05 Load balancing: clients hit a load balancer that spreads requests across three servers and skips unhealthy ones.">
+            <defs>
+              <marker id="ahbb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+              </marker>
+            </defs>
+
+            <rect class="box" x="10" y="10" width="700" height="92" rx="9"></rect>
+            <text class="lbl" x="28" y="42" font-size="11">01</text>
+            <text class="t t--title" x="52" y="42" font-size="14">Object storage</text>
+            <text class="lbl" x="28" y="62" font-size="10">band 02 &middot; storage</text>
+            <text class="t" x="28" y="82" font-size="10.5" opacity="0.62">big files out of the database</text>
+            <rect class="box" x="300" y="22" width="60" height="20" rx="5"></rect><text class="t" x="330" y="36" text-anchor="middle" font-size="10">photo</text>
+            <rect class="box" x="300" y="46" width="60" height="20" rx="5"></rect><text class="t" x="330" y="60" text-anchor="middle" font-size="10">video</text>
+            <rect class="box" x="300" y="70" width="60" height="20" rx="5"></rect><text class="t" x="330" y="84" text-anchor="middle" font-size="10">PDF</text>
+            <line class="edge" x1="360" y1="32" x2="408" y2="54" marker-end="url(#ahbb)"></line>
+            <line class="edge" x1="360" y1="56" x2="408" y2="56" marker-end="url(#ahbb)"></line>
+            <line class="edge" x1="360" y1="80" x2="408" y2="58" marker-end="url(#ahbb)"></line>
+            <rect class="box" x="410" y="41" width="64" height="30" rx="6"></rect><text class="t t--title" x="442" y="60" text-anchor="middle" font-size="11.5">API</text>
+            <line class="edge" x1="474" y1="56" x2="518" y2="56" marker-end="url(#ahbb)"></line>
+            <rect class="box box--key" x="520" y="26" width="120" height="60" rx="7"></rect>
+            <text class="t t--title" x="580" y="52" text-anchor="middle" font-size="12">bucket</text>
+            <text class="lbl" x="580" y="70" text-anchor="middle" font-size="9.5">one URL per file</text>
+
+            <rect class="box" x="10" y="112" width="700" height="92" rx="9"></rect>
+            <text class="lbl" x="28" y="144" font-size="11">02</text>
+            <text class="t t--title" x="52" y="144" font-size="14">CDN</text>
+            <text class="lbl" x="28" y="164" font-size="10">band 04 &middot; delivery</text>
+            <text class="t" x="28" y="184" font-size="10.5" opacity="0.62">copies near the user, so distance stops mattering</text>
+            <rect class="box" x="300" y="143" width="80" height="30" rx="6"></rect><text class="t t--title" x="340" y="162" text-anchor="middle" font-size="11.5">Origin</text>
+            <line class="edge" x1="380" y1="158" x2="448" y2="135" marker-end="url(#ahbb)"></line>
+            <line class="edge" x1="380" y1="158" x2="448" y2="158" marker-end="url(#ahbb)"></line>
+            <line class="edge" x1="380" y1="158" x2="448" y2="181" marker-end="url(#ahbb)"></line>
+            <rect class="box box--key" x="450" y="124" width="74" height="22" rx="5"></rect><text class="t" x="487" y="139" text-anchor="middle" font-size="10.5">Edge</text>
+            <rect class="box box--key" x="450" y="147" width="74" height="22" rx="5"></rect><text class="t" x="487" y="162" text-anchor="middle" font-size="10.5">Edge</text>
+            <rect class="box box--key" x="450" y="170" width="74" height="22" rx="5"></rect><text class="t" x="487" y="185" text-anchor="middle" font-size="10.5">Edge</text>
+            <line class="edge" x1="524" y1="135" x2="572" y2="135" marker-end="url(#ahbb)"></line>
+            <line class="edge" x1="524" y1="158" x2="572" y2="158" marker-end="url(#ahbb)"></line>
+            <line class="edge" x1="524" y1="181" x2="572" y2="181" marker-end="url(#ahbb)"></line>
+            <rect class="box" x="574" y="124" width="60" height="22" rx="5"></rect><text class="t" x="604" y="139" text-anchor="middle" font-size="10">User</text>
+            <rect class="box" x="574" y="147" width="60" height="22" rx="5"></rect><text class="t" x="604" y="162" text-anchor="middle" font-size="10">User</text>
+            <rect class="box" x="574" y="170" width="60" height="22" rx="5"></rect><text class="t" x="604" y="185" text-anchor="middle" font-size="10">User</text>
+
+            <rect class="box" x="10" y="214" width="700" height="92" rx="9"></rect>
+            <text class="lbl" x="28" y="246" font-size="11">03</text>
+            <text class="t t--title" x="52" y="246" font-size="14">Caching</text>
+            <text class="lbl" x="28" y="266" font-size="10">band 02 &middot; performance</text>
+            <text class="t" x="28" y="286" font-size="10.5" opacity="0.62">don&rsquo;t compute the same answer twice</text>
+            <rect class="box" x="300" y="245" width="70" height="30" rx="6"></rect><text class="t t--title" x="335" y="264" text-anchor="middle" font-size="11.5">App</text>
+            <line class="edge" x1="370" y1="260" x2="428" y2="260" marker-end="url(#ahbb)"></line>
+            <rect class="box box--key" x="430" y="245" width="84" height="30" rx="6"></rect><text class="t t--title" x="472" y="264" text-anchor="middle" font-size="11.5">Cache</text>
+            <line class="edge" x1="514" y1="260" x2="578" y2="260" marker-end="url(#ahbb)" stroke-dasharray="4 3"></line>
+            <rect class="box" x="580" y="245" width="70" height="30" rx="6"></rect><text class="t t--title" x="615" y="264" text-anchor="middle" font-size="11.5">DB</text>
+            <text class="lbl" x="472" y="236" text-anchor="middle" font-size="9.5">hit &rarr; answer here</text>
+            <text class="lbl" x="546" y="292" text-anchor="middle" font-size="9.5">miss &rarr; ask the DB, then remember</text>
+
+            <rect class="box" x="10" y="316" width="700" height="92" rx="9"></rect>
+            <text class="lbl" x="28" y="348" font-size="11">04</text>
+            <text class="t t--title" x="52" y="348" font-size="14">Serverless</text>
+            <text class="lbl" x="28" y="368" font-size="10">band 03 &middot; compute</text>
+            <text class="t" x="28" y="388" font-size="10.5" opacity="0.62">pay per run, not per idle hour</text>
+            <rect class="box" x="300" y="347" width="80" height="30" rx="6"></rect><text class="t t--title" x="340" y="366" text-anchor="middle" font-size="11.5">Events</text>
+            <line class="edge" x1="380" y1="362" x2="448" y2="341" marker-end="url(#ahbb)"></line>
+            <line class="edge" x1="380" y1="362" x2="448" y2="383" marker-end="url(#ahbb)"></line>
+            <rect class="box box--key" x="450" y="328" width="60" height="26" rx="6"></rect><text class="t t--title" x="480" y="345" text-anchor="middle" font-size="12">&lambda;</text>
+            <rect class="box" x="450" y="370" width="60" height="26" rx="6" stroke-dasharray="4 3"></rect><text class="t" x="480" y="387" text-anchor="middle" font-size="12" opacity="0.6">&lambda;</text>
+            <text class="lbl" x="524" y="345" font-size="9.5">warm &mdash; instant</text>
+            <text class="lbl" x="524" y="387" font-size="9.5">cold &mdash; boots first, so it waits</text>
+
+            <rect class="box" x="10" y="418" width="700" height="92" rx="9"></rect>
+            <text class="lbl" x="28" y="450" font-size="11">05</text>
+            <text class="t t--title" x="52" y="450" font-size="14">Load balancing</text>
+            <text class="lbl" x="28" y="470" font-size="10">band 04 &middot; scaling</text>
+            <text class="t" x="28" y="490" font-size="10.5" opacity="0.62">no single server to overload or lose</text>
+            <rect class="box" x="300" y="449" width="80" height="30" rx="6"></rect><text class="t t--title" x="340" y="468" text-anchor="middle" font-size="11.5">Clients</text>
+            <line class="edge" x1="380" y1="464" x2="438" y2="464" marker-end="url(#ahbb)"></line>
+            <rect class="box box--key" x="440" y="449" width="56" height="30" rx="6"></rect><text class="t t--title" x="468" y="468" text-anchor="middle" font-size="11.5">LB</text>
+            <line class="edge" x1="496" y1="464" x2="538" y2="441" marker-end="url(#ahbb)"></line>
+            <line class="edge" x1="496" y1="464" x2="538" y2="464" marker-end="url(#ahbb)"></line>
+            <line class="edge" x1="496" y1="464" x2="538" y2="487" marker-end="url(#ahbb)" stroke-dasharray="4 3"></line>
+            <rect class="box" x="540" y="430" width="60" height="22" rx="5"></rect><text class="t" x="570" y="445" text-anchor="middle" font-size="10">S1</text>
+            <rect class="box" x="540" y="453" width="60" height="22" rx="5"></rect><text class="t" x="570" y="468" text-anchor="middle" font-size="10">S2</text>
+            <rect class="box" x="540" y="476" width="60" height="22" rx="5" stroke-dasharray="4 3"></rect><text class="t" x="570" y="491" text-anchor="middle" font-size="10" opacity="0.6">S3</text>
+            <text class="lbl" x="610" y="491" font-size="9.5">down &mdash; skipped</text>
+          </svg>
+          <figcaption>Dashed means &ldquo;sometimes&rdquo;: a cache only goes to the database on a miss, a function is cold only after sitting idle, and a load balancer only skips a server that fails its health check.</figcaption>
+        </figure>
+
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Concept</th><th>The problem it solves &middot; its catch</th><th>Already in your stack as</th><th>You&rsquo;d handle it yourself when</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Object storage</td><td>Databases are slow and expensive at holding big files. A bucket stores each file cheaply and serves it from its own URL. The catch is bandwidth: downloads (&ldquo;egress&rdquo;) are billed.</td><td>Supabase Storage: Barkhaus vaccine documents, Bonado receipts and trip covers.</td><td>You serve a lot of video or large media, and download fees start to dominate the bill. Cloudflare R2 charges no egress.</td></tr>
+              <tr><td class="grp">CDN</td><td>A server in one region is slow for users far away and buckles under spikes. A CDN keeps copies at &ldquo;edge&rdquo; locations near users, so the origin is asked only when a copy is missing or expired. The catch is serving an out-of-date copy.</td><td>Vercel, GitHub Pages and Cloudflare all serve through one automatically. Sansayaw&rsquo;s revalidate webhook is a CDN <em>purge</em>.</td><td>You need to decide what may be cached, for how long, and how to force a refresh. Those are cache headers and purge rules.</td></tr>
+              <tr><td class="grp">Caching</td><td>Answering the same question over and over is wasted work. Keep the answer close. A <em>hit</em> answers instantly; a <em>miss</em> does the slow work once, then remembers it. The catch is <em>invalidation</em>: knowing when a saved answer is wrong.</td><td>Sansayaw&rsquo;s cached dataset; Bonado&rsquo;s daily exchange-rate cache; Barkhaus loading pricing once at startup; plus every browser&rsquo;s own cache.</td><td>You can name the slow, repeated query. That&rsquo;s when a Redis-style cache earns its place, along with a rule for when entries expire.</td></tr>
+              <tr><td class="grp">Serverless</td><td>An always-on server costs money while idle. A function wakes per event and scales to zero. The catches: a <em>cold start</em> delay after idling, a time limit per run, and no memory between runs.</td><td>Every Supabase Edge Function across the portfolio; Sansayaw&rsquo;s Next.js server code on Vercel.</td><td>Jobs run past the time limit, you need a connection that stays open, or traffic is steady enough that an always-on server is cheaper.</td></tr>
+              <tr><td class="grp">Load balancing</td><td>One server has a ceiling and is a single point of failure. A load balancer spreads requests across several servers and skips any that fail a health check. The catch: servers must be <em>stateless</em>, so nothing important can live in one server&rsquo;s memory.</td><td>Invisible. Vercel, Supabase and Cloudflare balance traffic for you. No project here runs its own.</td><td>You run your own long-running servers (band 03). Then you need two or more instances, health checks, and sessions stored outside the server.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <ul class="findings">
+          <li><b>They line up along one request.</b> A user&rsquo;s request hits the <em>CDN</em> edge first. If it isn&rsquo;t served there, it passes a <em>load balancer</em> to a server or a <em>serverless</em> function. That code checks a <em>cache</em> before asking the database, and big files come from <em>object storage</em>. Every layer is there to stop the request from traveling any further than it must.</li>
+          <li><b>The house stack rents all five.</b> That&rsquo;s why none of them show up in the deep-dives: they&rsquo;re real, just invisible. It&rsquo;s the managed-service trade in action: you give up control of these layers and never have to run them.</li>
+          <li><b>Caching is the one you still own.</b> The other four are handled by the vendor. Deciding when a cached answer is stale is always your call, which is why Sansayaw&rsquo;s revalidate webhook and Bonado&rsquo;s per-day rate snapshot are both deliberate design decisions.</li>
+        </ul>
+
+        <h3>Bundled vs. assembled</h3>
+        <p>The biggest choice on the map isn&rsquo;t any single slot. It&rsquo;s how many slots one vendor fills for you.</p>
+        <figure class="diagram">
+          <svg viewBox="0 0 720 212" role="img" aria-label="A spectrum of three boxes. One bundle, such as Supabase or Firebase, where one vendor fills the database, storage, auth, functions, cron and realtime. Assembled, such as Neon plus Clerk plus Resend plus Inngest, where each slot gets its best tool. Self-run, your own Postgres, queue and cluster, nothing rented. An arrow pointing left reads faster to ship, fewer accounts, fewer decisions. An arrow pointing right reads more control, less lock-in, more to operate.">
+            <defs>
+              <marker id="ahsm" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+              </marker>
+            </defs>
+            <rect class="box box--key" x="10" y="34" width="222" height="96" rx="8"></rect>
+            <text class="t t--title" x="121" y="60" text-anchor="middle" font-size="13">One bundle</text>
+            <text class="t" x="121" y="78" text-anchor="middle" font-size="10.5" opacity="0.62">Supabase &middot; Firebase</text>
+            <text class="t" x="121" y="100" text-anchor="middle" font-size="10.5" opacity="0.85">one vendor: database, storage,</text>
+            <text class="t" x="121" y="116" text-anchor="middle" font-size="10.5" opacity="0.85">auth, functions, cron, realtime</text>
+
+            <rect class="box" x="248" y="34" width="222" height="96" rx="8"></rect>
+            <text class="t t--title" x="359" y="60" text-anchor="middle" font-size="13">Assembled</text>
+            <text class="t" x="359" y="78" text-anchor="middle" font-size="10.5" opacity="0.62">Neon + Clerk + Resend + Inngest</text>
+            <text class="t" x="359" y="100" text-anchor="middle" font-size="10.5" opacity="0.85">each slot gets the tool that&rsquo;s</text>
+            <text class="t" x="359" y="116" text-anchor="middle" font-size="10.5" opacity="0.85">best at that one job</text>
+
+            <rect class="box" x="486" y="34" width="224" height="96" rx="8"></rect>
+            <text class="t t--title" x="598" y="60" text-anchor="middle" font-size="13">Self-run</text>
+            <text class="t" x="598" y="78" text-anchor="middle" font-size="10.5" opacity="0.62">your own Postgres, queue, cluster</text>
+            <text class="t" x="598" y="100" text-anchor="middle" font-size="10.5" opacity="0.85">nothing rented, nothing shared &mdash;</text>
+            <text class="t" x="598" y="116" text-anchor="middle" font-size="10.5" opacity="0.85">everything yours to operate</text>
+
+            <text class="lbl" x="360" y="154" text-anchor="middle" font-size="10.5">faster to ship &middot; fewer accounts &middot; fewer decisions</text>
+            <line class="edge" x1="700" y1="162" x2="20" y2="162" marker-end="url(#ahsm)"></line>
+            <text class="lbl" x="360" y="188" text-anchor="middle" font-size="10.5">more control &middot; less lock-in &middot; more for you to operate</text>
+            <line class="edge" x1="20" y1="196" x2="700" y2="196" marker-end="url(#ahsm)"></line>
+          </svg>
+          <figcaption>Every product in this portfolio sits in the highlighted box. Supabase alone fills seven slots across four bands, which is why the architecture diagrams here look so simple, and why &ldquo;which Supabase project&rdquo; turned out to be the biggest structural decision in the portfolio. The usual path is to start bundled, then pull out one slot at a time when it starts to hurt.</figcaption>
+        </figure>
+
+        <h3>What isn&rsquo;t a slot</h3>
+        <ul class="findings">
+          <li><b>Security is a property of every band, not a band of its own.</b> Split into concrete pieces, it&rsquo;s secrets (07), access rules and the trust boundary (02, 03), edge protection and rate limiting (04), dependency updates (07), backups (06), and how accounts and projects are separated (the whole map). Whatever is left under the &ldquo;cybersecurity&rdquo; label is usually a policy question, not something you buy.</li>
+          <li><b>Cost works the same way.</b> Every band has a free tier and a point where the price jumps. The ones to watch are billed per event: email volume, map lookups, AI calls, analytics events.</li>
+          <li><b>An empty slot is still filled.</b> With no error tracking, the slot is filled by &ldquo;a customer tells you.&rdquo; With no staging, it&rsquo;s filled by &ldquo;production.&rdquo; Choose deliberately rather than by default.</li>
+          <li><b>Three slots get expensive if filled late:</b> migrations, a shared business-logic module, and error tracking. All three appear in the Barkhaus retrospective.</li>
+        </ul>
+        <p style="margin-top:18px">This map is the menu. <a href="together.html#prebuild">Before the next build</a> is the set of questions that picks from it.</p>
+      </section>
+
+      <section id="reliability">
+        <h2>Reliability, capacity, and recovery</h2>
+        <p>Building the feature answers: <em>does it work?</em> Operating the product adds four harder questions: <em>is it working now, will it survive expected demand, what happens when a dependency fails, and how do we recover?</em> These are part of the stack, not polish added after launch.</p>
+
+        <h3>Five signals that answer different questions</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Signal</th><th>What it tells you</th><th>What it misses</th><th>Useful first version</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Uptime check</td><td>Can an outside machine reach a URL on schedule?</td><td>A homepage can be up while checkout or sign-in is broken.</td><td>Check the public URL every 5 minutes from outside the host.</td></tr>
+              <tr><td class="grp">Synthetic journey</td><td>Can a robot complete a critical user flow?</td><td>It covers chosen flows, not every real-user path.</td><td>Sign in to a test account, read a known record, and stop before destructive actions.</td></tr>
+              <tr><td class="grp">Error tracking</td><td>Which exceptions users actually hit, in which release and code path?</td><td>Slow success and wrong-but-valid data may raise no exception.</td><td>Capture browser and server errors with release version and safe context.</td></tr>
+              <tr><td class="grp">Logs and metrics</td><td>What the system did and how often: latency, failures, queue depth, job duration.</td><td>Raw logs do nothing unless someone can query them and an alert uses them.</td><td>Structured logs for critical actions plus success/error counts and duration.</td></tr>
+              <tr><td class="grp">Product signal</td><td>Whether the user outcome happened: booking confirmed, expense saved, class found.</td><td>A completed event does not prove every technical component is healthy.</td><td>Track two or three completion events and their failure rate.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p><strong>Health check vs uptime check:</strong> a health endpoint says one component can answer right now; an uptime check is the outside service that calls it repeatedly and alerts someone. A useful health check tests the dependency needed for the journey, not merely that the process started.</p>
+
+        <h3>Volume is several tests, not one</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Test</th><th>Question</th><th>Example</th><th>Pass condition</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Performance</td><td>Is one normal request fast enough?</td><td>Load the booking calendar with a realistic month of rows.</td><td>A written threshold such as p95 under 800 ms, not &ldquo;feels fast.&rdquo;</td></tr>
+              <tr><td class="grp">Load</td><td>Does expected concurrent traffic still meet that threshold?</td><td>Simulate the users expected during an MVL raffle opening.</td><td>Error rate, latency, and database connections stay inside limits.</td></tr>
+              <tr><td class="grp">Spike</td><td>What happens when traffic jumps suddenly?</td><td>A link is posted and 10&times; normal users arrive in one minute.</td><td>The system queues, rejects, or slows predictably instead of corrupting data.</td></tr>
+              <tr><td class="grp">Soak</td><td>Does ordinary load cause leaks or buildup over hours?</td><td>Run repeated reads and background jobs long enough to expose connection or queue growth.</td><td>Memory, connections, retries, and pending work return to normal.</td></tr>
+              <tr><td class="grp">Data-volume</td><td>Does behavior stay correct with months or years of rows and files?</td><td>Search, paginate, export, and enforce policies against a seeded large dataset.</td><td>Queries use indexes, pages stay bounded, and jobs finish before their limits.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Begin with an explicit assumption, not a giant test: daily active users, peak concurrent users, requests per minute, rows added per month, largest upload, and longest job. Test the expected peak first, then a modest safety margin. Run destructive volume tests in staging with generated data, never casually against customer production.</p>
+
+        <h3>Limits, overload, and graceful failure</h3>
+        <ul class="findings">
+          <li><b>Every rented service has quotas.</b> Database connections, function duration, email sends, map calls, storage, bandwidth, and API rate limits all have a ceiling. Record the ceiling and alert before it becomes an outage.</li>
+          <li><b>Rate limiting protects both reliability and cost.</b> Limit by authenticated user or safe client identifier, return a clear retry response, and put stricter limits on expensive or abuse-prone operations.</li>
+          <li><b>Retries need idempotency.</b> A timeout does not prove the first request failed. Repeating a payment or multi-row write must not duplicate it.</li>
+          <li><b>Backpressure is an honest &ldquo;not yet.&rdquo;</b> A queue, bounded batch, or temporary rejection is safer than accepting unlimited work the system cannot finish.</li>
+          <li><b>Dependencies need timeouts and a fallback.</b> Decide whether the user retries, sees cached data, continues without the optional service, or is stopped safely.</li>
+        </ul>
+
+        <h3>Backup is not recovery</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Term</th><th>Plain meaning</th><th>Decision to write down</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Backup</td><td>A separate recoverable copy of data.</td><td>What is covered, how often, how long retained, and whether files are included.</td></tr>
+              <tr><td class="grp">Restore test</td><td>Proof that a backup can become a working system.</td><td>Who restores it, into which environment, and how correctness is checked.</td></tr>
+              <tr><td class="grp">RPO</td><td>Recovery point objective: how much recent data you can afford to lose.</td><td>If RPO is one hour, the backup or replication interval must support it.</td></tr>
+              <tr><td class="grp">RTO</td><td>Recovery time objective: how long the product may remain unavailable.</td><td>If RTO is four hours, ownership and restore steps must make that realistic.</td></tr>
+              <tr><td class="grp">Rollback</td><td>Return application code or configuration to a known good version.</td><td>Database migrations often need a forward fix because deleting new data may be unsafe.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>A small product still needs an incident loop</h3>
+        <div class="flow-strip" aria-label="Incident response loop">
+          <div class="flow-step"><b>1 &middot; Detect</b>An alert points to a failed journey or threshold.</div><span class="flow-arrow">&rarr;</span>
+          <div class="flow-step"><b>2 &middot; Assess</b>What users, data, money, and services are affected?</div><span class="flow-arrow">&rarr;</span>
+          <div class="flow-step"><b>3 &middot; Contain</b>Disable a flag, pause a job, rate-limit, or roll back.</div><span class="flow-arrow">&rarr;</span>
+          <div class="flow-step"><b>4 &middot; Recover</b>Restore correct service and verify the critical journey.</div><span class="flow-arrow">&rarr;</span>
+          <div class="flow-step"><b>5 &middot; Learn</b>Record root cause and add the missing test, alert, or guard.</div>
+        </div>
+        <p>The related build artifacts are the <a href="together.html#stack-plan">full-stack plan</a> and <a href="together.html#production-readiness">production-readiness checklist</a>. Concepts explain what each check proves; the playbook makes sure it is actually assigned.</p>
+      </section>
+
+      <section id="reading-list">
+        <h2>Deeper concepts, one layer down <span class="level-tag later">Reference</span></h2>
+        <p>The foundations are above. These ten are more specific &mdash; each one comes up inside a deep-dive, illustrated there with a real example from this portfolio.</p>
+        <ol class="topics">
+          <li><b>Supabase, one layer down.</b> Row-level security, live updates, file storage, and server-side functions &mdash; how each actually behaves, and the ways they bite (silent RLS failures, schema-cache reloads).</li>
+          <li><b>&ldquo;Never trust the browser.&rdquo;</b> Why money, results and multi-step writes go through server functions &mdash; and the real bug in Barkhaus where the checkout amount was trusted from the client.</li>
+          <li><b>Hosting models compared.</b> GitHub Pages (a repo served as-is) vs Vercel (builds, redirects, cached pages) vs Cloudflare Workers (code at the edge). What each is good and bad at.</li>
+          <li><b>Secrets &amp; payments.</b> Why keys live only inside server functions, what &ldquo;sandbox vs live&rdquo; means, and how one flag swaps the active payment provider while the others stay built but on standby.</li>
+          <li><b>Email that arrives.</b> Resend, sender reputation, reply-to and unsubscribe &mdash; why a bouncing address quietly hurts every future email.</li>
+          <li><b>Scheduled jobs &amp; cache refresh.</b> The Sansayaw chain: a timed job writes to the database, then tells the website to rebuild affected pages.</li>
+          <li><b>Mobile without a native app.</b> Capacitor wraps a web app so it ships on the App Store &mdash; what you gain, what you give up, what review still demands.</li>
+          <li><b>One customer vs many.</b> A separate copy per client (Barkhaus&rsquo;s plan) vs one shared database with a customer column. The trade-off, and why isolation was chosen.</li>
+          <li><b>Knowing what&rsquo;s happening.</b> Google Analytics vs PostHog vs Sentry &mdash; traffic, product behaviour, and errors are three different questions.</li>
+          <li><b>The operational risks.</b> Hand-applied database changes, hardcoded IDs, &ldquo;blocked until this migration runs&rdquo; states, and repos with many long-lived branches.</li>
+        </ol>
+      </section>
+    </main>
+  </div>
+
+  <nav class="pager" aria-label="Previous and next part">
+    <a class="prev" href="index.html"><small>Previous</small>Contents</a>
+    <a class="next" href="deep-dives.html"><small>Next</small>Part II &middot; The deep-dives</a>
+  </nav>
+
+  <footer>The Build So Far &middot; v20 &middot; 19 Sep 2026 &middot; <a href="index.html">all parts</a></footer>
+</div>
+</body>
+</html>
