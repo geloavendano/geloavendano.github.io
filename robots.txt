@@ -1,0 +1,3 @@
+User-agent: *
+# The handbook pages carry a noindex tag; its Markdown templates cannot, so keep crawlers out of that folder.
+Disallow: /the-build-so-far/templates/
