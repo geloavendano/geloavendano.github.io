@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>The deep-dives &middot; The Build So Far</title>
-<meta name="description" content="One section per project: what it is, how it bends the pattern from Part I, its data model, its key flows, its risks, and what we&rsquo;d change.">
+<meta name="description" content="One section per project: architecture, repository structure, file responsibilities, data model, key flows, risks, and rebuild lessons.">
 <meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
-<link rel="stylesheet" href="handbook.css?v=20.1">
+<link rel="stylesheet" href="handbook.css?v=20.2">
 <script src="handbook.js?v=20.3" defer></script>
 </head>
 <body>
@@ -29,7 +29,7 @@
   <header class="part-head">
     <p class="part-eyebrow">Part II</p>
     <h1 class="part-title">The deep-dives</h1>
-    <p class="part-sub">One section per project: what it is, how it bends the pattern from Part I, its data model, key flows, real source trails, guided exercises, risks, and what we&rsquo;d change.</p>
+    <p class="part-sub">One section per project: what it is, how its repository is divided, why each file type exists, its data model, key flows, real source trails, guided exercises, risks, and what we&rsquo;d change.</p>
   </header>
 
   <div class="layout">
@@ -111,6 +111,22 @@
           </table>
         </div>
         <p style="font-size:13px;color:var(--muted)">A quiet but important fact: only <strong>Barkhaus</strong> has its own Supabase project. <strong>Sansayaw, MVL, and Bonado all share one project</strong> (each walled into its own database schema). Cheap to set up; it means three live products share one quota, one login config, and one blast radius &mdash; see the MVL and Bonado deep-dives.</p>
+
+        <div class="learning-outcome">
+          <h3>How to read the repository maps</h3>
+          <p>A repository is not divided just to make the file list tidy. Each boundary should answer one question: <em>what kind of change belongs here?</em> The maps below show the architectural files and collapse repeated assets, generated output, and dozens of same-purpose files into representative groups.</p>
+          <div class="file-type-key" aria-label="Common file-extension meanings">
+            <span><code>.html</code> document or route</span>
+            <span><code>.css</code> presentation</span>
+            <span><code>.js/.jsx</code> browser logic or React UI</span>
+            <span><code>.ts/.tsx</code> typed logic or UI</span>
+            <span><code>.py</code> automation and data work</span>
+            <span><code>.sql</code> database change</span>
+            <span><code>.json</code> data or tool metadata</span>
+            <span><code>.yml</code> automation recipe</span>
+            <span><code>.md</code> human documentation</span>
+          </div>
+        </div>
       </section>
 
       <section id="barkhaus">
@@ -121,6 +137,52 @@
 
         <h3>Architecture</h3>
         <p>It follows the recurring pattern with one twist: <strong>two separate frontends</strong> share <strong>one Supabase backend</strong>. The public site is plain hand-written HTML and JavaScript (no framework, no build). The admin app is React and has to be compiled; the compiled result is committed into the repo and served alongside the site. Everything sensitive &mdash; payments, email, confirming a booking &mdash; runs in Supabase Edge Functions where the secret keys live.</p>
+
+        <h3>Repository map &mdash; where each kind of work lives</h3>
+        <figure class="repo-map">
+          <div class="repo-map__intro"><strong>Selected tree, not every image.</strong> Follow the indentation as ownership: the browser pages are at the root, the editable admin source is in <code>admin-src/</code>, its generated deployment is in <code>admin/</code>, and trusted backend code is in <code>supabase/</code>.</div>
+          <div class="repo-map__body">
+            <ul class="repo-tree" aria-label="Barkhaus repository structure">
+              <li><div class="file-node file-node--root"><span class="file-kind file-kind--folder">dir</span><code>barkhaus/</code><span class="file-purpose">the live repository and deployed static site</span></div>
+                <ul>
+                  <li><div class="file-node"><span class="file-kind">html</span><code>index.html · faq.html · waivers.html</code><span class="file-purpose">public documents; one URL/page each</span></div></li>
+                  <li><div class="file-node"><span class="file-kind">js</span><code>index.js · images.js</code><span class="file-purpose">marketing-page interactions and gallery data</span></div></li>
+                  <li><div class="file-node"><span class="file-kind">html</span><code>booking.html</code><span class="file-purpose">booking wizard markup, controls, and script order</span></div></li>
+                  <li><div class="file-node"><span class="file-kind">js</span><code>pricing.js</code><span class="file-purpose">rate shapes and pricing calculations</span></div></li>
+                  <li><div class="file-node"><span class="file-kind">js</span><code>validation.js</code><span class="file-purpose">input rules used before advancing or submitting</span></div></li>
+                  <li><div class="file-node"><span class="file-kind">js</span><code>booking.js</code><span class="file-purpose">wizard state, events, uploads, API calls, and submission</span></div></li>
+                  <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>images/ · blog/</code><span class="file-purpose">media files and independently addressable articles</span></div></li>
+                  <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>admin-src/</code><span class="file-purpose">editable React admin application</span></div>
+                    <ul>
+                      <li><div class="file-node"><span class="file-kind">jsx</span><code>src/main.jsx · App.jsx</code><span class="file-purpose">boot React, then compose the admin interface</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">js</span><code>src/lib/{pricing,availability,supabase}.js</code><span class="file-purpose">named admin rules and service adapters</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">css</span><code>src/index.css · styles/vars.css</code><span class="file-purpose">admin presentation and design tokens</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">json</span><code>package.json · package-lock.json</code><span class="file-purpose">commands plus exact dependency versions</span></div></li>
+                    </ul>
+                  </li>
+                  <li><div class="file-node"><span class="file-kind file-kind--generated">build</span><code>admin/</code><span class="file-purpose">compiled admin files served to users; do not hand-edit</span></div></li>
+                  <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>supabase/</code><span class="file-purpose">trusted server and database boundary</span></div>
+                    <ul>
+                      <li><div class="file-node"><span class="file-kind">ts</span><code>functions/*/index.ts</code><span class="file-purpose">payments, booking submission, email, signed uploads</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">ts</span><code>functions/_shared/*.ts</code><span class="file-purpose">security and pricing helpers shared by functions</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">sql</span><code>migrations/*.sql</code><span class="file-purpose">ordered database and policy history</span></div></li>
+                    </ul>
+                  </li>
+                  <li><div class="file-node"><span class="file-kind">yml</span><code>.github/workflows/*.yml</code><span class="file-purpose">rebuild admin and run payment-health checks</span></div></li>
+                  <li><div class="file-node"><span class="file-kind">md</span><code>docs/ · AGENTS.md</code><span class="file-purpose">product rules, operations, tests, and working instructions</span></div></li>
+                </ul>
+              </li>
+            </ul>
+            <ol class="repo-decisions">
+              <li><b>HTML says what exists; JavaScript says what happens.</b><code>booking.html</code> owns fields and buttons. It loads <code>pricing.js</code>, then <code>validation.js</code>, then <code>booking.js</code> because the main controller depends on the first two.</li>
+              <li><b>Pricing is separated because it is a business rule.</b>A price can change without touching navigation, uploads, or payment UI. The good boundary is undermined by a second admin pricing module that must stay in sync&mdash;a lesson for the rebuild.</li>
+              <li><b>Source and deployment output are different things.</b>Humans edit <code>admin-src/</code>; Vite turns it into <code>admin/</code>. The generated folder is committed only because GitHub Pages serves files without running a build.</li>
+              <li><b>The trust boundary is a directory boundary.</b>Browser files can be inspected and changed by a visitor. Payment keys and authoritative booking logic therefore live under <code>supabase/functions/</code>.</li>
+              <li><b>SQL files explain how the database arrived here.</b>A migration is a repeatable change, not merely a snapshot of today&rsquo;s tables.</li>
+            </ol>
+          </div>
+          <figcaption>The split is directionally right, but <code>booking.js</code> has grown past 4,000 lines. A cleaner rebuild would keep the same responsibilities and divide that controller into state, service-specific steps, API adapters, and submission modules.</figcaption>
+        </figure>
 
         <figure class="diagram">
           <svg viewBox="0 0 720 470" role="img" aria-label="Barkhaus architecture: a public site and a React admin app are both served from GitHub Pages; both talk to one Supabase project holding Postgres with row-level security, auth, storage, realtime, about 13 edge functions and a cron job; edge functions call out to Maya, PayMongo, Resend and Google Analytics using secret keys, and payment providers call back via webhook.">
@@ -357,6 +419,55 @@ if (parseInt(body.total) !== priced.total) {
         <p>A hand-written multi-page static site (17 pages, ~6,800 lines of plain JavaScript, no framework &mdash; a deliberate choice noted in the repo) on <strong>Vercel</strong>. The distinctive part is the backend: MVL <strong>does not have its own Supabase project</strong>. It lives in a dedicated <code>mvl</code> schema <em>inside the Sansayaw project</em> &mdash; and so does Bonado (its own <code>bonado</code> schema). Three of the four products, one Supabase project.</p>
         <p>Every browser write goes through a <code>public.</code> database function (same &ldquo;never trust the browser&rdquo; rule as Barkhaus, taken further) &mdash; waivers, raffle check-ins, score entry, and scoreboard control are all server-side functions. The <code>mvl.*</code> tables are read-only to the public for league content; everything else is closed.</p>
 
+        <h3>Repository map &mdash; a collection of small event tools</h3>
+        <figure class="repo-map">
+          <div class="repo-map__intro"><strong>The important shape:</strong> <code>mvl/</code> is the public site. Each operational screen gets an HTML document and usually a matching controller, while shared navigation, configuration, data loading, and visual rules stay separate.</div>
+          <div class="repo-map__body">
+            <ul class="repo-tree" aria-label="MVL repository structure">
+              <li><div class="file-node file-node--root"><span class="file-kind file-kind--folder">dir</span><code>mvl/</code><span class="file-purpose">project repository</span></div>
+                <ul>
+                  <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>mvl/</code><span class="file-purpose">public web root deployed by Vercel</span></div>
+                    <ul>
+                      <li><div class="file-node"><span class="file-kind">html</span><code>index.html · schedule.html · rules.html</code><span class="file-purpose">public content pages</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">html</span><code>waiver.html · checkin.html · vote.html</code><span class="file-purpose">participant workflows</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">html</span><code>admin.html · scoreboard-*.html</code><span class="file-purpose">staff and livestream tools</span></div></li>
+                      <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>js/</code><span class="file-purpose">browser behavior, divided by responsibility</span></div>
+                        <ul>
+                          <li><div class="file-node"><span class="file-kind">js</span><code>site-config.js · supabase-config.js</code><span class="file-purpose">small environment and event-phase switches</span></div></li>
+                          <li><div class="file-node"><span class="file-kind">js</span><code>league-data.js</code><span class="file-purpose">bundled seed/fallback snapshot</span></div></li>
+                          <li><div class="file-node"><span class="file-kind">js</span><code>public-data.js</code><span class="file-purpose">fetch, normalize, cache, and fall back to the snapshot</span></div></li>
+                          <li><div class="file-node"><span class="file-kind">js</span><code>nav.js · analytics.js · lightbox.js</code><span class="file-purpose">concerns reused across pages</span></div></li>
+                          <li><div class="file-node"><span class="file-kind">js</span><code>waiver.js · vote.js · scoreboard-*.js</code><span class="file-purpose">one controller per interactive screen</span></div></li>
+                        </ul>
+                      </li>
+                      <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>css/</code><span class="file-purpose">shared site styles plus specialized scoreboard layouts</span></div></li>
+                      <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>assets/ · mascot/</code><span class="file-purpose">logos, players, video, prizes, and event graphics</span></div></li>
+                    </ul>
+                  </li>
+                  <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>supabase/</code><span class="file-purpose">database evolution and server-side email</span></div>
+                    <ul>
+                      <li><div class="file-node"><span class="file-kind">sql</span><code>migrations/*.sql · seed.sql</code><span class="file-purpose">schema, server rules, event data, and repeatable setup</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">ts</span><code>functions/send-*/index.ts</code><span class="file-purpose">confirmation emails with secret credentials</span></div></li>
+                    </ul>
+                  </li>
+                  <li><div class="file-node"><span class="file-kind">sql</span><code>backend/schema.sql</code><span class="file-purpose">early consolidated schema reference; migrations are the later history</span></div></li>
+                  <li><div class="file-node"><span class="file-kind">py</span><code>scripts/</code><span class="file-purpose">one-off photo preparation and preview utilities</span></div></li>
+                  <li><div class="file-node"><span class="file-kind">json</span><code>vercel.json</code><span class="file-purpose">hosting routes, redirects, and clean URLs</span></div></li>
+                  <li><div class="file-node"><span class="file-kind">md</span><code>HANDOFF.md · TOURNAMENT_WEBSITE_CHECKLIST.md</code><span class="file-purpose">operations and event-day knowledge</span></div></li>
+                </ul>
+              </li>
+            </ul>
+            <ol class="repo-decisions">
+              <li><b>Separate pages match separate jobs.</b>A waiver form, public scoreboard, and scorekeeper control panel have different users and failure risks. Loading each as its own document keeps a scoreboard change away from registration.</li>
+              <li><b>Pair each interactive page with its controller.</b><code>vote.html</code> supplies the form; <code>vote.js</code> owns its state, validation, and server call. The filename makes the trail discoverable.</li>
+              <li><b>Shared concerns do not belong in every controller.</b>Navigation, analytics, Supabase connection details, and public-data loading are central modules so a change is made once.</li>
+              <li><b>Configuration, data, and behavior are different reasons to edit.</b><code>site-config.js</code> flips the event phase; <code>league-data.js</code> is a fallback snapshot; <code>public-data.js</code> decides how live data is obtained.</li>
+              <li><b>Backend history stays outside the public folder.</b>The browser receives <code>mvl/</code>; SQL migrations and email functions describe trusted systems and deployment work.</li>
+            </ol>
+          </div>
+          <figcaption>This structure fits a temporary multi-page event site. Its pressure point is shared scale: the main stylesheet is roughly 6,700 lines, and the growing page/controller pairs would eventually justify components and a build system if the product became permanent.</figcaption>
+        </figure>
+
         <figure class="diagram">
           <svg viewBox="0 0 720 486" role="img" aria-label="MVL architecture: a multi-page static site on Vercel talks to one Supabase project shared by three products (Sansayaw, MVL, Bonado). MVL is isolated in its own mvl schema. All browser writes go through public database functions. The database uses PostGIS for the geofence; edge functions send email via Resend; the site reports to Google Analytics.">
             <defs>
@@ -581,6 +692,56 @@ inside_radius := st_distance(v_point, v_venue.location)
         <h3>Architecture</h3>
         <p>Three parts in one repository, one job each: a set of <strong>Python scrapers</strong>, a <strong>Next.js website</strong>, and a small <strong>iOS app</strong>. The scrapers run on a schedule and write to Supabase; the website and the app read from it. The seam between the two halves is a single <em>&ldquo;refresh your cache now&rdquo;</em> webhook.</p>
 
+        <h3>Repository map &mdash; pipeline, website, and app</h3>
+        <figure class="repo-map">
+          <div class="repo-map__intro"><strong>Three programs share one repository.</strong> Root-level Python produces clean class data, <code>web/</code> turns it into a server-rendered website, and <code>mobile/</code> turns the same data into a native-wrapped React app.</div>
+          <div class="repo-map__body">
+            <ul class="repo-tree" aria-label="Sansayaw repository structure">
+              <li><div class="file-node file-node--root"><span class="file-kind file-kind--folder">dir</span><code>dance-scraper/</code><span class="file-purpose">Sansayaw&rsquo;s data pipeline and two frontends</span></div>
+                <ul>
+                  <li><div class="file-node"><span class="file-kind">py</span><code>run.py</code><span class="file-purpose">orchestrates one full scrape, database write, and cache refresh</span></div></li>
+                  <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>scrapers/</code><span class="file-purpose">source adapters and shared data rules</span></div>
+                    <ul>
+                      <li><div class="file-node"><span class="file-kind">py</span><code>ember.py · tads.py · studio808.py · …</code><span class="file-purpose">one adapter per studio or booking platform</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">py</span><code>normalize.py · match.py</code><span class="file-purpose">one vocabulary for messy names, genres, and identities</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">py</span><code>db.py</code><span class="file-purpose">all Supabase reads and writes for the pipeline</span></div></li>
+                    </ul>
+                  </li>
+                  <li><div class="file-node"><span class="file-kind">py</span><code>tests/</code><span class="file-purpose">identity and matching rules that must stay deterministic</span></div></li>
+                  <li><div class="file-node"><span class="file-kind">sql</span><code>migration_*.sql</code><span class="file-purpose">database and policy changes from this older migration layout</span></div></li>
+                  <li><div class="file-node"><span class="file-kind">yml</span><code>.github/workflows/scrape.yml</code><span class="file-purpose">daily schedule, runtime setup, timeout, and secrets</span></div></li>
+                  <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>manual_data/ · scripts/</code><span class="file-purpose">curated exceptions and one-off backfills</span></div></li>
+                  <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>web/</code><span class="file-purpose">Next.js website deployed to Vercel</span></div>
+                    <ul>
+                      <li><div class="file-node"><span class="file-kind">js</span><code>app/**/page.js</code><span class="file-purpose">URL routes: home, studio, instructor, privacy, support</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">js</span><code>app/api/*/route.js</code><span class="file-purpose">server endpoints for cache refresh and reel covers</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">jsx</span><code>components/DanceApp.jsx · ReelTile.jsx</code><span class="file-purpose">interactive browser interface</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">js</span><code>lib/data.js · supabase.js · seo.js</code><span class="file-purpose">data access and non-visual website services</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">css</span><code>app/globals.css</code><span class="file-purpose">site-wide visual system</span></div></li>
+                    </ul>
+                  </li>
+                  <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>mobile/</code><span class="file-purpose">React + TypeScript app wrapped by Capacitor</span></div>
+                    <ul>
+                      <li><div class="file-node"><span class="file-kind">tsx</span><code>src/App.tsx · components/*.tsx</code><span class="file-purpose">app shell and reusable screens/cards/sheets</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">ts</span><code>src/hooks/ · lib/ · utils/</code><span class="file-purpose">data loading, native services, and pure transformations</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">ts</span><code>capacitor.config.ts</code><span class="file-purpose">connects the web bundle to the native iOS shell</span></div></li>
+                      <li><div class="file-node"><span class="file-kind file-kind--generated">build</span><code>dist/ · ios/</code><span class="file-purpose">compiled web output and native project</span></div></li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+            <ol class="repo-decisions">
+              <li><b>Separate by program first.</b>The scheduled producer, public website, and installed app run in different places and deploy differently, so each gets a clear top-level home.</li>
+              <li><b>One scraper per unstable outside source.</b>If Ember changes its booking page, <code>ember.py</code> can change without risking every other studio adapter.</li>
+              <li><b>Normalize after extraction.</b>Adapters report what they found; shared <code>normalize.py</code> and <code>match.py</code> decide Sansayaw&rsquo;s consistent spelling and identity rules.</li>
+              <li><b>Routes, components, and libraries answer different questions.</b>A route decides what a URL means, a component decides what users see, and a library decides how data or an external service works.</li>
+              <li><b>Web and mobile deliberately duplicate some UI.</b>They share the database contract, not a component library. That buys platform-specific behavior but means features must sometimes be implemented twice.</li>
+            </ol>
+          </div>
+          <figcaption>The directory boundaries mirror deployment boundaries. The improvement to make next is a real migration folder and a small shared domain package for web/mobile transformations that should never drift.</figcaption>
+        </figure>
+
         <figure class="diagram">
           <svg viewBox="0 0 720 250" role="img" aria-label="Sansayaw daily pipeline: GitHub Actions fires at 6am, running Python scrapers that read about 13 studio sources; they write classes into the sansayaw schema in Supabase using the service-role key; then they POST a revalidate webhook that clears the Next.js site's cache. The site reads Supabase with the anon key, select-only. The iOS app reads the same data directly.">
             <defs>
@@ -767,6 +928,56 @@ revalidateTag('app-data')</code></pre>
 
         <h3>Architecture</h3>
         <p>A <strong>React single-page app</strong> (Vite + TypeScript + Tailwind, also an offline-capable PWA) on Vercel, wrapped for iOS with <strong>Capacitor</strong>. The backend is Supabase, in its own <code>bonado</code> schema. What sets it apart isn&rsquo;t the pieces &mdash; it&rsquo;s the discipline around them: typed code, tested money math, proper migration tooling, error tracking wired in, and nearly every write routed through an all-or-nothing database function.</p>
+
+        <h3>Repository map &mdash; one app, separated by responsibility</h3>
+        <figure class="repo-map">
+          <div class="repo-map__intro"><strong>Unlike Barkhaus and MVL, Bonado has one HTML shell.</strong> React changes the visible screen without loading a new document. Most of the meaningful organization therefore lives inside <code>src/</code>: pages compose journeys, components render reusable pieces, hooks coordinate workflows, and libraries hold non-visual logic.</div>
+          <div class="repo-map__body">
+            <ul class="repo-tree" aria-label="Bonado repository structure">
+              <li><div class="file-node file-node--root"><span class="file-kind file-kind--folder">dir</span><code>bonado/</code><span class="file-purpose">web, PWA, native shells, and backend changes</span></div>
+                <ul>
+                  <li><div class="file-node"><span class="file-kind">html</span><code>index.html</code><span class="file-purpose">single browser document containing React&rsquo;s mount point</span></div></li>
+                  <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>src/</code><span class="file-purpose">editable application source</span></div>
+                    <ul>
+                      <li><div class="file-node"><span class="file-kind">tsx</span><code>main.tsx</code><span class="file-purpose">starts error reporting and mounts React</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">tsx</span><code>App.tsx</code><span class="file-purpose">providers, route table, and lazy-loaded screens</span></div></li>
+                      <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>pages/</code><span class="file-purpose">route-level screens such as Dashboard and AddExpense</span></div></li>
+                      <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>components/</code><span class="file-purpose">reusable UI and native-shell behaviors</span></div></li>
+                      <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>hooks/</code><span class="file-purpose">stateful workflows and data operations such as useCreateExpense</span></div></li>
+                      <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>lib/</code><span class="file-purpose">pure calculations and adapters for Supabase, Places, storage, sharing</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">test</span><code>lib/moneyMath.test.ts</code><span class="file-purpose">executable examples beside the valuable rule</span></div></li>
+                      <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>context/</code><span class="file-purpose">app-wide Auth and Theme state</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">ts</span><code>types/schema.ts</code><span class="file-purpose">typed contract matching the database shape</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">css</span><code>index.css</code><span class="file-purpose">global tokens, utilities, motion, and component styles</span></div></li>
+                    </ul>
+                  </li>
+                  <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>supabase/</code><span class="file-purpose">backend history and secret-using server code</span></div>
+                    <ul>
+                      <li><div class="file-node"><span class="file-kind">sql</span><code>migrations/0001_…0047_*.sql</code><span class="file-purpose">ordered, tool-applied schema, RLS, and function changes</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">ts</span><code>functions/places/index.ts</code><span class="file-purpose">authenticated proxy that hides the Places key</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">ts</span><code>functions/push-dispatch/index.ts</code><span class="file-purpose">trusted push-notification delivery</span></div></li>
+                    </ul>
+                  </li>
+                  <li><div class="file-node"><span class="file-kind file-kind--generated">native</span><code>ios/ · android/</code><span class="file-purpose">Capacitor-generated native projects plus small platform hooks</span></div></li>
+                  <li><div class="file-node"><span class="file-kind file-kind--generated">build</span><code>dist/</code><span class="file-purpose">compiled web/PWA output; regenerated from source</span></div></li>
+                  <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>public/ · assets/ · app store assets/</code><span class="file-purpose">served icons, link-association files, and store screenshots</span></div></li>
+                  <li><div class="file-node"><span class="file-kind">json</span><code>package.json · tsconfig*.json</code><span class="file-purpose">dependencies, commands, and compiler rules</span></div></li>
+                  <li><div class="file-node"><span class="file-kind">ts</span><code>vite.config.ts · capacitor.config.ts</code><span class="file-purpose">web build/PWA settings and native packaging settings</span></div></li>
+                  <li><div class="file-node"><span class="file-kind">yml</span><code>.github/workflows/ci.yml</code><span class="file-purpose">build, type-check, lint, and test every change</span></div></li>
+                </ul>
+              </li>
+            </ul>
+            <ol class="repo-decisions">
+              <li><b>One HTML file is enough for a single-page app.</b>The router in <code>App.tsx</code> changes screens in the browser; route-level <code>pages/</code> replace separate HTML documents.</li>
+              <li><b><code>.tsx</code> is for typed code that renders UI; <code>.ts</code> is for typed code that does not.</b>This is a convention, not a security boundary, but it makes visual and non-visual work easier to locate.</li>
+              <li><b>Pages compose; components repeat; hooks coordinate; libraries calculate.</b><code>AddExpense.tsx</code> owns the screen, <code>useCreateExpense.ts</code> runs the workflow, and <code>moneyMath.ts</code> performs a pure rule that can be tested alone.</li>
+              <li><b>Tests sit beside the rule they protect.</b><code>moneyMath.test.ts</code> is next to <code>moneyMath.ts</code>, so a future editor finds the examples with the implementation.</li>
+              <li><b>Native folders are packaging, not a second product.</b>The source of truth remains the web app. Capacitor syncs that output into iOS and Android projects, where only genuinely platform-specific code should be edited.</li>
+              <li><b>Numbered migrations make change order explicit.</b>A new environment can replay the same database evolution instead of relying on remembered dashboard edits.</li>
+            </ol>
+          </div>
+          <figcaption>Bonado is the clearest reference structure in this portfolio because filenames express roles rather than features alone. The trade-off is navigation cost: a single journey can cross a page, several hooks, library helpers, a typed schema, and a SQL function.</figcaption>
+        </figure>
 
         <figure class="diagram">
           <svg viewBox="0 0 720 426" role="img" aria-label="Bonado architecture: a React single-page app that is also a PWA, on Vercel, and wrapped for iOS with Capacitor; it talks to a Supabase bonado schema with Postgres and row-level security, Auth supporting anonymous, Google and Apple sign-in, two storage buckets, two edge functions, and scheduled jobs; edge functions and the database reach out to Google Places via a proxy, Unsplash, a currency-rate API, and Firebase and Sentry which are dormant.">

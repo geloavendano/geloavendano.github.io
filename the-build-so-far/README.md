@@ -5,10 +5,9 @@ how the systems work, how to read and debug them, what each product teaches,
 and a repeatable way to build the next app with AI without surrendering the
 decisions or the understanding.
 
-View the published copy on
-[claude.ai](https://claude.ai/artifact/Y13NCVN45cwhdAQBNRxD8z), or serve this
-folder locally (`python3 -m http.server`) — the samples use ES modules, which
-browsers won't run from `file://`.
+View the published handbook at
+[geloavendano.github.io/the-build-so-far](https://geloavendano.github.io/the-build-so-far/),
+or serve this folder locally (`python3 -m http.server`).
 
 ## Layout
 
@@ -18,7 +17,7 @@ One page per part; edit the page that owns the section.
 |---|---|
 | `index.html` | Home: masthead, how to read, links to every part |
 | `concepts.html` | I · Concepts |
-| `deep-dives.html` | II · The deep-dives (one section per project) |
+| `deep-dives.html` | II · The deep-dives (repository map, architecture, data, flows, risks, and lessons for each project) |
 | `together.html` | III · Build playbook: defaults, templates, delivery loop, security baseline |
 | `ai.html` | IV · AI-assisted development, with Codex ↔ Claude adapters |
 | `tools.html` | Appendix A · Tools & references: design toolkit and libraries |
@@ -32,7 +31,8 @@ One page per part; edit the page that owns the section.
 
 ## Publishing
 
-The Artifact's main page is `index.html` with its `<!doctype>…<body>` wrapper
-stripped; every other file above is published alongside it under the same path.
+The private source repository remains the working copy. A static snapshot is
+published under `the-build-so-far/` in the public
+`geloavendano/geloavendano.github.io` repository, where GitHub Pages serves it.
 
 Built and maintained with coding agents, reviewed by a human.
