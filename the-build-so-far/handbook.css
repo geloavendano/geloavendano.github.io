@@ -1137,3 +1137,29 @@
     .topbar .parts a .num { display: none; }
     .masthead h1 { letter-spacing: -0.055em; }
   }
+
+  @media (max-width: 760px) {
+    .diagram--scroll {
+      overflow-x: auto;
+      padding: 8px 0;
+      scrollbar-width: thin;
+    }
+    .diagram--scroll::before {
+      content: "Swipe the diagram \2192";
+      position: sticky;
+      left: 0;
+      display: block;
+      width: max-content;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font: 10px var(--font-mono);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    figure.diagram--scroll svg { width: 720px; max-width: none; }
+    .diagram--scroll figcaption {
+      position: sticky;
+      left: 0;
+      width: calc(100vw - 36px);
+    }
+  }

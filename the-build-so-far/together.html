@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap">
-<link rel="stylesheet" href="handbook.css?v=21.0">
+<link rel="stylesheet" href="handbook.css?v=22.0">
 <script src="handbook.js?v=20.3" defer></script>
 </head>
 <body>
@@ -41,6 +41,7 @@
       <a href="#templates">Working templates</a>
       <a href="#day-zero">Day zero</a>
       <a href="#build-loop">Day one to launch</a>
+      <a href="#deployment">Web &amp; mobile deployment</a>
       <a href="#production-readiness">Production readiness</a>
       <a href="#security-baseline">Security baseline</a>
       <a href="#next">What&rsquo;s next</a>
@@ -504,6 +505,12 @@ Name the measurable condition that would make the decision wrong.
 <template data-template-source="templates/release-checklist.md">
 # Release checklist
 
+- **Surface:** [web / iOS / Android / backend]
+- **Source commit:**
+- **Target environment:**
+- **Release identity:** [deployment ID or version + build number]
+- **Artifact:** [host build, archive path, AAB path, migration]
+
 ## Understand
 
 - [ ] I can explain the changed flow from screen to stored result.
@@ -516,6 +523,14 @@ Name the measurable condition that would make the decision wrong.
 - [ ] Money, permissions, and multi-row writes have focused tests.
 - [ ] Failure, retry, empty, and loading states were checked.
 - [ ] Database changes ran in staging first and have a rollback or forward-fix plan.
+- [ ] The artifact was built from the source commit above with the intended production configuration.
+
+## Package and distribute
+
+- [ ] **Web:** preview deployment checked; production domain points to the intended deployment.
+- [ ] **iOS:** current web build synced; version/build incremented; Release tested on device; archive retained; uploaded build processed and tested through TestFlight.
+- [ ] **Android:** current web build synced; version code incremented; signed AAB retained; test track passed.
+- [ ] Store metadata, privacy answers, screenshots, support URL, review notes, and release controls are complete where applicable.
 
 ## Operate
 
@@ -822,6 +837,186 @@ Name the measurable condition that would make the decision wrong.
         </div>
       </section>
 
+      <section id="deployment">
+        <h2>How code becomes a release: web and mobile</h2>
+        <p><strong>Deployment is a chain of transformations, not one upload button.</strong> Source files become a build artifact; an artifact is placed in a delivery system; that system makes a particular version available to users. Web hosts compress those moments until they feel instantaneous. App stores separate them into visible checkpoints because the installed binary must be signed, processed, tested, reviewed, and released.</p>
+
+        <div class="callout">
+          <p><strong>Keep three verbs separate:</strong> <em>build</em> turns source into runnable output; <em>deploy</em> moves that output to infrastructure that can serve it; <em>release</em> decides that users should receive it. A successful build is not proof of a successful deploy, and a successful upload to App Store Connect is not yet an App Store release.</p>
+        </div>
+
+        <figure class="diagram diagram--scroll">
+          <svg viewBox="0 0 720 520" role="img" aria-label="Two deployment paths. Web: source files go through a build into dist, a host creates a deployment, a domain points to it, then the live journey is verified. Capacitor mobile: the same source goes through a web build into dist, Capacitor sync copies it into the iOS native project, Xcode compiles and signs an archive, uploads it to App Store Connect, TestFlight tests it, and App Review precedes release.">
+            <defs>
+              <marker id="ahdeploy" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
+              </marker>
+            </defs>
+            <text class="lbl" x="20" y="27" font-size="11">WEB RELEASE</text>
+            <rect class="box" x="20" y="44" width="122" height="62" rx="10"></rect>
+            <text class="t t--title" x="81" y="69" text-anchor="middle" font-size="12">Source</text><text class="t" x="81" y="88" text-anchor="middle" font-size="10.5" opacity="0.67">src/ + config</text>
+            <path class="edge" d="M142 75 H170" marker-end="url(#ahdeploy)"></path><text class="lbl" x="156" y="64" text-anchor="middle" font-size="8.5">build</text>
+            <rect class="box box--key" x="172" y="44" width="122" height="62" rx="10"></rect>
+            <text class="t t--title" x="233" y="69" text-anchor="middle" font-size="12">Artifact</text><text class="t" x="233" y="88" text-anchor="middle" font-size="10.5" opacity="0.67">dist/ files</text>
+            <path class="edge" d="M294 75 H322" marker-end="url(#ahdeploy)"></path><text class="lbl" x="308" y="64" text-anchor="middle" font-size="8.5">deploy</text>
+            <rect class="box" x="324" y="44" width="122" height="62" rx="10"></rect>
+            <text class="t t--title" x="385" y="69" text-anchor="middle" font-size="12">Host copy</text><text class="t" x="385" y="88" text-anchor="middle" font-size="10.5" opacity="0.67">deployment ID</text>
+            <path class="edge" d="M446 75 H474" marker-end="url(#ahdeploy)"></path><text class="lbl" x="460" y="64" text-anchor="middle" font-size="8.5">release</text>
+            <rect class="box" x="476" y="44" width="122" height="62" rx="10"></rect>
+            <text class="t t--title" x="537" y="69" text-anchor="middle" font-size="12">Domain</text><text class="t" x="537" y="88" text-anchor="middle" font-size="10.5" opacity="0.67">users get it</text>
+            <path class="edge" d="M598 75 H626" marker-end="url(#ahdeploy)"></path>
+            <rect class="box" x="628" y="44" width="72" height="62" rx="10"></rect>
+            <text class="t t--title" x="664" y="70" text-anchor="middle" font-size="11">Verify</text><text class="t" x="664" y="88" text-anchor="middle" font-size="9.5" opacity="0.67">live URL</text>
+            <text class="t" x="20" y="133" font-size="10.5" opacity="0.62">On Vercel, one Git push can trigger build + deploy + domain assignment. They remain separate events in the logs.</text>
+            <line class="edge" x1="20" y1="161" x2="700" y2="161"></line>
+            <text class="lbl" x="20" y="194" font-size="11">CAPACITOR &rarr; iOS RELEASE</text>
+            <rect class="box" x="20" y="212" width="130" height="62" rx="10"></rect>
+            <text class="t t--title" x="85" y="237" text-anchor="middle" font-size="12">Web source</text><text class="t" x="85" y="256" text-anchor="middle" font-size="10.5" opacity="0.67">src/</text>
+            <path class="edge" d="M150 243 H180" marker-end="url(#ahdeploy)"></path><text class="lbl" x="165" y="232" text-anchor="middle" font-size="8.5">Vite</text>
+            <rect class="box" x="182" y="212" width="130" height="62" rx="10"></rect>
+            <text class="t t--title" x="247" y="237" text-anchor="middle" font-size="12">Web artifact</text><text class="t" x="247" y="256" text-anchor="middle" font-size="10.5" opacity="0.67">dist/</text>
+            <path class="edge" d="M312 243 H342" marker-end="url(#ahdeploy)"></path><text class="lbl" x="327" y="232" text-anchor="middle" font-size="8.5">cap sync</text>
+            <rect class="box box--key" x="344" y="212" width="160" height="62" rx="10"></rect>
+            <text class="t t--title" x="424" y="237" text-anchor="middle" font-size="12">Native project</text><text class="t" x="424" y="256" text-anchor="middle" font-size="10.5" opacity="0.67">ios/App/App/public/</text>
+            <path class="edge" d="M504 243 H534" marker-end="url(#ahdeploy)"></path><text class="lbl" x="519" y="232" text-anchor="middle" font-size="8.5">Xcode</text>
+            <rect class="box" x="536" y="212" width="164" height="62" rx="10"></rect>
+            <text class="t t--title" x="618" y="237" text-anchor="middle" font-size="12">.xcarchive</text><text class="t" x="618" y="256" text-anchor="middle" font-size="10.5" opacity="0.67">app + signing + symbols</text>
+            <path class="edge" d="M618 274 V310" marker-end="url(#ahdeploy)"></path>
+            <rect class="box" x="536" y="312" width="164" height="62" rx="10"></rect>
+            <text class="t t--title" x="618" y="337" text-anchor="middle" font-size="12">App Store Connect</text><text class="t" x="618" y="356" text-anchor="middle" font-size="10.5" opacity="0.67">uploaded + processed</text>
+            <path class="edge" d="M536 343 H506" marker-end="url(#ahdeploy)"></path>
+            <rect class="box" x="344" y="312" width="160" height="62" rx="10"></rect>
+            <text class="t t--title" x="424" y="337" text-anchor="middle" font-size="12">TestFlight</text><text class="t" x="424" y="356" text-anchor="middle" font-size="10.5" opacity="0.67">the chosen build</text>
+            <path class="edge" d="M344 343 H314" marker-end="url(#ahdeploy)"></path>
+            <rect class="box" x="182" y="312" width="130" height="62" rx="10"></rect>
+            <text class="t t--title" x="247" y="337" text-anchor="middle" font-size="12">App Review</text><text class="t" x="247" y="356" text-anchor="middle" font-size="10.5" opacity="0.67">policy + metadata</text>
+            <path class="edge" d="M182 343 H152" marker-end="url(#ahdeploy)"></path>
+            <rect class="box" x="20" y="312" width="130" height="62" rx="10"></rect>
+            <text class="t t--title" x="85" y="337" text-anchor="middle" font-size="12">App Store</text><text class="t" x="85" y="356" text-anchor="middle" font-size="10.5" opacity="0.67">users receive it</text>
+            <rect class="box" x="20" y="412" width="680" height="74" rx="10"></rect>
+            <text class="t t--title" x="40" y="437" font-size="11.5">The key difference</text>
+            <text class="t" x="40" y="457" font-size="10.5" opacity="0.74">A web domain can point to a new immutable deployment in seconds. An installed app stays on the old binary until the store</text>
+            <text class="t" x="40" y="474" font-size="10.5" opacity="0.74">approves and distributes an update and the user receives it. The backend may change on a third, independent schedule.</text>
+          </svg>
+          <figcaption>One codebase can have three live versions at once: the newest web deployment, an older binary in TestFlight, and an even older binary installed from the App Store. Backward-compatible APIs and database changes let those versions coexist.</figcaption>
+        </figure>
+
+        <h3>The web path: source &rarr; artifact &rarr; deployment &rarr; release</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Moment</th><th>What happens</th><th>Where the result lives</th><th>Proof</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Source</td><td>You edit HTML/CSS/JavaScript directly, or React/TypeScript that browsers cannot use as-is.</td><td>The Git working tree and then a commit.</td><td>The reviewed commit SHA.</td></tr>
+              <tr><td class="grp">Build</td><td>A compiler/bundler checks and transforms source into browser files. In a Vite app, <code>npm run build</code> normally writes hashed HTML, CSS, JavaScript, and assets.</td><td>Locally in <code>dist/</code>; in hosted CI, in the build runner&rsquo;s temporary filesystem.</td><td>The command exits successfully and <code>npm run preview</code> serves the exact output.</td></tr>
+              <tr><td class="grp">Deploy</td><td>The host stores that artifact as an immutable deployment, gives it an ID and preview URL, and records logs and configuration.</td><td>On Vercel/GitHub Pages infrastructure, not inside the project folder.</td><td>Deployment ID, commit, build log, and preview URL agree.</td></tr>
+              <tr><td class="grp">Release</td><td>The production domain is assigned to that deployment. This can happen automatically from <code>main</code> or through an explicit promotion.</td><td>The domain is a pointer; it does not contain the files itself.</td><td>The custom domain serves the expected commit and environment.</td></tr>
+              <tr><td class="grp">Verify</td><td>Exercise the real user journey, then inspect errors, logs, product events, and uptime.</td><td>Production.</td><td>A live smoke test, not a green deploy badge alone.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p><strong>In this portfolio:</strong> MVL&rsquo;s plain files need no compile step; Vercel stores and serves them. Bonado&rsquo;s React source is built by Vite into <code>dist/</code>, which Vercel deploys. Barkhaus serves its public files directly, but its React admin must first be built into <code>admin/</code>&mdash;the fragile part is that generated output is committed instead of being built by the deployment system. Vite&rsquo;s guide confirms that <code>dist/</code> is the default deployable output; Vercel documents each Git push as a distinct preview or production deployment.</p>
+
+        <h3>The Capacitor bridge: why both web files and an Xcode project exist</h3>
+        <p>Bonado is not rewritten from React into Swift. <strong>Capacitor packages the built web app inside a normal native container.</strong> The iPhone runs a native app whose main view hosts a WebView; plugins form controlled bridges from JavaScript to native capabilities such as push notifications, the share sheet, or haptics.</p>
+        <ol class="checklist">
+          <li><b><code>npm run build</code> creates the web artifact.</b><p class="q">TypeScript and Vite turn <code>src/</code> into <code>dist/</code>. The browser-readable output contains bundled JavaScript, CSS, icons, and <code>index.html</code>.</p><p class="decides"><code>capacitor.config.ts</code> says <code>webDir: 'dist'</code>, so Capacitor knows which folder is the payload</p></li>
+          <li><b><code>npx cap sync</code> copies and reconciles.</b><p class="q">It copies the current <code>dist/</code> files into <code>ios/App/App/public/</code> and updates native package dependencies. That <code>public/</code> folder is generated: edit <code>src/</code>, rebuild, and sync again instead of editing copied bundles.</p><p class="decides">the native shell now contains a snapshot of the web build; changing the website does not magically change an installed binary</p></li>
+          <li><b><code>npx cap open ios</code> opens the native project.</b><p class="q">Xcode reads the project definition, native Swift files, assets, entitlements, dependencies, signing identity, and the copied web payload.</p><p class="decides">from this point, Xcode&mdash;not Vite&mdash;owns compilation, signing, device installation, archives, validation, and upload</p></li>
+        </ol>
+
+        <h3>What the files under <code>bonado/ios/</code> mean</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Local path</th><th>Responsibility</th><th>Edit or generated?</th></tr></thead>
+            <tbody>
+              <tr><td class="grp"><code>ios/App/App.xcodeproj/</code></td><td>The Xcode project package. Its <code>project.pbxproj</code> records targets, files, build phases, settings, and references. Open the package in Xcode rather than hand-editing that dense file.</td><td>Tracked configuration, mostly edited through Xcode.</td></tr>
+              <tr><td class="grp"><code>ios/App/App/Info.plist</code></td><td>Runtime metadata and declarations: display behavior, supported configuration, permission descriptions, and values consumed by the app bundle.</td><td>Tracked; edit deliberately.</td></tr>
+              <tr><td class="grp"><code>ios/App/App/App.entitlements</code></td><td>Signed capabilities the app may request, such as associated domains or push-notification environment. Xcode combines this with the provisioning profile.</td><td>Tracked; usually changed through Signing &amp; Capabilities.</td></tr>
+              <tr><td class="grp"><code>AppDelegate.swift</code><br><code>MainViewController.swift</code></td><td>The native entry and view-controller hooks around Capacitor. This is where genuinely iOS-specific lifecycle or bridge behavior belongs.</td><td>Tracked native source.</td></tr>
+              <tr><td class="grp"><code>Assets.xcassets/</code><br><code>Base.lproj/</code></td><td>Compiled app icons, splash assets, launch screen, and the storyboard that hosts the Capacitor view.</td><td>Tracked resources.</td></tr>
+              <tr><td class="grp"><code>ios/App/App/public/</code></td><td>The copied Vite artifact that the WebView loads. Filenames are hashed because they are build output.</td><td><strong>Generated by <code>cap sync</code>.</strong> Never the source of truth.</td></tr>
+              <tr><td class="grp"><code>CapApp-SPM/</code><br><code>Package.resolved</code></td><td>Swift Package Manager wiring and the exact resolved native dependency versions for Capacitor and plugins.</td><td>Configuration/resolution files; update through Capacitor/Xcode tooling.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>What Xcode actually does</h3>
+        <p>Xcode is an editor, build orchestrator, device/simulator runner, debugger, code-signing client, archive manager, validator, and App Store uploader. When you press Run or Archive it does not merely &ldquo;convert the folder into an app.&rdquo; It evaluates a <strong>scheme</strong> (what targets and actions to run), a <strong>configuration</strong> (usually Debug or Release), and a <strong>destination</strong> (simulator, device, or distributable platform), then executes the target&rsquo;s build phases.</p>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Xcode step</th><th>What it contributes</th><th>If it fails, investigate</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Resolve</td><td>Loads the project and exact Swift packages; decides which targets, plugins, frameworks, widget extensions, and resources belong in the product.</td><td>Package versions, target membership, scheme.</td></tr>
+              <tr><td class="grp">Compile &amp; link</td><td>Compiles Swift/native code and links it with Apple frameworks, Capacitor, plugins, and extensions into executable machine code.</td><td>Compiler error, incompatible dependency, deployment target.</td></tr>
+              <tr><td class="grp">Assemble</td><td>Creates an <code>.app</code> bundle containing the executable, <code>Info.plist</code>, native frameworks, compiled assets, extensions, and Bonado&rsquo;s copied <code>public/</code> web files.</td><td>Copy Bundle Resources, duplicate assets, missing files.</td></tr>
+              <tr><td class="grp">Sign</td><td>Uses your developer team, certificate, provisioning profile, bundle ID, and entitlements to identify who built the app and what it may do.</td><td>Signing team, certificate, capability, profile, bundle ID.</td></tr>
+              <tr><td class="grp">Symbolicate</td><td>Keeps <code>dSYM</code> debugging-symbol files so a production crash&rsquo;s memory addresses can be translated back into useful function and line names.</td><td>Missing symbols or release mismatch.</td></tr>
+              <tr><td class="grp">Validate &amp; upload</td><td>Checks the archive&rsquo;s identity and packaging, applies distribution rules, uploads the binary and symbols, then shows delivery progress.</td><td>Version/build number, store record, signing, privacy/entitlement declarations.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Run, Build, Archive, Export, Upload: they are not synonyms</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Action / artifact</th><th>Purpose</th><th>Where it lives</th><th>Can users get it?</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Run / Debug build<br><code>.app</code></td><td>Fast development build for one simulator or connected device, with debugging support.</td><td>Normally under <code>~/Library/Developer/Xcode/DerivedData/&hellip;/Build/Products/</code>. It is disposable cache and can be rebuilt.</td><td>Only through development installation, not the App Store.</td></tr>
+              <tr><td class="grp">Archive<br><code>.xcarchive</code></td><td>A durable distribution candidate: the built app plus metadata and debugging symbols, kept together so the exact candidate can later be validated, exported, or uploaded.</td><td><code>~/Library/Developer/Xcode/Archives/YYYY-MM-DD/&hellip;.xcarchive</code>, managed in Window &rarr; Organizer &rarr; Archives. Control-click and choose Show in Finder to locate the exact one.</td><td>No. It is Xcode&rsquo;s source package for distribution.</td></tr>
+              <tr><td class="grp">Exported package<br><code>.ipa</code></td><td>A signed iOS application package exported from an archive for an allowed external distribution method or automation workflow.</td><td>The folder you choose during Export.</td><td>Only through the distribution method it was signed for. Uploading directly from Xcode does not require a separate <code>.ipa</code>.</td></tr>
+              <tr><td class="grp">Uploaded build</td><td>The binary Apple received, processed, associated with the app record, and made selectable for TestFlight or an App Store version.</td><td>App Store Connect; Apple&rsquo;s remote copy is not a file in your project folder.</td><td>Testers after TestFlight setup; customers only after review and release.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout">
+          <p><strong>What &ldquo;Archive before sending to App Store Connect&rdquo; means:</strong> create and preserve one exact Release candidate before distribution changes or uploads it. The archive answers: Which compiled app? Which bundle ID, version and build number? Which entitlements and frameworks? Which signing identity? Which debugging symbols belong to its crashes? <strong>Archive is the checkpoint; Distribute App is the handoff.</strong></p>
+        </div>
+
+        <p>Your Mac already demonstrates this distinction. Xcode&rsquo;s temporary products are under <code>~/Library/Developer/Xcode/DerivedData/</code>, while preserved distribution candidates are under <code>~/Library/Developer/Xcode/Archives/</code>. One inspected archive contains <code>Products/Applications/App.app</code>, its embedded provisioning profile and frameworks, plus a separate <code>dSYMs/</code> directory. Finder treats <code>.xcarchive</code> as one package, but it is a directory of related evidence.</p>
+
+        <h3>The iOS release sequence, in plain language</h3>
+        <ol class="checklist">
+          <li><b>Freeze the source.</b><p class="q">Start from a known Git commit. Run tests, lint, type checking, and <code>npm run build</code>. Confirm production configuration contains no secrets in browser files.</p><p class="decides">you can connect the store build back to reviewed source</p></li>
+          <li><b>Sync the correct web artifact.</b><p class="q">From Bonado, <code>npm run cap:ios</code> runs the project&rsquo;s build-and-sync workflow, copies <code>dist/</code> into the native project, resolves native dependencies, and opens Xcode.</p><p class="decides">the native shell contains today&rsquo;s web build, not a stale earlier copy</p></li>
+          <li><b>Set release identity.</b><p class="q">In Xcode verify the App target, developer team, bundle ID, capabilities, marketing version, and build number. The marketing version is what users see; the build number distinguishes uploads of that version and must advance for another upload.</p><p class="decides">App Store Connect associates the binary with the correct app and version</p></li>
+          <li><b>Test the Release candidate.</b><p class="q">Run on a real device and exercise sign-in, deep links, push permission, share flows, offline/reconnect behavior, safe-area layout, and production APIs.</p><p class="decides">a simulator-successful web view is not accepted as device evidence</p></li>
+          <li><b>Choose Product &rarr; Archive.</b><p class="q">With the app scheme and a distribution-capable destination selected, Xcode performs a Release build and stores the resulting <code>.xcarchive</code> in Organizer.</p><p class="decides">creates the exact candidate and its debugging evidence</p></li>
+          <li><b>Validate, then Distribute App.</b><p class="q">From Organizer, Validate App catches a limited set of packaging/signing problems. Then choose the TestFlight &amp; App Store distribution method and upload.</p><p class="decides">Xcode packages and hands the selected archive to Apple</p></li>
+          <li><b>Wait for processing; do not confuse upload with availability.</b><p class="q">App Store Connect analyzes the build before it appears. Resolve export-compliance or other required questions, then assign the processed build to an internal or external TestFlight group.</p><p class="decides">turns an uploaded binary into a testable build</p></li>
+          <li><b>Choose the tested build for the store version.</b><p class="q">Complete screenshots, privacy details, description, support/privacy URLs, age rating, review notes, and release settings. Select one uploaded build, submit that version to App Review, and release only after approval.</p><p class="decides">metadata + reviewed binary + release decision become the customer-facing App Store version</p></li>
+          <li><b>Verify the distributed app.</b><p class="q">Install from TestFlight or the App Store rather than Xcode. Repeat the critical journey and confirm crash symbols, analytics release, backend compatibility, and support links.</p><p class="decides">proves the artifact users received, not merely the local build</p></li>
+        </ol>
+
+        <h3>Android is the same idea with different machinery</h3>
+        <p>The shared beginning is identical: <code>src/</code> &rarr; <code>dist/</code> &rarr; <code>npx cap sync android</code>. Then Android Studio and Gradle replace Xcode: they compile the native project, assemble resources, and sign a release artifact. For Google Play the normal upload artifact is an <strong>Android App Bundle</strong> (<code>.aab</code>), usually generated under <code>android/app/build/outputs/bundle/release/</code>; a signed <code>.apk</code> is directly installable but is not the same thing as the Play Store&rsquo;s preferred bundle. Upload the signed bundle to Play Console, promote it through an internal/closed/open test track, then release it to production. Protect the upload key and increase <code>versionCode</code> for each release.</p>
+
+        <h3>Common traps</h3>
+        <ul class="findings">
+          <li><b>&ldquo;I pushed it, so it is live.&rdquo;</b>A push is only a trigger. Check the deployment/build status, which commit it used, the production assignment, and the live journey.</li>
+          <li><b>&ldquo;The web app changed, so the iPhone app changed.&rdquo;</b>Not for a normal Capacitor release. Build, sync, archive, upload, and distribute a new binary. A remote backend or remotely fetched content may change independently, but the packaged web bundle does not.</li>
+          <li><b>&ldquo;The archive is the <code>.ipa</code>.&rdquo;</b>The <code>.xcarchive</code> is the preserved candidate and evidence bundle. An <code>.ipa</code> is one possible distribution export made from it.</li>
+          <li><b>&ldquo;App Store Connect builds the app.&rdquo;</b>In this workflow Xcode builds and uploads it; App Store Connect processes, tests/distributes through TestFlight, associates metadata, accepts it for review, and controls release.</li>
+          <li><b>&ldquo;Delete every generated folder.&rdquo;</b><code>dist/</code>, <code>ios/App/App/public/</code>, and DerivedData can be regenerated. An archive should be retained for a shipped candidate because its dSYMs and exact identity help investigate production crashes.</li>
+          <li><b>&ldquo;One rollback fixes everything.&rdquo;</b>Web hosts can repoint a domain quickly. App binaries already installed cannot be remotely rolled back, and database migrations may be irreversible. Prefer backward-compatible server changes and feature flags.</li>
+        </ul>
+
+        <div class="guided-lab">
+          <span class="level-tag">Hands-on &middot; no upload required</span>
+          <h3>Trace one release artifact on your Mac</h3>
+          <ol class="exercise-step">
+            <li><strong>Source:</strong> in Bonado, identify the Git commit, <code>src/</code>, <code>package.json</code> build command, and <code>capacitor.config.ts</code> <code>webDir</code>.</li>
+            <li><strong>Web artifact:</strong> run <code>npm run build</code>, open <code>dist/</code>, and find the hashed JavaScript/CSS produced from a source file you recognize.</li>
+            <li><strong>Native copy:</strong> run <code>npx cap sync ios</code>, then compare <code>dist/</code> with <code>ios/App/App/public/</code>. Explain why editing the second folder would be temporary.</li>
+            <li><strong>Project:</strong> open Xcode and find the bundle identifier, marketing version, build number, signing team, entitlements, app icons, Swift entry files, and package dependencies.</li>
+            <li><strong>Archive:</strong> open Window &rarr; Organizer &rarr; Archives. Pick an existing archive, Control-click &rarr; Show in Finder, then inspect Package Contents. Locate <code>Products/Applications/*.app</code>, <code>dSYMs/</code>, and <code>Info.plist</code>.</li>
+            <li><strong>Teach back:</strong> without using brand names, explain the five transformations from editable source to an installed customer binary and name the evidence kept at each boundary.</li>
+          </ol>
+        </div>
+
+        <p><strong>Primary references:</strong> <a href="https://vite.dev/guide/static-deploy.html">Vite: deploying a static site</a>; <a href="https://vercel.com/docs/git">Vercel Git deployments</a>; <a href="https://capacitorjs.com/docs/basics/workflow">Capacitor development workflow</a>; <a href="https://developer.apple.com/documentation/Xcode/distributing-your-app-for-beta-testing-and-releases">Apple: distribute for beta testing and releases</a>; <a href="https://developer.apple.com/help/app-store-connect/manage-builds/upload-builds">App Store Connect: upload builds</a>; <a href="https://developer.apple.com/help/app-store-connect/test-a-beta-version/testflight-overview/">TestFlight overview</a>; and <a href="https://developer.android.com/studio/publish/preparing">Android: prepare an app for release</a>. These explain the platform rules; the paths and commands above are verified against the Bonado repository and this Mac.</p>
+      </section>
+
       <section id="production-readiness">
         <h2>Production readiness: prove the app can be operated</h2>
         <p>A release checklist asks whether one change is safe to ship. Production readiness asks whether the <em>whole product</em> can survive real users, real data, dependency failures, and an incident. Complete it before first launch, then repeat the relevant parts before a major event, payment launch, migration, or expected traffic spike.</p>
@@ -959,7 +1154,7 @@ Name the measurable condition that would make the decision wrong.
     <a class="next" href="ai.html"><small>Next</small>Part IV &middot; AI development</a>
   </nav>
 
-  <footer>The Build So Far &middot; v21 &middot; 19 Sep 2026 &middot; <a href="index.html">all parts</a></footer>
+  <footer>The Build So Far &middot; v22 &middot; 23 Sep 2026 &middot; <a href="index.html">all parts</a></footer>
 </div>
 </body>
 </html>

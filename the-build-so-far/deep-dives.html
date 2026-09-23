@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap">
-<link rel="stylesheet" href="handbook.css?v=21.0">
+<link rel="stylesheet" href="handbook.css?v=22.0">
 <script src="handbook.js?v=20.3" defer></script>
 </head>
 <body>
@@ -979,6 +979,8 @@ revalidateTag('app-data')</code></pre>
           <figcaption>Bonado is the clearest reference structure in this portfolio because filenames express roles rather than features alone. The trade-off is navigation cost: a single journey can cross a page, several hooks, library helpers, a typed schema, and a SQL function.</figcaption>
         </figure>
 
+        <div class="callout"><p><strong>Follow the generated folders into a real release:</strong> the <a href="together.html#deployment">web and mobile deployment lesson</a> traces Bonado from <code>src/</code> to <code>dist/</code>, through <code>cap sync</code> into <code>ios/App/App/public/</code>, then through Xcode Archive, App Store Connect, TestFlight, review, and release.</p></div>
+
         <figure class="diagram">
           <svg viewBox="0 0 720 426" role="img" aria-label="Bonado architecture: a React single-page app that is also a PWA, on Vercel, and wrapped for iOS with Capacitor; it talks to a Supabase bonado schema with Postgres and row-level security, Auth supporting anonymous, Google and Apple sign-in, two storage buckets, two edge functions, and scheduled jobs; edge functions and the database reach out to Google Places via a proxy, Unsplash, a currency-rate API, and Firebase and Sentry which are dormant.">
             <defs>
@@ -1207,7 +1209,7 @@ p_entry_id: claimEntryId()</code></pre>
     <a class="next" href="together.html"><small>Next</small>Part III &middot; Build playbook</a>
   </nav>
 
-  <footer>The Build So Far &middot; v21 &middot; 19 Sep 2026 &middot; <a href="index.html">all parts</a></footer>
+  <footer>The Build So Far &middot; v22 &middot; 23 Sep 2026 &middot; <a href="index.html">all parts</a></footer>
 </div>
 </body>
 </html>
