@@ -39,6 +39,7 @@
       <a href="#barkhaus">A &nbsp;Barkhaus</a>
       <a href="#mvl">B &nbsp;MVL 2026</a>
       <a href="#sansayaw">C &nbsp;Sansayaw</a>
+      <a href="#lab-sansayaw-sharing">Class sharing lab</a>
       <a href="#bonado">D &nbsp;Bonado</a>
     </nav>
 
@@ -715,14 +716,14 @@ inside_radius := st_distance(v_point, v_venue.location)
                     <ul>
                       <li><div class="file-node"><span class="file-kind">js</span><code>app/**/page.js</code><span class="file-purpose">URL routes: home, studio, instructor, privacy, support</span></div></li>
                       <li><div class="file-node"><span class="file-kind">js</span><code>app/api/*/route.js</code><span class="file-purpose">server endpoints for cache refresh and reel covers</span></div></li>
-                      <li><div class="file-node"><span class="file-kind">jsx</span><code>components/DanceApp.jsx · ReelTile.jsx</code><span class="file-purpose">interactive browser interface</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">jsx</span><code>components/DanceApp.jsx · ReelTile.jsx</code><span class="file-purpose">interactive browser interface, class details, and browser sharing</span></div></li>
                       <li><div class="file-node"><span class="file-kind">js</span><code>lib/data.js · supabase.js · seo.js</code><span class="file-purpose">data access and non-visual website services</span></div></li>
                       <li><div class="file-node"><span class="file-kind">css</span><code>app/globals.css</code><span class="file-purpose">site-wide visual system</span></div></li>
                     </ul>
                   </li>
                   <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>mobile/</code><span class="file-purpose">React + TypeScript app wrapped by Capacitor</span></div>
                     <ul>
-                      <li><div class="file-node"><span class="file-kind">tsx</span><code>src/App.tsx · components/*.tsx</code><span class="file-purpose">app shell and reusable screens/cards/sheets</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">tsx</span><code>src/App.tsx · src/components/*.tsx</code><span class="file-purpose">app shell and reusable screens/cards/sheets; ClassDetailSheet.tsx owns native class sharing</span></div></li>
                       <li><div class="file-node"><span class="file-kind">ts</span><code>src/hooks/ · lib/ · utils/</code><span class="file-purpose">data loading, native services, and pure transformations</span></div></li>
                       <li><div class="file-node"><span class="file-kind">ts</span><code>capacitor.config.ts</code><span class="file-purpose">connects the web bundle to the native iOS shell</span></div></li>
                       <li><div class="file-node"><span class="file-kind file-kind--generated">build</span><code>dist/ · ios/</code><span class="file-purpose">compiled web output and native project</span></div></li>
@@ -896,6 +897,30 @@ revalidateTag('app-data')</code></pre>
           <div class="exercise-step"><b>Break</b><p>Use an invalid revalidation secret locally and confirm the endpoint returns 401 without changing cached data.</p></div>
           <div class="exercise-step"><b>Verify</b><p>The matcher test passes, an ambiguous name stays unresolved, and the revalidation route accepts only the correct secret.</p></div>
           <div class="exercise-step"><b>Explain</b><p>Why is &ldquo;leave it unlinked&rdquo; a feature rather than a failure?</p></div>
+        </div>
+
+        <div class="guided-lab" id="lab-sansayaw-sharing">
+          <h3>Feature X-ray &middot; Class sharing across web and native</h3>
+          <p><strong>Learning objective:</strong> separate the content being shared, the platform that sends it, and the URL a recipient can actually open. <a href="https://github.com/geloavendano/sansayaw/commit/e02bb6e">Commit <code>e02bb6e</code></a>, merged on 25 Sep 2026, adds a class-share button to both frontends. This is committed behavior; the merge alone does not establish an installed iOS release.</p>
+          <div class="source-trail"><strong>Source trail</strong><br>
+            Web: <code>web/components/DanceApp.jsx</code> &rarr; <code>shareClass</code> &rarr; <code>shareOrCopy</code><br>
+            Native: <code>mobile/src/components/ClassDetailSheet.tsx</code> &rarr; <code>Share.share</code><br>
+            Recipient: <code>web/app/studios/[id]/page.js</code> &rarr; the studio&rsquo;s upcoming schedule
+          </div>
+          <p>Both buttons assemble a title, class/instructor/date/time text, and a studio URL. The web handler reuses the existing browser helper; mobile calls the Capacitor plugin directly. The payload construction is duplicated, so wording and URL rules can drift even when both screens read the same database.</p>
+          <div class="table-scroll"><table>
+            <thead><tr><th>Path</th><th>What the committed code does</th><th>What to verify</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Web Share available</td><td>Calls <code>navigator.share(data)</code> from the button. Any rejection returns immediately.</td><td>Cancellation should be quiet; a genuine API failure is also swallowed by this broad catch.</td></tr>
+              <tr><td class="grp">Web Share absent</td><td>Copies <code>data.url || data.text</code> and shows an alert after success.</td><td>For classes, this copies only the studio URL. Clipboard rejection is silent; it is not a fallback after a failed share call.</td></tr>
+              <tr><td class="grp">Native app</td><td>Records <code>class_shared</code>, then calls <code>Share.share({ title, text, url })</code>; rejection is ignored.</td><td>The event measures an attempt, including cancellation or failure, not confirmed delivery.</td></tr>
+            </tbody>
+          </table></div>
+          <p><strong>A link is a product contract.</strong> There is no canonical class URL in this change. Recipients land on <code>/studios/{id}</code>, not an automatically reopened class sheet; past classes disappear from that page&rsquo;s upcoming-only list. Web builds the URL from the current origin, so a preview can produce a preview link. Native uses the public domain. Missing studio information falls back to the home page.</p>
+          <p><strong>Platform boundary:</strong> Web Share requires a secure context and transient user activation, such as a click. Keep it attached to that user action. See the <a href="https://www.w3.org/TR/web-share/">W3C Web Share specification</a> and the <a href="https://github.com/ionic-team/capacitor-plugins/tree/main/share">official Capacitor Share documentation</a> for the browser contract and native bridge.</p>
+          <div class="exercise-step"><b>Predict</b><p>What survives when Web Share is unavailable: the full invitation or just its URL? What does the recipient see a week later?</p></div>
+          <div class="exercise-step"><b>Verify</b><p>In a disposable local test, cover share success, cancellation, another rejection, API absence, and clipboard denial. Compare web/native payloads with missing instructors or studio data. Open the resulting URL without app state, and exercise the native sheet on a device.</p></div>
+          <div class="exercise-step"><b>Carry forward</b><p>Share one pure payload builder where practical, keep platform adapters separate, distinguish attempts from outcomes, and decide the destination and expiry behavior before promising a deep link. These are improvements to make next, not claims about the current implementation.</p></div>
         </div>
 
         <h3>Risks &amp; gotchas</h3>
@@ -1209,7 +1234,7 @@ p_entry_id: claimEntryId()</code></pre>
     <a class="next" href="together.html"><small>Next</small>Part III &middot; Build playbook</a>
   </nav>
 
-  <footer>The Build So Far &middot; v22 &middot; 23 Sep 2026 &middot; <a href="index.html">all parts</a></footer>
+  <footer>The Build So Far &middot; v23 &middot; 26 Sep 2026 &middot; <a href="index.html">all parts</a></footer>
 </div>
 </body>
 </html>
