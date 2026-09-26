@@ -641,6 +641,7 @@
   }
   .learning-outcome h3,
   .guided-lab > h3 { color: var(--accent); margin-top: 0; }
+  .guided-lab :not(pre) > code { overflow-wrap: anywhere; }
   .learning-outcome ul,
   .guided-lab ul,
   .guided-lab ol { margin-bottom: 0; }

@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap">
-<link rel="stylesheet" href="handbook.css?v=22.0">
+<link rel="stylesheet" href="handbook.css?v=24.0">
 <script src="handbook.js?v=20.3" defer></script>
 </head>
 <body>
@@ -991,6 +991,8 @@ Name the measurable condition that would make the decision wrong.
         <h3>Android is the same idea with different machinery</h3>
         <p>The shared beginning is identical: <code>src/</code> &rarr; <code>dist/</code> &rarr; <code>npx cap sync android</code>. Then Android Studio and Gradle replace Xcode: they compile the native project, assemble resources, and sign a release artifact. For Google Play the normal upload artifact is an <strong>Android App Bundle</strong> (<code>.aab</code>), usually generated under <code>android/app/build/outputs/bundle/release/</code>; a signed <code>.apk</code> is directly installable but is not the same thing as the Play Store&rsquo;s preferred bundle. Upload the signed bundle to Play Console, promote it through an internal/closed/open test track, then release it to production. Protect the upload key and increase <code>versionCode</code> for each release.</p>
 
+        <p><strong>Release regression to carry forward:</strong> Sansayaw&rsquo;s <a href="deep-dives.html#lab-sansayaw-native">native release lesson</a> traces a QR-image Save to Photos crash to a missing purpose string, and a Calendar redirect to its outbound adapter. Exercise system menus, permission denial, and account handoffs in the packaged app, alongside the visible buttons.</p>
+
         <h3>Common traps</h3>
         <ul class="findings">
           <li><b>&ldquo;I pushed it, so it is live.&rdquo;</b>A push is only a trigger. Check the deployment/build status, which commit it used, the production assignment, and the live journey.</li>
@@ -1154,7 +1156,7 @@ Name the measurable condition that would make the decision wrong.
     <a class="next" href="ai.html"><small>Next</small>Part IV &middot; AI development</a>
   </nav>
 
-  <footer>The Build So Far &middot; v23 &middot; 26 Sep 2026 &middot; <a href="index.html">all parts</a></footer>
+  <footer>The Build So Far &middot; v24 &middot; 27 Sep 2026 &middot; <a href="index.html">all parts</a></footer>
 </div>
 </body>
 </html>

@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap">
-<link rel="stylesheet" href="handbook.css?v=22.0">
+<link rel="stylesheet" href="handbook.css?v=24.0">
 <script src="handbook.js?v=20.3" defer></script>
 </head>
 <body>
@@ -40,6 +40,8 @@
       <a href="#mvl">B &nbsp;MVL 2026</a>
       <a href="#sansayaw">C &nbsp;Sansayaw</a>
       <a href="#lab-sansayaw-sharing">Class sharing lab</a>
+      <a href="#lab-sansayaw-native">Native release lessons</a>
+      <a href="#lab-sansayaw-discovery">URLs &amp; history lab</a>
       <a href="#bonado">D &nbsp;Bonado</a>
     </nav>
 
@@ -698,9 +700,10 @@ inside_radius := st_distance(v_point, v_venue.location)
           <div class="repo-map__intro"><strong>Three programs share one repository.</strong> Root-level Python produces clean class data, <code>web/</code> turns it into a server-rendered website, and <code>mobile/</code> turns the same data into a native-wrapped React app.</div>
           <div class="repo-map__body">
             <ul class="repo-tree" aria-label="Sansayaw repository structure">
-              <li><div class="file-node file-node--root"><span class="file-kind file-kind--folder">dir</span><code>dance-scraper/</code><span class="file-purpose">Sansayaw&rsquo;s data pipeline and two frontends</span></div>
+              <li><div class="file-node file-node--root"><span class="file-kind file-kind--folder">dir</span><code>sansayaw/</code><span class="file-purpose">Sansayaw&rsquo;s data pipeline and two frontends</span></div>
                 <ul>
                   <li><div class="file-node"><span class="file-kind">py</span><code>run.py</code><span class="file-purpose">orchestrates one full scrape, database write, and cache refresh</span></div></li>
+                  <li><div class="file-node"><span class="file-kind">py</span><code>manage_instructors.py</code><span class="file-purpose">identity editing, normalized handles/slugs, and diagnostic repairs</span></div></li>
                   <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>scrapers/</code><span class="file-purpose">source adapters and shared data rules</span></div>
                     <ul>
                       <li><div class="file-node"><span class="file-kind">py</span><code>ember.py · tads.py · studio808.py · …</code><span class="file-purpose">one adapter per studio or booking platform</span></div></li>
@@ -708,13 +711,14 @@ inside_radius := st_distance(v_point, v_venue.location)
                       <li><div class="file-node"><span class="file-kind">py</span><code>db.py</code><span class="file-purpose">all Supabase reads and writes for the pipeline</span></div></li>
                     </ul>
                   </li>
-                  <li><div class="file-node"><span class="file-kind">py</span><code>tests/</code><span class="file-purpose">identity and matching rules that must stay deterministic</span></div></li>
+                  <li><div class="file-node"><span class="file-kind">py</span><code>tests/</code><span class="file-purpose">identity, handle/slug normalization, and matching rules that must stay deterministic</span></div></li>
                   <li><div class="file-node"><span class="file-kind">sql</span><code>migration_*.sql</code><span class="file-purpose">database and policy changes from this older migration layout</span></div></li>
                   <li><div class="file-node"><span class="file-kind">yml</span><code>.github/workflows/scrape.yml</code><span class="file-purpose">daily schedule, runtime setup, timeout, and secrets</span></div></li>
                   <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>manual_data/ · scripts/</code><span class="file-purpose">curated exceptions and one-off backfills</span></div></li>
                   <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>web/</code><span class="file-purpose">Next.js website deployed to Vercel</span></div>
                     <ul>
-                      <li><div class="file-node"><span class="file-kind">js</span><code>app/**/page.js</code><span class="file-purpose">URL routes: home, studio, instructor, privacy, support</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">js</span><code>app/**/page.js</code><span class="file-purpose">URL routes and server-rendered studio directory</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">js</span><code>app/sitemap.js</code><span class="file-purpose">discoverable URLs from the shared cached dataset</span></div></li>
                       <li><div class="file-node"><span class="file-kind">js</span><code>app/api/*/route.js</code><span class="file-purpose">server endpoints for cache refresh and reel covers</span></div></li>
                       <li><div class="file-node"><span class="file-kind">jsx</span><code>components/DanceApp.jsx · ReelTile.jsx</code><span class="file-purpose">interactive browser interface, class details, and browser sharing</span></div></li>
                       <li><div class="file-node"><span class="file-kind">js</span><code>lib/data.js · supabase.js · seo.js</code><span class="file-purpose">data access and non-visual website services</span></div></li>
@@ -723,10 +727,11 @@ inside_radius := st_distance(v_point, v_venue.location)
                   </li>
                   <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>mobile/</code><span class="file-purpose">React + TypeScript app wrapped by Capacitor</span></div>
                     <ul>
-                      <li><div class="file-node"><span class="file-kind">tsx</span><code>src/App.tsx · src/components/*.tsx</code><span class="file-purpose">app shell and reusable screens/cards/sheets; ClassDetailSheet.tsx owns native class sharing</span></div></li>
-                      <li><div class="file-node"><span class="file-kind">ts</span><code>src/hooks/ · lib/ · utils/</code><span class="file-purpose">data loading, native services, and pure transformations</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">tsx</span><code>src/App.tsx · src/components/*.tsx</code><span class="file-purpose">app shell, screens, class sheets, and screenshot share prompt</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">ts</span><code>src/hooks/ · src/lib/ · src/utils/</code><span class="file-purpose">data loading, shared share.ts payloads, links.ts adapters, and pure transformations</span></div></li>
                       <li><div class="file-node"><span class="file-kind">ts</span><code>capacitor.config.ts</code><span class="file-purpose">connects the web bundle to the native iOS shell</span></div></li>
-                      <li><div class="file-node"><span class="file-kind file-kind--generated">build</span><code>dist/ · ios/</code><span class="file-purpose">compiled web output and native project</span></div></li>
+                      <li><div class="file-node"><span class="file-kind file-kind--generated">build</span><code>dist/</code><span class="file-purpose">compiled web output copied into the native bundle</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">native</span><code>ios/App/App/</code><span class="file-purpose">SceneDelegate.swift bridges OS events; Info.plist declares privacy purposes</span></div></li>
                     </ul>
                   </li>
                 </ul>
@@ -901,26 +906,69 @@ revalidateTag('app-data')</code></pre>
 
         <div class="guided-lab" id="lab-sansayaw-sharing">
           <h3>Feature X-ray &middot; Class sharing across web and native</h3>
-          <p><strong>Learning objective:</strong> separate the content being shared, the platform that sends it, and the URL a recipient can actually open. <a href="https://github.com/geloavendano/sansayaw/commit/e02bb6e">Commit <code>e02bb6e</code></a>, merged on 25 Sep 2026, adds a class-share button to both frontends. This is committed behavior; the merge alone does not establish an installed iOS release.</p>
+          <p><strong>Learning objective:</strong> separate the message, platform adapter, and destination contract. The original 25 Sep sharing feature changed in <a href="https://github.com/geloavendano/sansayaw/commit/1e1c9cd">1e1c9cd</a> and <a href="https://github.com/geloavendano/sansayaw/commit/fb94b50">fb94b50</a>, now on main: sending a message and copying a bare link are distinct actions. Native callers share one helper. These are committed changes, not proof that an installed App Store build contains them.</p>
           <div class="source-trail"><strong>Source trail</strong><br>
-            Web: <code>web/components/DanceApp.jsx</code> &rarr; <code>shareClass</code> &rarr; <code>shareOrCopy</code><br>
-            Native: <code>mobile/src/components/ClassDetailSheet.tsx</code> &rarr; <code>Share.share</code><br>
-            Recipient: <code>web/app/studios/[id]/page.js</code> &rarr; the studio&rsquo;s upcoming schedule
+            Web: <code>web/components/DanceApp.jsx</code> &rarr; <code>classShareMessage</code> / <code>shareClassToApps</code> / <code>copyClassLink</code><br>
+            Native: <code>mobile/src/components/ClassDetailSheet.tsx</code> &rarr; <code>mobile/src/lib/share.ts</code><br>
+            Recipient: web query-string effect in <code>DanceApp.jsx</code>; native <code>mobile/src/lib/deepLink.ts</code>
           </div>
-          <p>Both buttons assemble a title, class/instructor/date/time text, and a studio URL. The web handler reuses the existing browser helper; mobile calls the Capacitor plugin directly. The payload construction is duplicated, so wording and URL rules can drift even when both screens read the same database.</p>
+          <p>The class invitation now embeds <code>/?class=&lt;id&gt;</code> inside its text, instead of sending a studio URL as a separate field. The commit explains that some receiving apps dropped the sibling text when given a separate URL. Keeping them together is a deliberate payload choice; still test actual receiving apps. Web and mobile retain separate payload builders.</p>
           <div class="table-scroll"><table>
-            <thead><tr><th>Path</th><th>What the committed code does</th><th>What to verify</th></tr></thead>
+            <thead><tr><th>Action</th><th>Committed behavior</th><th>Failure boundary</th></tr></thead>
             <tbody>
-              <tr><td class="grp">Web Share available</td><td>Calls <code>navigator.share(data)</code> from the button. Any rejection returns immediately.</td><td>Cancellation should be quiet; a genuine API failure is also swallowed by this broad catch.</td></tr>
-              <tr><td class="grp">Web Share absent</td><td>Copies <code>data.url || data.text</code> and shows an alert after success.</td><td>For classes, this copies only the studio URL. Clipboard rejection is silent; it is not a fallback after a failed share call.</td></tr>
-              <tr><td class="grp">Native app</td><td>Records <code>class_shared</code>, then calls <code>Share.share({ title, text, url })</code>; rejection is ignored.</td><td>The event measures an attempt, including cancellation or failure, not confirmed delivery.</td></tr>
+              <tr><td class="grp">Web: send to apps</td><td>Calls <code>navigator.share({ title, text })</code>. When unavailable, copies the <em>whole message</em>.</td><td>Any share rejection returns immediately. Cancellation and genuine errors are still indistinguishable; clipboard denial is silent.</td></tr>
+              <tr><td class="grp">Web/native: copy link</td><td>Writes only <code>classLink(c)</code> to the clipboard and alerts after success.</td><td>This no longer depends on a system share-sheet copy tile. Permission/API failure is still swallowed.</td></tr>
+              <tr><td class="grp">Native: send to apps</td><td><code>lib/share.ts</code> supplies the message to Capacitor <code>Share.share</code>; the detail sheet and screenshot prompt reuse it.</td><td><code>class_shared</code> records an attempt before completion. Its <code>kind</code> and optional <code>source</code> identify the entry point, not delivery.</td></tr>
             </tbody>
           </table></div>
-          <p><strong>A link is a product contract.</strong> There is no canonical class URL in this change. Recipients land on <code>/studios/{id}</code>, not an automatically reopened class sheet; past classes disappear from that page&rsquo;s upcoming-only list. Web builds the URL from the current origin, so a preview can produce a preview link. Native uses the public domain. Missing studio information falls back to the home page.</p>
-          <p><strong>Platform boundary:</strong> Web Share requires a secure context and transient user activation, such as a click. Keep it attached to that user action. See the <a href="https://www.w3.org/TR/web-share/">W3C Web Share specification</a> and the <a href="https://github.com/ionic-team/capacitor-plugins/tree/main/share">official Capacitor Share documentation</a> for the browser contract and native bridge.</p>
-          <div class="exercise-step"><b>Predict</b><p>What survives when Web Share is unavailable: the full invitation or just its URL? What does the recipient see a week later?</p></div>
-          <div class="exercise-step"><b>Verify</b><p>In a disposable local test, cover share success, cancellation, another rejection, API absence, and clipboard denial. Compare web/native payloads with missing instructors or studio data. Open the resulting URL without app state, and exercise the native sheet on a device.</p></div>
-          <div class="exercise-step"><b>Carry forward</b><p>Share one pure payload builder where practical, keep platform adapters separate, distinguish attempts from outcomes, and decide the destination and expiry behavior before promising a deep link. These are improvements to make next, not claims about the current implementation.</p></div>
+          <p><strong>A link is a contract with the reader.</strong> The web app finds the class ID in its loaded payload and opens its drawer; a missing ID leaves the app at its default view. Scrapes insert fresh rows and <code>classes_display</code> selects the latest run for each studio/date, so an older ID can leave that payload even though the historical row still exists. The share helper warns that a link may go stale after roughly a day; this is not a fixed expiry guarantee. Native sharing uses the production origin, while web sharing uses the current origin, including previews.</p>
+          <p><strong>There is also a recipient mismatch:</strong> the current native <code>parseDeepLink</code> maps an HTTPS root path to the calendar without inspecting <code>?class=</code>. Its custom <code>sansayaw://class/&lt;id&gt;</code> route does parse an ID. A web class link therefore does not guarantee the same drawer when an installed app handles it. Stable class identity and matching web/native URL parsers are the next improvements, not completed features.</p>
+          <p><strong>Screenshot flow:</strong> iOS notification &rarr; <code>SceneDelegate.swift</code> &rarr; Capacitor window event &rarr; <code>App.tsx</code> selects the topmost class/instructor &rarr; <code>ShareToast.tsx</code> offers a seven-second prompt &rarr; an explicit tap invokes the shared helper. It reacts to the screenshot event; it does not read or upload the screenshot. React removes its event listener when the effect is replaced. Scene reconnection and native observer lifetime deserve device testing too.</p>
+          <div class="exercise-step"><b>Predict</b><p>With Web Share absent, which action copies a message and which copies a URL? What happens to yesterday&rsquo;s ID after a new scrape?</p></div>
+          <div class="exercise-step"><b>Verify</b><p>Use fixture data to test success, cancellation, other rejection, clipboard denial, current/stale IDs, preview URLs, and the same URL in the web and native parsers. On a device, take a screenshot with either sheet on top, dismiss or accept the prompt, and compare the received message in two apps.</p></div>
+          <div class="exercise-step"><b>Carry forward</b><p>Centralize repeated payload logic, make copy behavior explicit, distinguish attempts from outcomes, and test every recipient route before promising an exact deep link.</p></div>
+          <p class="source-trail"><strong>Platform contracts:</strong> <a href="https://www.w3.org/TR/web-share/">W3C Web Share</a> and <a href="https://github.com/ionic-team/capacitor-plugins/tree/main/share">Capacitor Share</a>.</p>
+        </div>
+
+        <div class="guided-lab" id="lab-sansayaw-native">
+          <h3>Bug lesson &middot; Native behavior exists beyond the React screen</h3>
+          <p><strong>Learning objective:</strong> trace an ordinary-looking gesture across the WebView, native bundle, and operating system. <a href="https://github.com/geloavendano/sansayaw/commit/fb94b50">fb94b50</a> records an iPad App Review crash when long-pressing the donation QR image and choosing Save to Photos. The fix adds <code>NSPhotoLibraryAddUsageDescription</code> to <code>mobile/ios/App/App/Info.plist</code>. A native capability can be reached through a system menu even when there is no React &ldquo;save&rdquo; button.</p>
+          <p>The same commit adds <code>NSLocationAlwaysAndWhenInUseUsageDescription</code> for a reported missing-purpose-string validation error from the geolocation plugin&rsquo;s API references. The app describes foreground-only location use. A purpose string explains access; adding one does not itself request permission or prove background tracking. Apple requires the photo add-access explanation for APIs that can write to the library; see <a href="https://developer.apple.com/documentation/bundleresources/information-property-list/nsphotolibraryaddusagedescription">Apple&rsquo;s key reference</a>.</p>
+          <p><strong>The browser destination is another boundary.</strong> In <a href="https://github.com/geloavendano/sansayaw/commit/a286329">a286329</a>, the calendar button switches from <code>openExternal</code> (Capacitor Browser overlay) to <code>openInSystemBrowser</code> in <code>mobile/src/lib/links.ts</code>. That helper uses <code>window.open(url, '_blank')</code> for the intended OS handoff; partner links retain the original adapter. The commit reports a Google Calendar redirect to a Workspace landing page in the overlay.</p>
+          <p>Do not turn that report into a universal platform rule: <a href="https://developers.google.com/identity/protocols/oauth2/native-app#disallowed_useragent">Google&rsquo;s OAuth guidance</a> recommends the OS link handler for general links reaching authorization and also lists <code>SFSafariViewController</code> as supported. The durable lesson is to test the actual account flow and native routing, rather than infer behavior from a browser-looking screen.</p>
+          <div class="exercise-step"><b>Trace</b><p><code>ClassDetailSheet.tsx</code> chooses the adapter; <code>lib/links.ts</code> owns outbound routing; <code>Info.plist</code> owns packaged privacy explanations. Each changes a different layer.</p></div>
+          <div class="exercise-step"><b>Verify</b><p>On a fresh iPhone/iPad test installation, try QR long-press/save, allow/deny permission, location access, and Calendar signed in/out with personal and Workspace accounts. Inspect the archived bundle&rsquo;s purpose strings and confirm event details survive the handoff. A website preview cannot establish these results.</p></div>
+          <div class="exercise-step"><b>Carry forward</b><p>Add system menus and permission states to the <a href="together.html#deployment">native release checks</a>. A merged fix still needs a rebuilt, archived, distributed, and tested binary.</p></div>
+        </div>
+
+        <div class="guided-lab" id="lab-sansayaw-discovery">
+          <h3>Feature X-ray &middot; Discoverable URLs and bounded history</h3>
+          <p><strong>Learning objective:</strong> connect data identity, HTML links, and page lifetime. Reviewed through remote main <a href="https://github.com/geloavendano/sansayaw/commit/f67eba2">f67eba2</a> on 27 Sep 2026. Three layers now make instructor/studio pages easier to reach, but each has its own correctness rule.</p>
+          <div class="source-trail"><strong>Source trail</strong><br>
+            <code>manage_instructors.py</code> + <code>tests/test_identity.py</code> &rarr; stored handle/slug<br>
+            <code>web/lib/data.js</code> &rarr; <code>web/app/page.js</code> + <code>web/app/sitemap.js</code><br>
+            <code>web/app/[slug]/page.js</code> &rarr; <code>DanceApp.jsx</code>; mobile <code>InstructorPage.tsx</code>
+          </div>
+          <h4>1. Normalize identity before deriving a URL</h4>
+          <p><a href="https://github.com/geloavendano/sansayaw/commit/e837013">e837013</a> makes <code>set --instagram</code> normalize handles before storing them and deriving the slug. For example, a pasted <code>@Example\n</code> becomes <code>example</code>, avoiding stray URL hyphens. The doctor command detects malformed handles, edge hyphens, and placeholder slugs that lag an assigned handle; <code>--fix</code> performs database writes. Tests use a fake database adapter to check the patch without production access.</p>
+          <p><strong>Renaming needs a compatibility policy.</strong> The route resolves exact slugs and redirects legacy ID-bearing slugs to the current one. It is not a complete old-handle alias registry. A direct database edit can bypass normalization, and changing a published handle-based slug can break old links. The next app should give one boundary responsibility for normalization, collision checks, and redirect history.</p>
+          <h4>2. Make navigation exist as HTML</h4>
+          <p><a href="https://github.com/geloavendano/sansayaw/commit/8de825a">8de825a</a> adds a homepage H1, real instructor/studio links, and a city-grouped studio directory in the server route outside the interactive <code>DanceApp</code>. That directory is present before hydration. Instructor links inside an opened sheet still depend on that sheet being rendered; a real anchor alone does not put every instructor into the initial HTML. Class cards link the resolved single-instructor case; collaboration labels stay plain text.</p>
+          <p><a href="https://github.com/geloavendano/sansayaw/commit/1e2ec9b">1e2ec9b</a> builds the sitemap from the same cached <code>getAppData()</code>: home, all studios, instructors with a slug and at least one class in the served window, privacy, and support. This reduces drift between the directory and route inventory. It does not establish that a search engine has indexed those pages. <a href="https://developers.google.com/search/docs/crawling-indexing/links-crawlable">Google&rsquo;s link guidance</a> explains why anchors with usable destinations matter.</p>
+          <p><strong>Current caveat:</strong> studio/instructor <code>lastModified</code> is the maximum matching <em>class date</em>, which can be in the future and can miss a later biography edit. It is stable across requests, but it is not a page modification timestamp. Use an actual significant-content update time, or omit an unreliable value. <a href="https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap">Google&rsquo;s sitemap documentation</a> requires accurate modification dates for that signal and says it ignores <code>priority</code> and <code>changefreq</code>.</p>
+          <h4>3. Separate stored history, delivered history, and visible history</h4>
+          <p><a href="https://github.com/geloavendano/sansayaw/commit/11b7d48">11b7d48</a> brings the mobile Past Classes feature to web. The existing <code>classes_display</code> view selects the latest successful/partial scrape per studio/date; both loaders already serve a 60-day lookback. The new profile UI shows only the last 30 days before today, newest first, initially five rows with an expand toggle. No new history migration is introduced by these UI commits.</p>
+          <div class="table-scroll"><table>
+            <thead><tr><th>Boundary</th><th>Rule</th><th>What it does not mean</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Stored rows / view</td><td>Keep prior scrape rows; select one latest run per studio/date.</td><td>Not a stable class ID across runs, nor a guarantee that stale studio data is fresh.</td></tr>
+              <tr><td class="grp">Delivered payload</td><td>Load classes from 60 days ago onward, in ordered pages.</td><td>A row absent from the payload has not necessarily been deleted.</td></tr>
+              <tr><td class="grp">Profile display</td><td>Show 30 past days, initially five rows.</td><td>Expand reveals loaded rows; it does not fetch another page from the database.</td></tr>
+              <tr><td class="grp">Sitemap membership</td><td>Include instructors with classes anywhere in the served window.</td><td>This includes recent history, not just instructors with upcoming classes.</td></tr>
+            </tbody>
+          </table></div>
+          <div class="exercise-step"><b>Verify</b><p>Use synthetic instructors with zero, past-only, upcoming, and collaborative classes. Check canonical links, a legacy redirect, an old handle, and a changed biography. Inspect HTML with JavaScript disabled for studio anchors; compare sitemap URLs to actual routes. At a fixed &ldquo;today,&rdquo; test dates 31, 30, 1, and 0 days ago plus more than five past rows on both frontends.</p></div>
+          <div class="exercise-step"><b>Carry forward</b><p>Give URLs a stable identity, render useful navigation before interaction, and name each time window explicitly. The sitemap, UI, and database answer different questions even when they share a query.</p></div>
         </div>
 
         <h3>Risks &amp; gotchas</h3>
@@ -1234,7 +1282,7 @@ p_entry_id: claimEntryId()</code></pre>
     <a class="next" href="together.html"><small>Next</small>Part III &middot; Build playbook</a>
   </nav>
 
-  <footer>The Build So Far &middot; v23 &middot; 26 Sep 2026 &middot; <a href="index.html">all parts</a></footer>
+  <footer>The Build So Far &middot; v24 &middot; 27 Sep 2026 &middot; <a href="index.html">all parts</a></footer>
 </div>
 </body>
 </html>
