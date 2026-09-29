@@ -42,6 +42,7 @@
       <a href="#lab-sansayaw-sharing">Class sharing lab</a>
       <a href="#lab-sansayaw-native">Native release lessons</a>
       <a href="#lab-sansayaw-discovery">URLs &amp; history lab</a>
+      <a href="#lab-sansayaw-batch">Batch identity lab</a>
       <a href="#bonado">D &nbsp;Bonado</a>
     </nav>
 
@@ -690,7 +691,7 @@ inside_radius := st_distance(v_point, v_venue.location)
         <h2><span class="letter">C</span> Sansayaw <span class="pill pill--live">Live</span></h2>
 
         <h3>In one line</h3>
-        <p>A directory of drop-in dance classes across Manila studios (<strong>sansayaw.org</strong>), plus an iOS app. Its defining trait: <strong>nobody types the data in</strong>. Every morning, robots read ~13 studios&rsquo; booking systems, clean up the results, and publish them.</p>
+        <p>A directory of drop-in dance classes across Manila studios (<strong>sansayaw.org</strong>), plus an iOS app. Its defining trait: <strong>automated collection with curated exceptions</strong>. Every morning, robots read ~13 studios&rsquo; booking systems, clean up the results, and publish them. Manual schedule files and instructor identity edits cover information the adapters cannot reliably resolve.</p>
 
         <h3>Architecture</h3>
         <p>Three parts in one repository, one job each: a set of <strong>Python scrapers</strong>, a <strong>Next.js website</strong>, and a small <strong>iOS app</strong>. The scrapers run on a schedule and write to Supabase; the website and the app read from it. The seam between the two halves is a single <em>&ldquo;refresh your cache now&rdquo;</em> webhook.</p>
@@ -711,10 +712,11 @@ inside_radius := st_distance(v_point, v_venue.location)
                       <li><div class="file-node"><span class="file-kind">py</span><code>db.py</code><span class="file-purpose">all Supabase reads and writes for the pipeline</span></div></li>
                     </ul>
                   </li>
-                  <li><div class="file-node"><span class="file-kind">py</span><code>tests/</code><span class="file-purpose">identity, handle/slug normalization, and matching rules that must stay deterministic</span></div></li>
+                  <li><div class="file-node"><span class="file-kind">py</span><code>tests/</code><span class="file-purpose">identity, normalization, and matching; local batch-parser and planner regression tests</span></div></li>
                   <li><div class="file-node"><span class="file-kind">sql</span><code>migration_*.sql</code><span class="file-purpose">database and policy changes from this older migration layout</span></div></li>
                   <li><div class="file-node"><span class="file-kind">yml</span><code>.github/workflows/scrape.yml</code><span class="file-purpose">daily schedule, runtime setup, timeout, and secrets</span></div></li>
-                  <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>manual_data/ · scripts/</code><span class="file-purpose">curated exceptions and one-off backfills</span></div></li>
+                  <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>manual_data/ · scripts/</code><span class="file-purpose">curated schedules, backfills, and maintenance tools</span></div></li>
+                  <li><div class="file-node"><span class="file-kind">py</span><code>scripts/set_instructor_instagram.py</code><span class="file-purpose">batch parse/plan/apply wrapper; locally committed, not yet on remote main</span></div></li>
                   <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>web/</code><span class="file-purpose">Next.js website deployed to Vercel</span></div>
                     <ul>
                       <li><div class="file-node"><span class="file-kind">js</span><code>app/**/page.js</code><span class="file-purpose">URL routes and server-rendered studio directory</span></div></li>
@@ -969,6 +971,35 @@ revalidateTag('app-data')</code></pre>
           </table></div>
           <div class="exercise-step"><b>Verify</b><p>Use synthetic instructors with zero, past-only, upcoming, and collaborative classes. Check canonical links, a legacy redirect, an old handle, and a changed biography. Inspect HTML with JavaScript disabled for studio anchors; compare sitemap URLs to actual routes. At a fixed &ldquo;today,&rdquo; test dates 31, 30, 1, and 0 days ago plus more than five past rows on both frontends.</p></div>
           <div class="exercise-step"><b>Carry forward</b><p>Give URLs a stable identity, render useful navigation before interaction, and name each time window explicitly. The sitemap, UI, and database answer different questions even when they share a query.</p></div>
+        </div>
+
+        <div class="guided-lab" id="lab-sansayaw-batch">
+          <h3>Maintenance lab &middot; Batch identity edits: parse, plan, then apply</h3>
+          <p><strong>Learning objective:</strong> turn repeated manual edits into a reviewable tool without hiding its failure modes. <strong>Local committed work in progress:</strong> commits <code>00d542f</code> and <code>b89c9ec</code> (29 Sep), inspected on 30 Sep 2026, add a batch editor and regression fixes. Remote main remains <code>867edb6</code>; this is not a verified deployed change.</p>
+          <div class="source-trail"><strong>Source trail at local commit b89c9ec</strong><br>
+            <code>scripts/set_instructor_instagram.py</code>: <code>parse_people</code> &rarr; <code>plan</code> &rarr; <code>main</code><br>
+            <code>manage_instructors.py</code>: <code>cmd_set</code>, <code>_handle_slug</code>, name variants<br>
+            <code>tests/test_set_instructor_instagram.py</code>: parser and planner fixtures<br>
+            <code>.claude/skills/instructor-instagram/SKILL.md</code>: operator procedure around the script
+          </div>
+          <h4>1. Keep interpretation separate from effects</h4>
+          <p>Blank-line-separated people become structured entries with a handle, optional name, and optional reels. A block beginning with a reel continues the previous person. The planner takes those entries plus instructor rows and returns actions and problems: match an existing normalized handle first, otherwise require one exact folded-name match. Missing or ambiguous name matches stay unresolved. These functions can be tested with fixtures; the CLI dry run still connects to Supabase to load current rows.</p>
+          <p>The apply loop delegates identity edits to <code>cmd_set</code>, preserving handle normalization, derived slugs, and added full-name variants for the matcher. Reel lists use a separate update. Reusing the write boundary prevents a batch helper from inventing a second identity policy; see the <a href="#lab-sansayaw-discovery">URL compatibility lesson</a> for the effect on old links.</p>
+          <h4>2. Missing optional input is a real test case</h4>
+          <p>The first version relied on reel URLs to distinguish people. Several handle/name pairs with <em>no reels at all</em> exposed the bad assumption; <code>b89c9ec</code> switches to blank-line blocks. The same fix stops a short pasted name from filling an empty <code>full_name</code> when the record already has a fuller name. It requires strictly more folded words than either <code>name</code> or <code>display_name</code>, and preserves an existing full name. Word count is a conservative heuristic, not proof of identity or correctness.</p>
+          <h4>3. Know what the preview does not guarantee</h4>
+          <div class="table-scroll"><table>
+            <thead><tr><th>Boundary</th><th>Actual behavior</th><th>Review consequence</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Warnings / problems</td><td>Handle and reel replacements are notes. Unresolved or duplicate targets become problems, but <code>--apply</code> still writes the valid actions.</td><td>A warning is not a write veto; the batch does not abort as a whole.</td></tr>
+              <tr><td class="grp">Write sequence</td><td>Identity and reel updates are separate calls, repeated per person.</td><td>A later failure can leave earlier writes applied. A future atomic batch needs an explicit transaction boundary.</td></tr>
+              <tr><td class="grp">Identity / slug</td><td>Handle lookup wins over the pasted name. Batch target checks are local; the existing setter suffixes stored slug collisions.</td><td>Inspect the matched record and final stored slug. The lookup dictionary assumes existing handles are unique.</td></tr>
+              <tr><td class="grp">Reel list</td><td>A supplied nonempty list replaces the stored list; omitted reels leave it alone.</td><td>An empty input is not a request to clear reels.</td></tr>
+            </tbody>
+          </table></div>
+          <p><strong>Documentation can drift too.</strong> The local procedure advertises full profile URLs as handle input, but the parser accepts only a bare or <code>@</code>-prefixed handle. It also describes a client-only loading shell; the committed <code>web/app/[slug]/page.js</code> actually resolves the instructor server-side and calls <code>notFound()</code> when absent. Retain the useful operational rule: after authorized writes, run diagnostics, refresh the web cache, and inspect the rendered identity and reels. A status code alone does not verify the intended content. The batch script itself performs neither cache refresh nor browser verification.</p>
+          <div class="exercise-step"><b>Verify</b><p>Use synthetic rows to test multiple people without reels, reel continuation blocks, ambiguous names, a shorter pasted name, a conflicting existing handle, omitted reels, and a mixed valid/invalid batch. Use a fake write adapter to inject a failure between identity and reel updates; predict which state remains. Do not run the CLI against production for this exercise.</p></div>
+          <div class="exercise-step"><b>Carry forward</b><p>Make parsing and planning pure, reuse the established write path, and state whether warnings, partial success, and retries are acceptable. Test absent optional fields as carefully as the rich example that inspired the tool.</p></div>
         </div>
 
         <h3>Risks &amp; gotchas</h3>
@@ -1282,7 +1313,7 @@ p_entry_id: claimEntryId()</code></pre>
     <a class="next" href="together.html"><small>Next</small>Part III &middot; Build playbook</a>
   </nav>
 
-  <footer>The Build So Far &middot; v24 &middot; 27 Sep 2026 &middot; <a href="index.html">all parts</a></footer>
+  <footer>The Build So Far &middot; v25 &middot; 30 Sep 2026 &middot; <a href="index.html">all parts</a></footer>
 </div>
 </body>
 </html>
