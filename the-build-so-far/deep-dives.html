@@ -43,6 +43,8 @@
       <a href="#lab-sansayaw-native">Native release lessons</a>
       <a href="#lab-sansayaw-discovery">URLs &amp; history lab</a>
       <a href="#lab-sansayaw-batch">Batch identity lab</a>
+      <a href="#lab-sansayaw-registration">Registration lab</a>
+      <a href="#lab-sansayaw-analytics">Analytics lab</a>
       <a href="#bonado">D &nbsp;Bonado</a>
     </nav>
 
@@ -712,14 +714,17 @@ inside_radius := st_distance(v_point, v_venue.location)
                       <li><div class="file-node"><span class="file-kind">py</span><code>db.py</code><span class="file-purpose">all Supabase reads and writes for the pipeline</span></div></li>
                     </ul>
                   </li>
-                  <li><div class="file-node"><span class="file-kind">py</span><code>tests/</code><span class="file-purpose">identity, normalization, and matching; local batch-parser and planner regression tests</span></div></li>
+                  <li><div class="file-node"><span class="file-kind">py</span><code>tests/</code><span class="file-purpose">identity, normalization, and matching; batch-parser and planner regression tests</span></div></li>
                   <li><div class="file-node"><span class="file-kind">sql</span><code>migration_*.sql</code><span class="file-purpose">database and policy changes from this older migration layout</span></div></li>
                   <li><div class="file-node"><span class="file-kind">yml</span><code>.github/workflows/scrape.yml</code><span class="file-purpose">daily schedule, runtime setup, timeout, and secrets</span></div></li>
                   <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>manual_data/ · scripts/</code><span class="file-purpose">curated schedules, backfills, and maintenance tools</span></div></li>
-                  <li><div class="file-node"><span class="file-kind">py</span><code>scripts/set_instructor_instagram.py</code><span class="file-purpose">batch parse/plan/apply wrapper; locally committed, not yet on remote main</span></div></li>
+                  <li><div class="file-node"><span class="file-kind">py</span><code>posts/generate.py</code><span class="file-purpose">schedule cards; joins co-instructor credits before grouping</span></div></li>
+                  <li><div class="file-node"><span class="file-kind">py</span><code>scripts/set_instructor_instagram.py</code><span class="file-purpose">batch parse/plan/apply wrapper; now committed on remote main</span></div></li>
                   <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>web/</code><span class="file-purpose">Next.js website deployed to Vercel</span></div>
                     <ul>
                       <li><div class="file-node"><span class="file-kind">js</span><code>app/**/page.js</code><span class="file-purpose">URL routes and server-rendered studio directory</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">js</span><code>instrumentation-client.js · lib/analytics.js · app/global-error.js</code><span class="file-purpose">browser analytics initialization, event vocabulary, and error reporting</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">js</span><code>lib/outbound.js</code><span class="file-purpose">outbound URL tagging and form-host classification for Register</span></div></li>
                       <li><div class="file-node"><span class="file-kind">js</span><code>app/sitemap.js</code><span class="file-purpose">discoverable URLs from the shared cached dataset</span></div></li>
                       <li><div class="file-node"><span class="file-kind">js</span><code>app/api/*/route.js</code><span class="file-purpose">server endpoints for cache refresh and reel covers</span></div></li>
                       <li><div class="file-node"><span class="file-kind">jsx</span><code>components/DanceApp.jsx · ReelTile.jsx</code><span class="file-purpose">interactive browser interface, class details, and browser sharing</span></div></li>
@@ -730,7 +735,7 @@ inside_radius := st_distance(v_point, v_venue.location)
                   <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>mobile/</code><span class="file-purpose">React + TypeScript app wrapped by Capacitor</span></div>
                     <ul>
                       <li><div class="file-node"><span class="file-kind">tsx</span><code>src/App.tsx · src/components/*.tsx</code><span class="file-purpose">app shell, screens, class sheets, and screenshot share prompt</span></div></li>
-                      <li><div class="file-node"><span class="file-kind">ts</span><code>src/hooks/ · src/lib/ · src/utils/</code><span class="file-purpose">data loading, shared share.ts payloads, links.ts adapters, and pure transformations</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">ts</span><code>src/hooks/ · src/lib/ · src/utils/</code><span class="file-purpose">data loading/timing, analytics.ts events, share.ts payloads, links.ts adapters, and pure transformations</span></div></li>
                       <li><div class="file-node"><span class="file-kind">ts</span><code>capacitor.config.ts</code><span class="file-purpose">connects the web bundle to the native iOS shell</span></div></li>
                       <li><div class="file-node"><span class="file-kind file-kind--generated">build</span><code>dist/</code><span class="file-purpose">compiled web output copied into the native bundle</span></div></li>
                       <li><div class="file-node"><span class="file-kind">native</span><code>ios/App/App/</code><span class="file-purpose">SceneDelegate.swift bridges OS events; Info.plist declares privacy purposes</span></div></li>
@@ -801,15 +806,16 @@ inside_radius := st_distance(v_point, v_venue.location)
               <tr><td class="grp">Supabase</td><td>Holds studios, instructors, classes, and one row per scrape run &mdash; in the shared project&rsquo;s <code>sansayaw</code> schema</td><td>The scraper writes with the powerful service-role key; the site and app read with the public key, restricted to SELECT. Clean split of &ldquo;who can change this&rdquo; from &ldquo;who can see it.&rdquo;</td></tr>
               <tr><td class="grp">Next.js + Vercel (ISR)</td><td>Server-renders the site; fetches the whole dataset once into a cached function</td><td>Every visitor gets the cached copy (fast, cheap), and the scraper&rsquo;s webhook is what makes it refresh &mdash; so the site is never more than one scrape-cycle stale.</td></tr>
               <tr><td class="grp">The revalidate webhook</td><td>One authenticated <code>POST</code> from the scraper that clears the site&rsquo;s cache tag</td><td>The entire coupling between the two halves. Guarded by a shared secret; non-blocking &mdash; a failed call just means the site refreshes on its own timer instead.</td></tr>
-              <tr><td class="grp">Capacitor (iOS) + PostHog</td><td>A small React app wrapped for the App Store, with a home-screen widget for today&rsquo;s classes; product analytics</td><td>The widget and native share need an app. It reads the same Supabase data &mdash; but it&rsquo;s a <em>separate</em> codebase from the website, so features get ported between the two.</td></tr>
+              <tr><td class="grp">PostHog (web + iOS)</td><td>Shared event names with a platform property; load timing and error reports</td><td>Separate adapters make cross-platform comparison possible. Events describe attempts or observed state, not proof of registration; see the <a href="#lab-sansayaw-analytics">analytics lab</a>.</td></tr>
+              <tr><td class="grp">Capacitor (iOS)</td><td>A small React app wrapped for the App Store, with a home-screen widget for today&rsquo;s classes; product analytics</td><td>The widget and native share need an app. It reads the same Supabase data &mdash; but it&rsquo;s a <em>separate</em> codebase from the website, so features get ported between the two.</td></tr>
             </tbody>
           </table>
         </div>
 
         <h3>Data model &mdash; the shape</h3>
-        <p>Four tables in the <code>sansayaw</code> schema. <code>classes</code> is the output; each row is tagged with the <code>scrape_run</code> that produced it, the <code>studio</code> it&rsquo;s at, and (if resolved) an <code>instructor</code>. A private rules table, <code>instructor_aliases</code>, is what turns a scraped name into a real identity.</p>
+        <p>The core tables live in the <code>sansayaw</code> schema. <code>classes</code> is the output; each row points to its scrape run, studio, and first-billed instructor when resolved. <code>class_instructors</code> holds the full ordered roster, including collaboration partners. The private <code>instructor_aliases</code> table turns scraped names into identities. The new optional <code>classes.booking_url</code> carries a class-specific registration destination through <code>classes_display</code>.</p>
         <figure class="diagram">
-          <svg viewBox="0 0 720 250" role="img" aria-label="Sansayaw data model: classes is the central output table, each row linked to a scrape_run, a studio, and optionally an instructor. instructor_aliases is a private rules table that maps scraped names to instructor identities.">
+          <svg viewBox="0 0 720 250" role="img" aria-label="Sansayaw data model: classes is the central output table, each row linked to a scrape_run, a studio, and optionally an instructor. class_instructors links the full roster; instructor_aliases is a private rules table that maps scraped names to instructor identities.">
             <defs>
               <marker id="ahsd" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
                 <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
@@ -822,8 +828,8 @@ inside_radius := st_distance(v_point, v_venue.location)
 
             <text class="lbl" x="214" y="92" font-size="10">tagged with the run</text>
             <text class="lbl" x="470" y="92" font-size="10">at studio</text>
-            <text class="lbl" x="470" y="140" font-size="10">taught by (maybe)</text>
-            <text class="lbl" x="374" y="184" font-size="10">resolves scraped names</text>
+            <text class="lbl" x="478" y="122" font-size="9">first billed</text>
+            <text class="lbl" x="345" y="184" font-size="9" text-anchor="middle">resolves scraped names</text>
 
             <rect class="box box--key" x="292" y="108" width="136" height="52" rx="8"></rect>
             <text class="t t--title" x="360" y="131" text-anchor="middle" font-size="13">classes</text>
@@ -838,6 +844,11 @@ inside_radius := st_distance(v_point, v_venue.location)
             <rect class="box" x="552" y="128" width="130" height="44" rx="7"></rect>
             <text class="t" x="617" y="154" text-anchor="middle" font-size="12">instructors</text>
 
+            <path class="edge" d="M428 151 L510 220 L540 220" fill="none"></path>
+            <line class="edge" x1="617" y1="172" x2="617" y2="198"></line>
+            <rect class="box" x="540" y="198" width="165" height="44" rx="7"></rect>
+            <text class="t" x="622" y="217" text-anchor="middle" font-size="11">class_instructors</text>
+            <text class="t" x="622" y="231" text-anchor="middle" font-size="9">full ordered roster</text>
             <rect class="box" x="250" y="198" width="220" height="44" rx="7" stroke-dasharray="4 4"></rect>
             <text class="t" x="360" y="219" text-anchor="middle" font-size="12">instructor_aliases</text>
             <text class="t" x="360" y="234" text-anchor="middle" font-size="9.5" opacity="0.55">the rules table &middot; not readable by the public</text>
@@ -878,6 +889,8 @@ inside_radius := st_distance(v_point, v_venue.location)
             <figcaption>The scraper never invents an identity. Unresolved names keep an empty link until someone runs the review tool &mdash; a deliberate &ldquo;don&rsquo;t guess&rdquo; stance, at the cost of a standing manual chore.</figcaption>
           </figure>
         </div>
+
+        <p><strong>Bug lesson &mdash; every reader must use the full relationship.</strong> <a href="https://github.com/geloavendano/sansayaw/commit/f0247c5">f0247c5</a> fixes <code>posts/generate.py</code> omitting second-billed instructors from their own schedule cards. <code>_fetch_class_instructors</code> loads the junction rows; <code>_group_by_instructor</code> unions those IDs with the legacy first instructor in a set, so one class appears once under each credited person. Today&rsquo;s selection and the remaining week use a union of class IDs before grouping. Test two collaborators, duplicate credits, and a class already started today. A correct many-to-many model still produces incomplete output if one downstream consumer reads only the old foreign key.</p>
 
         <div class="guided-lab" id="lab-sansayaw-pipeline">
           <h3>Feature X-ray &middot; Sansayaw data pipeline</h3>
@@ -975,8 +988,8 @@ revalidateTag('app-data')</code></pre>
 
         <div class="guided-lab" id="lab-sansayaw-batch">
           <h3>Maintenance lab &middot; Batch identity edits: parse, plan, then apply</h3>
-          <p><strong>Learning objective:</strong> turn repeated manual edits into a reviewable tool without hiding its failure modes. <strong>Local committed work in progress:</strong> commits <code>00d542f</code> and <code>b89c9ec</code> (29 Sep), inspected on 30 Sep 2026, add a batch editor and regression fixes. Remote main remains <code>867edb6</code>; this is not a verified deployed change.</p>
-          <div class="source-trail"><strong>Source trail at local commit b89c9ec</strong><br>
+          <p><strong>Learning objective:</strong> turn repeated manual edits into a reviewable tool without hiding its failure modes. <strong>Committed on remote main:</strong> commits <code>00d542f</code> and <code>b89c9ec</code> (29 Sep) add a batch editor and regression fixes. On 1 Oct 2026, both are ancestors of remote main <code>9bd24a1</code>. This updates the previous local-work status; it does not verify any production maintenance run.</p>
+          <div class="source-trail"><strong>Source trail at commit b89c9ec</strong><br>
             <code>scripts/set_instructor_instagram.py</code>: <code>parse_people</code> &rarr; <code>plan</code> &rarr; <code>main</code><br>
             <code>manage_instructors.py</code>: <code>cmd_set</code>, <code>_handle_slug</code>, name variants<br>
             <code>tests/test_set_instructor_instagram.py</code>: parser and planner fixtures<br>
@@ -997,9 +1010,59 @@ revalidateTag('app-data')</code></pre>
               <tr><td class="grp">Reel list</td><td>A supplied nonempty list replaces the stored list; omitted reels leave it alone.</td><td>An empty input is not a request to clear reels.</td></tr>
             </tbody>
           </table></div>
-          <p><strong>Documentation can drift too.</strong> The local procedure advertises full profile URLs as handle input, but the parser accepts only a bare or <code>@</code>-prefixed handle. It also describes a client-only loading shell; the committed <code>web/app/[slug]/page.js</code> actually resolves the instructor server-side and calls <code>notFound()</code> when absent. Retain the useful operational rule: after authorized writes, run diagnostics, refresh the web cache, and inspect the rendered identity and reels. A status code alone does not verify the intended content. The batch script itself performs neither cache refresh nor browser verification.</p>
+          <p><strong>Documentation can drift too.</strong> The committed procedure advertises full profile URLs as handle input, but the parser accepts only a bare or <code>@</code>-prefixed handle. It also describes a client-only loading shell; the committed <code>web/app/[slug]/page.js</code> actually resolves the instructor server-side and calls <code>notFound()</code> when absent. Retain the useful operational rule: after authorized writes, run diagnostics, refresh the web cache, and inspect the rendered identity and reels. A status code alone does not verify the intended content. The batch script itself performs neither cache refresh nor browser verification.</p>
           <div class="exercise-step"><b>Verify</b><p>Use synthetic rows to test multiple people without reels, reel continuation blocks, ambiguous names, a shorter pasted name, a conflicting existing handle, omitted reels, and a mixed valid/invalid batch. Use a fake write adapter to inject a failure between identity and reel updates; predict which state remains. Do not run the CLI against production for this exercise.</p></div>
           <div class="exercise-step"><b>Carry forward</b><p>Make parsing and planning pure, reuse the established write path, and state whether warnings, partial success, and retries are acceptable. Test absent optional fields as carefully as the rich example that inspired the tool.</p></div>
+        </div>
+
+        <div class="guided-lab" id="lab-sansayaw-registration">
+          <h3>Feature X-ray &middot; Registration links across a schema rollout</h3>
+          <p><strong>Learning objective:</strong> trace one optional field through a producer, a database view, and two readers. <a href="https://github.com/geloavendano/sansayaw/commit/9c805c9">9c805c9</a> adds Register on web and iOS; inspected at remote main <code>9bd24a1</code> on 1 Oct 2026. The code is committed; the migration, production scrape, web deployment, and installed iOS binary have not been verified here.</p>
+          <div class="source-trail"><strong>Source trail</strong><br>
+            <code>scrapers/studio808.py · elfsight.py · gcstudios.py · unfold.py</code> &rarr; <code>run.py:_build_class_rows</code> &rarr; <code>scrapers/normalize.py:booking_url</code> &rarr; <code>scrapers/db.py:insert_classes</code><br>
+            <code>migration_classes_booking_url.sql</code> &rarr; <code>classes_display</code> &rarr; <code>web/lib/data.js</code> / <code>mobile/src/hooks/useAppData.ts</code> &rarr; both class detail sheets<br>
+            Destination policy: <code>web/lib/outbound.js</code> / <code>mobile/src/lib/links.ts</code>
+          </div>
+          <h4>1. Extract locally, decide centrally</h4>
+          <p>Studio adapters extract a Mindbody cart, visible Elfsight button, Shopify product, or Lightspeed product URL. GC Studios limits its backward link search to the current card&rsquo;s region so a missing link cannot borrow the preceding class&rsquo;s product. Shared normalization retains HTTP(S) links and removes recognized Google Forms, Jotform, and Fillout destinations. Hostname matching avoids treating <code>jotform.com.example.org</code> as Jotform.</p>
+          <p>Both sheets choose the first nonempty, non-form destination in this order: <strong>class booking URL &rarr; studio source URL &rarr; website &rarr; Instagram</strong>. With none, Register is absent. The action stays below the scrolling details with bottom safe-area padding. Web opens a tagged anchor; mobile calls the shared browser adapter. Sansayaw hands registration to an outside site; it neither reserves a place nor verifies availability.</p>
+          <h4>2. Adding a column is only one boundary</h4>
+          <p>The migration adds nullable <code>booking_url</code> and appends it to the explicitly listed view columns, keeping <code>security_invoker = true</code> and SELECT grants. <a href="https://www.postgresql.org/docs/current/sql-createview.html">PostgreSQL&rsquo;s view contract</a> allows replacement to append columns while retaining existing names, order, and types; invoker security checks the reader&rsquo;s underlying permissions and RLS. Adding only the base-table column would leave the field absent from the view.</p>
+          <p>Web explicitly copies the new field into its payload; mobile already spreads the loaded row and adds an optional TypeScript field. Old data therefore falls back to a studio destination. Existing rows are not backfilled by this migration. A complete rollout needs the schema/view, a successful new scrape, cache refresh, and compatible readers; an installed app still needs its own release.</p>
+          <div class="table-scroll"><table>
+            <thead><tr><th>Boundary</th><th>Current limitation</th><th>Lesson for the next app</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Insert retry</td><td><code>insert_classes</code> catches every exception and retries the batch without <code>booking_url</code>, intending to support an unmigrated database.</td><td>Match only the expected missing-column error. An unrelated error can lose link data; an ambiguous response after a successful insert can cause a second write. Design idempotency and preserve the original error.</td></tr>
+              <tr><td class="grp">URL policy</td><td>Frontend <code>isFormUrl</code> returns false for an unparsable URL; it does not enforce HTTP(S) on studio fallback values. The Python normalizer checks the per-class prefix, not destination ownership.</td><td>A form-host exclusion is a product rule, not a complete trust boundary. Validate schemes and hosts separately; test all three implementations against the same fixtures.</td></tr>
+              <tr><td class="grp">Attribution</td><td><code>register_tapped.per_class</code> and the label use the presence of <code>c.booking_url</code>, even if a form URL was skipped.</td><td>Derive destination kind from the selected candidate. A tap is not completed registration, and a populated field is not proof of the selected destination.</td></tr>
+            </tbody>
+          </table></div>
+          <div class="exercise-step"><b>Verify</b><p>Use fixtures for each destination tier, no destination, form subdomains, lookalike hosts, malformed URLs, and adjacent cards with a missing link. With a fake database, distinguish a missing-column error from timeout, permission denial, and an ambiguous write result. Rehearse the migration and anonymous view read in a disposable database, then test old/new payloads and both readers.</p></div>
+          <div class="exercise-step"><b>Carry forward</b><p>Treat optional data as an end-to-end contract. Make rollout order explicit, keep graceful fallback narrow, and measure the destination actually chosen.</p></div>
+        </div>
+
+        <div class="guided-lab" id="lab-sansayaw-analytics">
+          <h3>Operations lab &middot; Shared analytics events, different platform boundaries</h3>
+          <p><strong>Learning objective:</strong> design events whose names, timing, and data explain what was observed. <a href="https://github.com/geloavendano/sansayaw/commit/3980ac9">3980ac9</a> adds web PostHog and aligns event names with iOS. This is a shared convention across separate files, not a generated schema or proof that telemetry is arriving in production.</p>
+          <div class="source-trail"><strong>Source trail</strong><br>
+            Web: <code>web/instrumentation-client.js</code> &rarr; <code>web/lib/analytics.js</code> &rarr; <code>web/components/DanceApp.jsx</code>; <code>web/app/global-error.js</code><br>
+            Mobile: <code>mobile/src/lib/analytics.ts</code> &rarr; <code>src/lib/links.ts</code> / <code>src/hooks/useAppData.ts</code><br>
+            Disclosure: <code>web/app/privacy/page.js</code>
+          </div>
+          <p><a href="https://nextjs.org/docs/app/api-reference/file-conventions/instrumentation-client">Next.js client instrumentation</a> provides the web initialization boundary before frontend interaction. The initializer enables exception/performance capture and registers <code>platform: web</code>; native initialization registers Capacitor&rsquo;s platform. Both use names such as <code>class_viewed</code>, <code>search</code>, and <code>add_to_calendar</code>. Web missing configuration throws in development and skips initialization in production; mobile tracking explicitly stays disabled without its key. Configuration and blocked transport can therefore explain an empty chart.</p>
+          <p>A capture-phase document listener observes cross-origin HTTP(S) anchor clicks on web; native browser helpers emit the same <code>external_link_opened</code> event. This centralizes observation but covers different paths: a web button calling navigation directly is not an anchor click. <code>register_tapped</code> and <code>external_link_opened</code> can describe the same action at different layers. Count a defined event, not their sum.</p>
+          <div class="table-scroll"><table>
+            <thead><tr><th>Signal</th><th>What the source measures</th><th>Interpretation limit</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Search</td><td>Web emits query, displayed result count, and past-class flag after 700 ms without a relevant change.</td><td>Results are capped at 30. The count is not all database matches; cancellation/unmount can prevent emission.</td></tr>
+              <tr><td class="grp">Schedule load</td><td>Mobile records <code>fetch_ms</code> around <code>fetchAppData()</code>, <code>since_launch_ms</code> from the WebView performance clock, and a reload flag, on success or failure.</td><td>The interval includes fetch orchestration and transformation, not only network latency. Since-launch is uptime on reload and does not measure native process launch or the exact first visible frame.</td></tr>
+              <tr><td class="grp">First open / lifecycle</td><td>A local Preferences marker distinguishes the first observed analytics launch; native state changes emit foreground/background events.</td><td>A missing/reset marker or newly enabled analytics is not a verified first download. Do not equate device-local state with a unique person.</td></tr>
+              <tr><td class="grp">Errors / actions</td><td>Exception capture, a global error component, and explicit attempt events add diagnostic context.</td><td>Reporting is not alerting or recovery. A share, calendar, or Register event does not prove the outside action succeeded.</td></tr>
+            </tbody>
+          </table></div>
+          <p><strong>Analytics adds a data boundary.</strong> Calls now send search text, full outbound URLs, and error messages to a third party; even a Google Calendar URL can contain class details in its query string. No account system does not mean no user-supplied data. The privacy page was updated, but the explicit event calls do not redact these values. For the next app, decide which properties are necessary, strip sensitive query parameters, review error payloads, and test with synthetic values. Autocapture also needs review alongside custom events.</p>
+          <div class="exercise-step"><b>Verify</b><p>Use a fake capture adapter to compare event/property names across platforms. Test a direct instructor landing, one Register tap, a blocked SDK, missing configuration, a debounced search, first load versus reload, and load failure. Check that one user action has the expected event set and that no event is mistaken for booking confirmation.</p></div>
+          <div class="exercise-step"><b>Carry forward</b><p>Specify the event trigger, property contract, clock, and failure behavior. Share fixtures across platform adapters, and use independent health checks and alerts for journeys that analytics alone cannot prove.</p></div>
         </div>
 
         <h3>Risks &amp; gotchas</h3>
@@ -1021,7 +1084,7 @@ revalidateTag('app-data')</code></pre>
           <li><b>Keep:</b> the service-role-writes / public-reads split, the pure tested matcher, the webhook seam, and treating &ldquo;0 classes&rdquo; as an error.</li>
         </ul>
 
-        <p style="margin-top:20px"><span class="status-note">Deep-dive complete &mdash; Sep 2026</span></p>
+        <p style="margin-top:20px"><span class="status-note">Deep-dive updated &mdash; 1 Oct 2026</span></p>
       </section>
 
       <section id="bonado">
@@ -1313,7 +1376,7 @@ p_entry_id: claimEntryId()</code></pre>
     <a class="next" href="together.html"><small>Next</small>Part III &middot; Build playbook</a>
   </nav>
 
-  <footer>The Build So Far &middot; v25 &middot; 30 Sep 2026 &middot; <a href="index.html">all parts</a></footer>
+  <footer>The Build So Far &middot; v26 &middot; 1 Oct 2026 &middot; <a href="index.html">all parts</a></footer>
 </div>
 </body>
 </html>
