@@ -45,6 +45,7 @@
       <a href="#lab-sansayaw-batch">Batch identity lab</a>
       <a href="#lab-sansayaw-registration">Registration lab</a>
       <a href="#lab-sansayaw-analytics">Analytics lab</a>
+      <a href="#sansayaw-widget-observation">Widget observation</a>
       <a href="#bonado">D &nbsp;Bonado</a>
     </nav>
 
@@ -738,7 +739,7 @@ inside_radius := st_distance(v_point, v_venue.location)
                       <li><div class="file-node"><span class="file-kind">ts</span><code>src/hooks/ · src/lib/ · src/utils/</code><span class="file-purpose">data loading/timing, analytics.ts events, share.ts payloads, links.ts adapters, and pure transformations</span></div></li>
                       <li><div class="file-node"><span class="file-kind">ts</span><code>capacitor.config.ts</code><span class="file-purpose">connects the web bundle to the native iOS shell</span></div></li>
                       <li><div class="file-node"><span class="file-kind file-kind--generated">build</span><code>dist/</code><span class="file-purpose">compiled web output copied into the native bundle</span></div></li>
-                      <li><div class="file-node"><span class="file-kind">native</span><code>ios/App/App/</code><span class="file-purpose">SceneDelegate.swift bridges OS events; Info.plist declares privacy purposes</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">native</span><code>ios/App/App/</code><span class="file-purpose">SceneDelegate.swift bridges OS events and registers WidgetInfo; Info.plist declares privacy purposes</span></div></li>
                     </ul>
                   </li>
                 </ul>
@@ -971,6 +972,7 @@ revalidateTag('app-data')</code></pre>
           <p><a href="https://github.com/geloavendano/sansayaw/commit/8de825a">8de825a</a> adds a homepage H1, real instructor/studio links, and a city-grouped studio directory in the server route outside the interactive <code>DanceApp</code>. That directory is present before hydration. Instructor links inside an opened sheet still depend on that sheet being rendered; a real anchor alone does not put every instructor into the initial HTML. Class cards link the resolved single-instructor case; collaboration labels stay plain text.</p>
           <p><a href="https://github.com/geloavendano/sansayaw/commit/1e2ec9b">1e2ec9b</a> builds the sitemap from the same cached <code>getAppData()</code>: home, all studios, instructors with a slug and at least one class in the served window, privacy, and support. This reduces drift between the directory and route inventory. It does not establish that a search engine has indexed those pages. <a href="https://developers.google.com/search/docs/crawling-indexing/links-crawlable">Google&rsquo;s link guidance</a> explains why anchors with usable destinations matter.</p>
           <p><strong>Current caveat:</strong> studio/instructor <code>lastModified</code> is the maximum matching <em>class date</em>, which can be in the future and can miss a later biography edit. It is stable across requests, but it is not a page modification timestamp. Use an actual significant-content update time, or omit an unreliable value. <a href="https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap">Google&rsquo;s sitemap documentation</a> requires accurate modification dates for that signal and says it ignores <code>priority</code> and <code>changefreq</code>.</p>
+          <p><strong>Grouping must preserve destination identity.</strong> <a href="https://github.com/geloavendano/sansayaw/commit/15402fd">15402fd</a> fixes the About directory: <code>groupStudiosByName</code> previously retained one studio ID while merging branch cities, so Full schedule always opened the first branch. It now preserves <code>branches: [{ id, city }]</code>, deduplicates by ID, and renders a link per branch in <code>StudioListRow</code>. A city label is presentation; the branch ID owns the route. Grouping still uses the exact studio name and retains the first available website/Instagram, so this is not a general brand-identity model. Test two branches in the same city, duplicate rows, a missing city, and reversed input order: every distinct branch must remain reachable.</p>
           <h4>3. Separate stored history, delivered history, and visible history</h4>
           <p><a href="https://github.com/geloavendano/sansayaw/commit/11b7d48">11b7d48</a> brings the mobile Past Classes feature to web. The existing <code>classes_display</code> view selects the latest successful/partial scrape per studio/date; both loaders already serve a 60-day lookback. The new profile UI shows only the last 30 days before today, newest first, initially five rows with an expand toggle. No new history migration is introduced by these UI commits.</p>
           <div class="table-scroll"><table>
@@ -982,6 +984,7 @@ revalidateTag('app-data')</code></pre>
               <tr><td class="grp">Sitemap membership</td><td>Include instructors with classes anywhere in the served window.</td><td>This includes recent history, not just instructors with upcoming classes.</td></tr>
             </tbody>
           </table></div>
+          <p><strong>A calendar week is not the next seven days.</strong> In mobile <code>InstructorPage.tsx</code>, <a href="https://github.com/geloavendano/sansayaw/commit/694ebaa">694ebaa</a> anchors the share-card label to Monday and ends it on Sunday. On Thursday 1 Oct, the label becomes Sep 28 &ndash; Oct 4 instead of Oct 1 &ndash; 7. Yet <code>weekClasses</code> still starts from <code>myClasses</code>, already filtered to today onward: it shows the remaining dates this week, not Monday&rsquo;s past classes. <code>utils/date.ts</code> uses local calendar dates. Test Monday, Sunday, month/year rollover, and the intended device timezone; verify both the label and included rows. A corrected heading does not redefine an upstream filter.</p>
           <div class="exercise-step"><b>Verify</b><p>Use synthetic instructors with zero, past-only, upcoming, and collaborative classes. Check canonical links, a legacy redirect, an old handle, and a changed biography. Inspect HTML with JavaScript disabled for studio anchors; compare sitemap URLs to actual routes. At a fixed &ldquo;today,&rdquo; test dates 31, 30, 1, and 0 days ago plus more than five past rows on both frontends.</p></div>
           <div class="exercise-step"><b>Carry forward</b><p>Give URLs a stable identity, render useful navigation before interaction, and name each time window explicitly. The sitemap, UI, and database answer different questions even when they share a query.</p></div>
         </div>
@@ -1061,6 +1064,25 @@ revalidateTag('app-data')</code></pre>
             </tbody>
           </table></div>
           <p><strong>Analytics adds a data boundary.</strong> Calls now send search text, full outbound URLs, and error messages to a third party; even a Google Calendar URL can contain class details in its query string. No account system does not mean no user-supplied data. The privacy page was updated, but the explicit event calls do not redact these values. For the next app, decide which properties are necessary, strip sensitive query parameters, review error payloads, and test with synthetic values. Autocapture also needs review alongside custom events.</p>
+          <h4 id="sansayaw-widget-observation">Widget observation: a native bridge and a sampled count</h4>
+          <p><a href="https://github.com/geloavendano/sansayaw/commit/515c49a">515c49a</a>, inspected at remote main <code>15402fd</code> on 2 Oct 2026, adds widget analytics. The committed tree contains the iOS implementation; despite the commit message and TypeScript comment mentioning Android, it contains no Android <code>WidgetInfoPlugin.java</code> or <code>MainActivity</code> implementation. Neither a native release nor production telemetry is verified here.</p>
+          <div class="source-trail"><strong>Source trail</strong><br>
+            <code>mobile/ios/App/App/SceneDelegate.swift</code>: <code>MainViewController.capacitorDidLoad</code> &rarr; <code>WidgetInfoPlugin.getConfigurations</code><br>
+            <code>mobile/src/lib/analytics.ts</code>: <code>registerPlugin('WidgetInfo')</code> &rarr; <code>syncWidgetStatus</code> &rarr; Preferences + PostHog
+          </div>
+          <p>The scene now creates a custom bridge controller, which registers the app-local Swift plugin. Its <code>jsName</code> matches the JavaScript registration, and its promise resolves to widget <code>kind</code>/<code>family</code> pairs from WidgetKit. <a href="https://capacitorjs.com/docs/ios/custom-code">Capacitor&rsquo;s custom-code guide</a> explains this two-sided registration. The TypeScript interface describes a contract; it cannot install the Swift code into an older binary. <a href="https://developer.apple.com/documentation/widgetkit/widgetcenter">Apple&rsquo;s WidgetCenter reference</a> describes the returned user-configured widgets; the app samples them at launch and foreground.</p>
+          <p><strong>Flow:</strong> launch/foreground &rarr; native configuration query &rarr; count and unique sorted families &rarr; register <code>widget_count</code>/<code>widget_sizes</code> for later events &rarr; compare the saved count &rarr; emit a change event &rarr; save the new baseline &rarr; emit <code>app_opened</code> or <code>app_foregrounded</code>. This orders those lifecycle events after sampling; unrelated events can still occur before it finishes.</p>
+          <div class="table-scroll"><table>
+            <thead><tr><th>Observation</th><th>Committed behavior</th><th>What to conclude</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">No previous count; two widgets</td><td>Registers count 2 and saves it; no added event.</td><td>First observation establishes a baseline, not installation time.</td></tr>
+              <tr><td class="grp">Saved 1; now 3</td><td>One <code>widget_added</code> event with previous/current counts.</td><td>A net increase since the last check, not three installs or two individually observed actions.</td></tr>
+              <tr><td class="grp">Same count; different family</td><td>Refreshes sizes; emits no added/removed event.</td><td>Replacement, resizing, or add-then-remove can be invisible to count comparison.</td></tr>
+              <tr><td class="grp">Plugin rejects or is absent</td><td>Returns before changing properties/baseline; lifecycle tracking continues.</td><td>Missing or retained old properties are not a confirmed zero-widget observation.</td></tr>
+            </tbody>
+          </table></div>
+          <p><strong>Failure isolation is partial.</strong> Only the native query is inside <code>try/catch</code>. A Preferences read/write rejection can prevent the awaited lifecycle event; a never-settling query has no timeout. Checks are not serialized, so overlapping launch/foreground calls can read the same baseline and duplicate a change event. Saving a baseline also does not prove that the analytics transport delivered the event. For the next app, isolate optional telemetry from lifecycle reporting, serialize observations, and distinguish unknown, stale, and observed-zero state.</p>
+          <div class="exercise-step"><b>Verify the boundary</b><p>With fake native, Preferences, and capture adapters, test first observation, equal/increased/decreased count, family-only changes, plugin rejection, storage failure, and overlapping checks. On a packaged iOS build, add/remove widgets while backgrounded and reopen. Compare returned configurations with event properties; do not infer support from a platform name in a commit message.</p></div>
           <div class="exercise-step"><b>Verify</b><p>Use a fake capture adapter to compare event/property names across platforms. Test a direct instructor landing, one Register tap, a blocked SDK, missing configuration, a debounced search, first load versus reload, and load failure. Check that one user action has the expected event set and that no event is mistaken for booking confirmation.</p></div>
           <div class="exercise-step"><b>Carry forward</b><p>Specify the event trigger, property contract, clock, and failure behavior. Share fixtures across platform adapters, and use independent health checks and alerts for journeys that analytics alone cannot prove.</p></div>
         </div>
@@ -1084,7 +1106,7 @@ revalidateTag('app-data')</code></pre>
           <li><b>Keep:</b> the service-role-writes / public-reads split, the pure tested matcher, the webhook seam, and treating &ldquo;0 classes&rdquo; as an error.</li>
         </ul>
 
-        <p style="margin-top:20px"><span class="status-note">Deep-dive updated &mdash; 1 Oct 2026</span></p>
+        <p style="margin-top:20px"><span class="status-note">Deep-dive updated &mdash; 2 Oct 2026</span></p>
       </section>
 
       <section id="bonado">
@@ -1376,7 +1398,7 @@ p_entry_id: claimEntryId()</code></pre>
     <a class="next" href="together.html"><small>Next</small>Part III &middot; Build playbook</a>
   </nav>
 
-  <footer>The Build So Far &middot; v26 &middot; 1 Oct 2026 &middot; <a href="index.html">all parts</a></footer>
+  <footer>The Build So Far &middot; v27 &middot; 2 Oct 2026 &middot; <a href="index.html">all parts</a></footer>
 </div>
 </body>
 </html>

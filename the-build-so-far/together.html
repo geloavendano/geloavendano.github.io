@@ -991,7 +991,7 @@ Name the measurable condition that would make the decision wrong.
         <h3>Android is the same idea with different machinery</h3>
         <p>The shared beginning is identical: <code>src/</code> &rarr; <code>dist/</code> &rarr; <code>npx cap sync android</code>. Then Android Studio and Gradle replace Xcode: they compile the native project, assemble resources, and sign a release artifact. For Google Play the normal upload artifact is an <strong>Android App Bundle</strong> (<code>.aab</code>), usually generated under <code>android/app/build/outputs/bundle/release/</code>; a signed <code>.apk</code> is directly installable but is not the same thing as the Play Store&rsquo;s preferred bundle. Upload the signed bundle to Play Console, promote it through an internal/closed/open test track, then release it to production. Protect the upload key and increase <code>versionCode</code> for each release.</p>
 
-        <p><strong>Release regression to carry forward:</strong> Sansayaw&rsquo;s <a href="deep-dives.html#lab-sansayaw-native">native release lesson</a> traces a QR-image Save to Photos crash to a missing purpose string, and a Calendar redirect to its outbound adapter. Exercise system menus, permission denial, and account handoffs in the packaged app, alongside the visible buttons.</p>
+        <p><strong>Release regression to carry forward:</strong> Sansayaw&rsquo;s <a href="deep-dives.html#lab-sansayaw-native">native release lesson</a> traces a QR-image Save to Photos crash to a missing purpose string, and a Calendar redirect to its outbound adapter. Exercise system menus, permission denial, and account handoffs in the packaged app, alongside the visible buttons. Its <a href="deep-dives.html#sansayaw-widget-observation">widget observation lesson</a> adds another check: the packaged native plugin must match the JavaScript contract, and optional telemetry failures must not suppress lifecycle reporting.</p>
 
         <h3>Common traps</h3>
         <ul class="findings">
@@ -1157,7 +1157,7 @@ Name the measurable condition that would make the decision wrong.
     <a class="next" href="ai.html"><small>Next</small>Part IV &middot; AI development</a>
   </nav>
 
-  <footer>The Build So Far &middot; v26 &middot; 1 Oct 2026 &middot; <a href="index.html">all parts</a></footer>
+  <footer>The Build So Far &middot; v27 &middot; 2 Oct 2026 &middot; <a href="index.html">all parts</a></footer>
 </div>
 </body>
 </html>
