@@ -38,6 +38,7 @@
       <a href="#landscape">The landscape</a>
       <a href="#barkhaus">A &nbsp;Barkhaus</a>
       <a href="#mvl">B &nbsp;MVL 2026</a>
+      <a href="#lab-mvl-feedback">Feedback word clouds</a>
       <a href="#sansayaw">C &nbsp;Sansayaw</a>
       <a href="#lab-sansayaw-sharing">Class sharing lab</a>
       <a href="#lab-sansayaw-native">Native release lessons</a>
@@ -46,13 +47,15 @@
       <a href="#lab-sansayaw-registration">Registration lab</a>
       <a href="#lab-sansayaw-analytics">Analytics lab</a>
       <a href="#sansayaw-widget-observation">Widget observation</a>
+      <a href="#sansayaw-source-selection">Source selection</a>
+      <a href="#lab-sansayaw-android">Android boundaries</a>
       <a href="#bonado">D &nbsp;Bonado</a>
     </nav>
 
     <main id="main" class="content prose">
       <section id="landscape">
         <h2>The landscape</h2>
-        <p>Fourteen folders sit in <code>~/Projects</code>. They collapse into <strong>five groups</strong> &mdash; four real products and a bag of demos. Two folders are noise: <code>mvl-vercel-upload.zip</code> (a stale export) and <code>Sponsor&nbsp;Logos/</code> (just image files).</p>
+        <p>The application repositories and their working copies in <code>~/Projects</code> collapse into <strong>five groups</strong> &mdash; four real products and a bag of demos. Two folders are noise: <code>mvl-vercel-upload.zip</code> (a stale export) and <code>Sponsor&nbsp;Logos/</code> (just image files).</p>
         <p>The through-line: almost every product is a <strong>frontend served from a static host</strong>, talking to <strong>a Supabase backend</strong> for data, accounts and files, with a few outside services bolted on for payments, email and maps. Learn that one shape and you understand 80% of everything here. Only Barkhaus has a dedicated Supabase project; Sansayaw, MVL and Bonado share one.</p>
 
         <div class="table-scroll">
@@ -93,7 +96,7 @@
                 <td>Next.js site + scraper scripts</td>
                 <td>Vercel + GitHub Actions</td>
                 <td>Supabase <span style="opacity:.6">(shared)</span></td>
-                <td>iOS (Capacitor)</td>
+                <td>iOS + Android source (Capacitor)</td>
                 <td><span class="pill pill--live">Live</span></td>
               </tr>
               <tr>
@@ -444,6 +447,7 @@ if (parseInt(body.total) !== priced.total) {
                           <li><div class="file-node"><span class="file-kind">js</span><code>league-data.js</code><span class="file-purpose">bundled seed/fallback snapshot</span></div></li>
                           <li><div class="file-node"><span class="file-kind">js</span><code>public-data.js</code><span class="file-purpose">fetch, normalize, cache, and fall back to the snapshot</span></div></li>
                           <li><div class="file-node"><span class="file-kind">js</span><code>nav.js · analytics.js · lightbox.js</code><span class="file-purpose">concerns reused across pages</span></div></li>
+                          <li><div class="file-node"><span class="file-kind">js</span><code>admin.js</code><span class="file-purpose">admin RPC reports and escaped feedback word-cloud rendering</span></div></li>
                           <li><div class="file-node"><span class="file-kind">js</span><code>waiver.js · vote.js · scoreboard-*.js</code><span class="file-purpose">one controller per interactive screen</span></div></li>
                         </ul>
                       </li>
@@ -635,6 +639,17 @@ if (parseInt(body.total) !== priced.total) {
           <p>The site changes shape between &ldquo;registration&rdquo; and &ldquo;game day&rdquo; by editing <strong>one word</strong> in <code>site-config.js</code>. That swaps every page&rsquo;s navigation (Rules/Waiver &rarr; Schedule/Videos/Teams/Rules/Check-In). The nav is one byte-identical block copied onto every page and stamped before the page paints, so wrong-phase links never flash. A one-line script checks that every page&rsquo;s nav block is identical &mdash; the entire mechanism for &ldquo;no page drifts out of sync.&rdquo; Old URLs stay alive through a wall of redirects in <code>vercel.json</code>.</p>
         </div>
 
+        <div class="guided-lab" id="lab-mvl-feedback">
+          <h3>Feature X-ray &middot; feedback word clouds without losing context</h3>
+          <p><strong>Learning objective:</strong> trace a derived visualization back to its measurement and trust boundary. <a href="https://github.com/geloavendano/mvl-site/commit/6547967">6547967</a> adds a browser-generated word cloud above each written-response list. It adds no database field, analytics service, or visualization dependency.</p>
+          <div class="source-trail"><strong>Source trail</strong><br><code>mvl/js/admin.js</code>: <code>loadFeedbackSummary</code> &rarr; RPC <code>mvl_admin_feedback_summary</code> &rarr; <code>feedbackQuestionCard</code> &rarr; <code>feedbackWordCloud</code>.<br><code>supabase/migrations/20260908000200_feedback_report.sql</code> establishes the admin check and report shape; later feedback migrations evolve it. <code>mvl/css/style.css</code> renders the wrapping word list.</div>
+          <p>The browser already receives the written answers through the admin report. The new helper lowercases text, tokenizes Unicode letters/numbers, removes short words, numeric-only tokens and English/Filipino stop words, then counts occurrences in a <code>Map</code>. It sorts by frequency with an alphabetical tie-break, keeps at most 36 terms, and uses a square-root scale for font size. When at least six distinct terms repeat, singleton terms disappear; with fewer repeated terms, singletons remain eligible. Equal counts receive one common size. Labels expose the exact count, while original answers remain below the cloud.</p>
+          <p><strong>Frequency is not respondent count or sentiment.</strong> One answer containing &ldquo;parking parking parking&rdquo; contributes three mentions. Removing &ldquo;not&rdquo; or &ldquo;hindi&rdquo; discards negation; a large &ldquo;good&rdquo; could come from negative sentences. The six-term threshold also changes what is visible as data grows. Keep raw context and the counting rule available, and do not interpret size as the percentage of participants who agree.</p>
+          <p><strong>Authorization and escaping do different jobs.</strong> The server RPC checks admin access; hiding the page would not protect its response. The cloud escapes both displayed tokens and title/ARIA labels, and the answer list escapes full responses before HTML insertion. This prevents text from becoming markup; it does not anonymize a report or make it safe to publish.</p>
+          <div class="exercise-step"><b>Verify with invented answers</b><p>Test repeated words within one answer, punctuation, apostrophes, Filipino/English stop words, equal frequencies, empty input, the five-to-six repeated-term transition, and a markup-shaped string. Confirm accessible labels preserve counts and the original escaped answer is still available. Do not use participant data as a test fixture.</p></div>
+          <div class="exercise-step"><b>Carry forward</b><p>A summary should reveal its unit, filters, and omissions. Keep the underlying evidence alongside it; an attractive visualization cannot supply missing meaning.</p></div>
+        </div>
+
         <div class="guided-lab" id="lab-mvl-raffle">
           <h3>Feature X-ray &middot; MVL raffle check-in</h3>
           <p><strong>Learning objective:</strong> see why one database function is easier to change and harder to cheat than eligibility rules copied into several pages.</p>
@@ -694,10 +709,10 @@ inside_radius := st_distance(v_point, v_venue.location)
         <h2><span class="letter">C</span> Sansayaw <span class="pill pill--live">Live</span></h2>
 
         <h3>In one line</h3>
-        <p>A directory of drop-in dance classes across Manila studios (<strong>sansayaw.org</strong>), plus an iOS app. Its defining trait: <strong>automated collection with curated exceptions</strong>. Every morning, robots read ~13 studios&rsquo; booking systems, clean up the results, and publish them. Manual schedule files and instructor identity edits cover information the adapters cannot reliably resolve.</p>
+        <p>A directory of drop-in dance classes across Manila studios (<strong>sansayaw.org</strong>), plus a shared mobile app with iOS and Android native source. Its defining trait: <strong>automated collection with curated exceptions</strong>. The default daily job reads multiple booking systems, cleans up the results, and publishes them. G-Force is excluded from that default and has a separate selected-source run path. Manual schedule files and instructor identity edits cover information the adapters cannot reliably resolve.</p>
 
         <h3>Architecture</h3>
-        <p>Three parts in one repository, one job each: a set of <strong>Python scrapers</strong>, a <strong>Next.js website</strong>, and a small <strong>iOS app</strong>. The scrapers run on a schedule and write to Supabase; the website and the app read from it. The seam between the two halves is a single <em>&ldquo;refresh your cache now&rdquo;</em> webhook.</p>
+        <p>Three parts in one repository, one job each: a set of <strong>Python scrapers</strong>, a <strong>Next.js website</strong>, and a <strong>React mobile app with iOS and Android shells</strong>. The default scrapers run on a schedule; G-Force requires an explicitly selected run from a suitable network. Both write to Supabase; the website and the app read from it. The seam between the two halves is a single <em>&ldquo;refresh your cache now&rdquo;</em> webhook.</p>
 
         <h3>Repository map &mdash; pipeline, website, and app</h3>
         <figure class="repo-map">
@@ -706,16 +721,16 @@ inside_radius := st_distance(v_point, v_venue.location)
             <ul class="repo-tree" aria-label="Sansayaw repository structure">
               <li><div class="file-node file-node--root"><span class="file-kind file-kind--folder">dir</span><code>sansayaw/</code><span class="file-purpose">Sansayaw&rsquo;s data pipeline and two frontends</span></div>
                 <ul>
-                  <li><div class="file-node"><span class="file-kind">py</span><code>run.py</code><span class="file-purpose">orchestrates one full scrape, database write, and cache refresh</span></div></li>
+                  <li><div class="file-node"><span class="file-kind">py</span><code>run.py</code><span class="file-purpose">selects full/default or --only sources, writes data, and refreshes the cache</span></div></li>
                   <li><div class="file-node"><span class="file-kind">py</span><code>manage_instructors.py</code><span class="file-purpose">identity editing, normalized handles/slugs, and diagnostic repairs</span></div></li>
                   <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>scrapers/</code><span class="file-purpose">source adapters and shared data rules</span></div>
                     <ul>
-                      <li><div class="file-node"><span class="file-kind">py</span><code>ember.py · tads.py · studio808.py · …</code><span class="file-purpose">one adapter per studio or booking platform</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">py</span><code>ember.py · tads.py · gforce.py · …</code><span class="file-purpose">one adapter per studio or booking platform</span></div></li>
                       <li><div class="file-node"><span class="file-kind">py</span><code>normalize.py · match.py</code><span class="file-purpose">one vocabulary for messy names, genres, and identities</span></div></li>
                       <li><div class="file-node"><span class="file-kind">py</span><code>db.py</code><span class="file-purpose">all Supabase reads and writes for the pipeline</span></div></li>
                     </ul>
                   </li>
-                  <li><div class="file-node"><span class="file-kind">py</span><code>tests/</code><span class="file-purpose">identity, normalization, and matching; batch-parser and planner regression tests</span></div></li>
+                  <li><div class="file-node"><span class="file-kind">py</span><code>tests/</code><span class="file-purpose">identity, normalization, source selection, G-Force parsing, and batch-planner regression tests</span></div></li>
                   <li><div class="file-node"><span class="file-kind">sql</span><code>migration_*.sql</code><span class="file-purpose">database and policy changes from this older migration layout</span></div></li>
                   <li><div class="file-node"><span class="file-kind">yml</span><code>.github/workflows/scrape.yml</code><span class="file-purpose">daily schedule, runtime setup, timeout, and secrets</span></div></li>
                   <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>manual_data/ · scripts/</code><span class="file-purpose">curated schedules, backfills, and maintenance tools</span></div></li>
@@ -737,9 +752,11 @@ inside_radius := st_distance(v_point, v_venue.location)
                     <ul>
                       <li><div class="file-node"><span class="file-kind">tsx</span><code>src/App.tsx · src/components/*.tsx</code><span class="file-purpose">app shell, screens, class sheets, and screenshot share prompt</span></div></li>
                       <li><div class="file-node"><span class="file-kind">ts</span><code>src/hooks/ · src/lib/ · src/utils/</code><span class="file-purpose">data loading/timing, analytics.ts events, share.ts payloads, links.ts adapters, and pure transformations</span></div></li>
-                      <li><div class="file-node"><span class="file-kind">ts</span><code>capacitor.config.ts</code><span class="file-purpose">connects the web bundle to the native iOS shell</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">ts</span><code>capacitor.config.ts</code><span class="file-purpose">connects the web bundle to the iOS and Android shells</span></div></li>
                       <li><div class="file-node"><span class="file-kind file-kind--generated">build</span><code>dist/</code><span class="file-purpose">compiled web output copied into the native bundle</span></div></li>
                       <li><div class="file-node"><span class="file-kind">native</span><code>ios/App/App/</code><span class="file-purpose">SceneDelegate.swift bridges OS events and registers WidgetInfo; Info.plist declares privacy purposes</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">native</span><code>android/app/src/main/</code><span class="file-purpose">manifest, Java bridge, independent widget fetch/render/configuration, and resource layouts</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">build</span><code>android/app/build.gradle · play-store/</code><span class="file-purpose">version/signing gate and store submission drafts; not proof of release</span></div></li>
                     </ul>
                   </li>
                 </ul>
@@ -757,7 +774,7 @@ inside_radius := st_distance(v_point, v_venue.location)
         </figure>
 
         <figure class="diagram">
-          <svg viewBox="0 0 720 250" role="img" aria-label="Sansayaw daily pipeline: GitHub Actions fires at 6am, running Python scrapers that read about 13 studio sources; they write classes into the sansayaw schema in Supabase using the service-role key; then they POST a revalidate webhook that clears the Next.js site's cache. The site reads Supabase with the anon key, select-only. The iOS app reads the same data directly.">
+          <svg viewBox="0 0 720 250" role="img" aria-label="Sansayaw pipeline: GitHub Actions runs default sources at 6am; a separate selected-source run handles G-Force; they write classes into the sansayaw schema in Supabase using the service-role key; then they POST a revalidate webhook that clears the Next.js site's cache. The site reads Supabase with the anon key, select-only. The shared mobile app and native widgets read the same data directly.">
             <defs>
               <marker id="ahs" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
                 <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
@@ -765,12 +782,12 @@ inside_radius := st_distance(v_point, v_venue.location)
             </defs>
 
             <rect class="box" x="12" y="42" width="150" height="58" rx="8"></rect>
-            <text class="t t--title" x="87" y="66" text-anchor="middle" font-size="12.5">GitHub Actions</text>
-            <text class="t" x="87" y="84" text-anchor="middle" font-size="10.5" opacity="0.66">6 AM daily</text>
+            <text class="t t--title" x="87" y="66" text-anchor="middle" font-size="12.5">Actions / local</text>
+            <text class="t" x="87" y="84" text-anchor="middle" font-size="10.5" opacity="0.66">Daily / selected run</text>
 
             <rect class="box" x="200" y="42" width="172" height="58" rx="8"></rect>
             <text class="t t--title" x="286" y="66" text-anchor="middle" font-size="12.5">Scrapers (Python)</text>
-            <text class="t" x="286" y="84" text-anchor="middle" font-size="10.5" opacity="0.66">~13 sources &middot; browser for 3</text>
+            <text class="t" x="286" y="84" text-anchor="middle" font-size="10.5" opacity="0.66">Adapters &middot; browser for 3</text>
 
             <rect class="box box--key" x="410" y="32" width="150" height="78" rx="8"></rect>
             <text class="t t--title" x="485" y="56" text-anchor="middle" font-size="12.5">Supabase</text>
@@ -791,10 +808,10 @@ inside_radius := st_distance(v_point, v_venue.location)
             <polyline class="edge" points="286,100 286,138 650,138 650,102" marker-end="url(#ahs)"></polyline>
             <text class="lbl" x="468" y="154" text-anchor="middle" font-size="10">then: revalidate webhook &mdash; clears the site&rsquo;s cache</text>
 
-            <text class="t" x="360" y="196" text-anchor="middle" font-size="11" opacity="0.62">Scrapers write with the service-role key. The site and the iOS app read with the</text>
+            <text class="t" x="360" y="196" text-anchor="middle" font-size="11" opacity="0.62">Scrapers write with the service-role key. The site, mobile app, and widgets read with the</text>
             <text class="t" x="360" y="212" text-anchor="middle" font-size="11" opacity="0.62">public key, select-only &mdash; they can never change the data.</text>
           </svg>
-          <figcaption>&ldquo;Users enter data&rdquo; is replaced by a timed job. The scraper is the only writer; the website and app are read-only. Between them sits one webhook: when the scrape finishes, it tells the site to drop its cached copy so the next visitor sees fresh classes. If that webhook fails, the site just catches up on its own timer &mdash; nothing breaks.</figcaption>
+          <figcaption>&ldquo;Users enter data&rdquo; is replaced by a timed job. The pipeline writes classes; maintenance tools manage curated metadata. The website, mobile app, and widgets read data. G-Force&rsquo;s separate run uses the same write/cache path; see <a href="#sansayaw-source-selection">source selection</a>. Between them sits one webhook: when the scrape finishes, it tells the site to drop its cached copy so the next visitor sees fresh classes. If that webhook fails, the site just catches up on its own timer &mdash; nothing breaks.</figcaption>
         </figure>
 
         <h3>Systems &amp; why</h3>
@@ -802,13 +819,13 @@ inside_radius := st_distance(v_point, v_venue.location)
           <table>
             <thead><tr><th>System</th><th>What it does here</th><th>Why this choice / the trade-off</th></tr></thead>
             <tbody>
-              <tr><td class="grp">Python + Playwright</td><td>The scraping job: read ~13 studios&rsquo; booking systems (Wix, Mindbody, Shopify, widget APIs&hellip;), parse and clean</td><td>Python has the best ecosystem for &ldquo;drive a browser, parse messy data, normalise it.&rdquo; A real browser (Playwright) is only needed for 3 of 13; the rest read data endpoints directly. Deliberately the <em>only</em> Python in the portfolio.</td></tr>
-              <tr><td class="grp">GitHub Actions (cron)</td><td>Runs the scraper every day at 6 AM Manila time</td><td>A free scheduled runner &mdash; no server to keep alive. Learned the hard way: a 30-minute timeout (a hung run once held a runner for 6 hours) and unbuffered logs (a killed job used to lose all its output).</td></tr>
+              <tr><td class="grp">Python + Playwright</td><td>The scraping job: read studio booking systems (Wix, Mindbody, Shopify, HelixPay, widget APIs&hellip;), parse and clean</td><td>Python has the best ecosystem for &ldquo;drive a browser, parse messy data, normalise it.&rdquo; A real browser (Playwright) is only needed for Nude Floor, TADS, and Ember; the rest read data endpoints directly. Deliberately the <em>only</em> Python in the portfolio.</td></tr>
+              <tr><td class="grp">GitHub Actions (cron)</td><td>Runs default sources every day at 6 AM Manila time; excludes G-Force</td><td>A free scheduled runner &mdash; no server to keep alive. Learned the hard way: a 30-minute timeout (a hung run once held a runner for 6 hours) and unbuffered logs (a killed job used to lose all its output).</td></tr>
               <tr><td class="grp">Supabase</td><td>Holds studios, instructors, classes, and one row per scrape run &mdash; in the shared project&rsquo;s <code>sansayaw</code> schema</td><td>The scraper writes with the powerful service-role key; the site and app read with the public key, restricted to SELECT. Clean split of &ldquo;who can change this&rdquo; from &ldquo;who can see it.&rdquo;</td></tr>
-              <tr><td class="grp">Next.js + Vercel (ISR)</td><td>Server-renders the site; fetches the whole dataset once into a cached function</td><td>Every visitor gets the cached copy (fast, cheap), and the scraper&rsquo;s webhook is what makes it refresh &mdash; so the site is never more than one scrape-cycle stale.</td></tr>
+              <tr><td class="grp">Next.js + Vercel (ISR)</td><td>Server-renders the site; fetches the whole dataset once into a cached function</td><td>Every visitor gets the cached copy (fast, cheap), and the scraper&rsquo;s webhook is what makes it refresh &mdash; but fresh rendering cannot repair a source that stopped producing data.</td></tr>
               <tr><td class="grp">The revalidate webhook</td><td>One authenticated <code>POST</code> from the scraper that clears the site&rsquo;s cache tag</td><td>The entire coupling between the two halves. Guarded by a shared secret; non-blocking &mdash; a failed call just means the site refreshes on its own timer instead.</td></tr>
-              <tr><td class="grp">PostHog (web + iOS)</td><td>Shared event names with a platform property; load timing and error reports</td><td>Separate adapters make cross-platform comparison possible. Events describe attempts or observed state, not proof of registration; see the <a href="#lab-sansayaw-analytics">analytics lab</a>.</td></tr>
-              <tr><td class="grp">Capacitor (iOS)</td><td>A small React app wrapped for the App Store, with a home-screen widget for today&rsquo;s classes; product analytics</td><td>The widget and native share need an app. It reads the same Supabase data &mdash; but it&rsquo;s a <em>separate</em> codebase from the website, so features get ported between the two.</td></tr>
+              <tr><td class="grp">PostHog (web + mobile)</td><td>Shared event names with a platform property; load timing and error reports</td><td>Separate adapters make cross-platform comparison possible. Events describe attempts or observed state, not proof of registration; see the <a href="#lab-sansayaw-analytics">analytics lab</a>.</td></tr>
+              <tr><td class="grp">Capacitor (iOS + Android)</td><td>Shared React mobile UI, separate native bridges and widgets, Android build/signing commands; store release not established by source alone</td><td>The widget and native share need an app. It reads the same Supabase data &mdash; but it&rsquo;s a <em>separate</em> codebase from the website, so features get ported between the two.</td></tr>
             </tbody>
           </table>
         </div>
@@ -920,6 +937,21 @@ revalidateTag('app-data')</code></pre>
           <div class="exercise-step"><b>Explain</b><p>Why is &ldquo;leave it unlinked&rdquo; a feature rather than a failure?</p></div>
         </div>
 
+        <div class="guided-lab" id="sansayaw-source-selection">
+          <h3>Operations lab &middot; selected sources and honest freshness</h3>
+          <p><strong>Learning objective:</strong> distinguish a successful process from complete, current data. Commits <a href="https://github.com/geloavendano/sansayaw/commit/59caa12">59caa12</a>, <a href="https://github.com/geloavendano/sansayaw/commit/2cdec01">2cdec01</a>, and <a href="https://github.com/geloavendano/sansayaw/commit/f5eeb87">f5eeb87</a> add the G-Force adapter, diagnostics, and source selection. These are committed mechanisms; this review did not run a production scrape or verify an ongoing local schedule.</p>
+          <div class="source-trail"><strong>Source trail</strong><br><code>run.py</code>: <code>SOURCES</code>, <code>LOCAL_ONLY</code>, <code>_parse_only</code>, <code>_is_selected</code> &rarr; <code>scrapers/gforce.py</code> &rarr; shared normalization/identity/write/revalidation path.<br><code>tests/test_gforce.py</code> and <code>tests/test_run_sources.py</code> describe parsing and selection contracts; <code>scripts/run_gforce.sh</code> is the separate launcher.</div>
+          <p><strong>Extract structure before adding a browser.</strong> The category page embeds day products with real slugs and dates. Each product embeds HTML-escaped JSON whose variants are classes. The adapter reads those structures over HTTP, decodes them, and loads up to eight day pages concurrently. It preserves branch IDs and booking destinations, infers omitted AM/PM, moves song titles out of instructor identity, and handles substitute labels. Guessing slugs or treating a song title as part of a person&rsquo;s name would corrupt different downstream contracts.</p>
+          <p><strong>Execution location becomes an operations dependency.</strong> Source comments report empty responses from GitHub runners but usable pages from a Philippine IP. The default run skips <code>LOCAL_ONLY = {"gforce"}</code>; <code>--only gforce</code> selects it explicitly and avoids launching Chromium. This encodes a reported environment constraint, not proof of a universal regional policy. A parser failure now includes response length, page title, a marker check, and a short text preview, helping distinguish an unexpected response from a changed layout. Such diagnostics should stay bounded and redact sensitive responses if reused elsewhere.</p>
+          <div class="table-scroll"><table><thead><tr><th>Boundary</th><th>Committed behavior</th><th>Failure lesson</th></tr></thead><tbody>
+            <tr><td class="grp">Selection</td><td>A nonempty <code>--only</code> set runs exactly those sources; no flag runs all except local-only ones.</td><td><code>--only &quot;&quot;</code> produces an empty set, which falls back to the default selection. Unknown sources and a missing argument do fail. Validate empty lists explicitly in the next CLI.</td></tr>
+            <tr><td class="grp">Partial scope</td><td>Selected runs skip the global Instagram photo refresh, but still seed all studio metadata, create a run, resolve identities, write classes, and revalidate.</td><td>&ldquo;Only&rdquo; limits source fetching; it is not a sandbox or a dry run. Never use the live runner merely to test the parser.</td></tr>
+            <tr><td class="grp">Partial data</td><td>Failed day pages are logged; successful days still return. G-Force errors are classified as best effort by the runner.</td><td>All G-Force branches can fail while overall status remains <code>success</code>. Partial days can also lack a structured error on the returned branch.</td></tr>
+          </tbody></table></div>
+          <div class="exercise-step"><b>Verify safely</b><p>Use synthetic category/product HTML and extracted pure selection functions. Test noon crossing, irregular slugs, one failed day, all failed days, default/explicit/empty selection, and unknown source names. Keep HTTP and database calls out of these checks.</p></div>
+          <div class="exercise-step"><b>Carry forward</b><p>Track last successful data per source and expected coverage separately from job status. A local-only source needs an owner, a schedule, and an absence alert; a green default job does not prove that source ran.</p></div>
+        </div>
+
         <div class="guided-lab" id="lab-sansayaw-sharing">
           <h3>Feature X-ray &middot; Class sharing across web and native</h3>
           <p><strong>Learning objective:</strong> separate the message, platform adapter, and destination contract. The original 25 Sep sharing feature changed in <a href="https://github.com/geloavendano/sansayaw/commit/1e1c9cd">1e1c9cd</a> and <a href="https://github.com/geloavendano/sansayaw/commit/fb94b50">fb94b50</a>, now on main: sending a message and copying a bare link are distinct actions. Native callers share one helper. These are committed changes, not proof that an installed App Store build contains them.</p>
@@ -957,6 +989,20 @@ revalidateTag('app-data')</code></pre>
           <div class="exercise-step"><b>Carry forward</b><p>Add system menus and permission states to the <a href="together.html#deployment">native release checks</a>. A merged fix still needs a rebuilt, archived, distributed, and tested binary.</p></div>
         </div>
 
+        <div class="guided-lab" id="lab-sansayaw-android">
+          <h3>Native lab &middot; Android boundaries across runtimes</h3>
+          <p><strong>Learning objective:</strong> separate shared UI from OS lifecycle, widget execution, and release identity. <a href="https://github.com/geloavendano/sansayaw/commit/b4314fe">b4314fe</a> adds Android source; <a href="https://github.com/geloavendano/sansayaw/commit/986be0b">986be0b</a> changes launch coordination. Inspected at <code>b804dd2</code> on 4 Oct 2026. A committed native project and store checklist do not establish a signed upload, verified App Links, or public Play release.</p>
+          <div class="source-trail"><strong>Source trail</strong><br><code>mobile/src/App.tsx</code> and <code>src/lib/deepLink.ts</code> own React navigation.<br><code>mobile/android/app/src/main/</code>: <code>AndroidManifest.xml</code>, <code>java/org/sansayaw/app/MainActivity.java</code>, <code>WidgetInfoPlugin.java</code>, <code>SansayawWidgetProvider.java</code>, <code>SansayawWidgetRepository.java</code>, <code>SansayawWidgetPreferences.java</code>, and <code>SansayawWidgetConfigureActivity.java</code> own native integration.<br><code>mobile/package.json</code> &rarr; <code>android/app/build.gradle</code> owns build/signing; <code>mobile/README.md</code> and <code>play-store/</code> describe release preparation.</div>
+          <p><strong>Shared React still needs platform navigation.</strong> The shell captures both <code>getLaunchUrl()</code> and warm <code>appUrlOpen</code> events before data loading finishes, retaining a pending target. Android Back closes pickers, filters, and the topmost detail layer before returning to the calendar and finally exiting. Those sheets are React state, so browser history cannot unwind them automatically. Test cold and warm links while data is loading, nested details, and stale class IDs.</p>
+          <p><strong>The widget is an independent client.</strong> Configuration stores studio choices per widget ID. The Java repository reads today&rsquo;s classes, studios, instructors, and optional junction credits directly from Supabase; it uses Manila time, removes already-started/unparseable classes, and orders the rest by start time. The provider renders <code>RemoteViews</code>, adjusts row count to dimensions, and opens class links through immutable <code>PendingIntent</code>s. React&rsquo;s data cache is not involved. Database read policies therefore protect this reader too, and duplicated time/identity rules need shared fixtures across native and web implementations.</p>
+          <p><strong>Refresh intent is not a timing guarantee.</strong> The provider requests an alarm one minute after an upcoming start or at 00:01 Manila; XML also requests a 30-minute periodic update. Failure renders an error and requests a retry in 30 minutes. <a href="https://developer.android.com/reference/android/app/AlarmManager">Android&rsquo;s alarm reference</a> describes <code>setAndAllowWhileIdle</code> as inexact. Treat displayed freshness as observed state, not a promise of exact class-start updates.</p>
+          <p><strong>Background work has a budget.</strong> <code>goAsync()</code> and a two-thread executor move fetching off the main thread, with <code>finish()</code> in <code>finally</code>. However, several sequential HTTP calls each allow 10-second connection and 15-second read timeouts, and one update can loop across multiple widget IDs. This can exceed a receiver&rsquo;s bounded lifetime. <a href="https://developer.android.com/develop/ui/views/appwidgets/advanced">Android&rsquo;s widget guidance</a> recommends scheduled work such as WorkManager for longer updates; moving work to a thread alone does not make it durable. The current code has no persisted schedule cache: errors replace rows with an error state.</p>
+          <p><strong>Build, signing, and link verification are separate gates.</strong> Commands build the web assets and sync Capacitor before Gradle produces an APK or AAB. <code>android:bundle:play</code> sets <code>-PplayStoreRelease=true</code>, which rejects missing signing configuration; the ordinary bundle command does not enforce that gate. With <a href="https://developer.android.com/studio/publish/app-signing">Play App Signing</a>, the upload key authenticates the submitted artifact and the app-signing key identifies distributed APKs. The manifest requests HTTPS handling, but <a href="https://developer.android.com/training/app-links/configure-assetlinks">website association</a> still needs the package and distributed signing certificate in <code>/.well-known/assetlinks.json</code>. The source README leaves that certificate step pending; this review did not verify the hosted association.</p>
+          <h4>Bug lesson: loading, errors, and animation are separate states</h4>
+          <p>The old <code>loading || !data</code> branch hid errors whenever a failed fetch left data null. The new launch flow checks settled errors first once animation finishes. The native splash hands off after a painted frame; the React splash waits for both animation completion and fetch settlement. A six-second fallback hides the native splash only: it does not force <code>animDone</code> or dismiss a stuck React overlay. Test fast success, slow success, failure with null data, reduced motion, and a missing animation callback. A timeout must release every gate that can block the user.</p>
+          <div class="exercise-step"><b>Carry forward</b><p>Give each runtime an explicit state machine, data contract, time budget, and release proof. Exercise two differently configured widgets, resizing, no network, midnight rollover, add/remove observation, Back navigation, and verified links on a packaged build. These device checks remain release work, not conclusions from reading source.</p></div>
+        </div>
+
         <div class="guided-lab" id="lab-sansayaw-discovery">
           <h3>Feature X-ray &middot; Discoverable URLs and bounded history</h3>
           <p><strong>Learning objective:</strong> connect data identity, HTML links, and page lifetime. Reviewed through remote main <a href="https://github.com/geloavendano/sansayaw/commit/f67eba2">f67eba2</a> on 27 Sep 2026. Three layers now make instructor/studio pages easier to reach, but each has its own correctness rule.</p>
@@ -988,6 +1034,8 @@ revalidateTag('app-data')</code></pre>
           <div class="exercise-step"><b>Verify</b><p>Use synthetic instructors with zero, past-only, upcoming, and collaborative classes. Check canonical links, a legacy redirect, an old handle, and a changed biography. Inspect HTML with JavaScript disabled for studio anchors; compare sitemap URLs to actual routes. At a fixed &ldquo;today,&rdquo; test dates 31, 30, 1, and 0 days ago plus more than five past rows on both frontends.</p></div>
           <div class="exercise-step"><b>Carry forward</b><p>Give URLs a stable identity, render useful navigation before interaction, and name each time window explicitly. The sitemap, UI, and database answer different questions even when they share a query.</p></div>
         </div>
+
+        <p><strong>Search lesson &mdash; normalize a lookup, not an identity.</strong> <a href="https://github.com/geloavendano/sansayaw/commit/6fa2f18">6fa2f18</a> adds equivalent matchers in <code>web/lib/search.js</code> and <code>mobile/src/utils/search.ts</code>. Both fold case, accents, punctuation, and &oslash;; a compact comparison ignores spaces only when the compact query has at least three characters. Thus &ldquo;hiphop&rdquo; finds &ldquo;Hip Hop&rdquo; and &ldquo;KPop&rdquo; finds &ldquo;K-POP&rdquo;. Despite the broad comment, the final allow-list is ASCII letters/digits/whitespace: non-Latin queries can fold to empty and match nothing. This is substring tolerance, not typo correction or an identity key. Preserve original labels and share fixtures across both implementations.</p>
 
         <div class="guided-lab" id="lab-sansayaw-batch">
           <h3>Maintenance lab &middot; Batch identity edits: parse, plan, then apply</h3>
@@ -1044,6 +1092,8 @@ revalidateTag('app-data')</code></pre>
           <div class="exercise-step"><b>Carry forward</b><p>Treat optional data as an end-to-end contract. Make rollout order explicit, keep graceful fallback narrow, and measure the destination actually chosen.</p></div>
         </div>
 
+        <p><strong>Field ownership lesson &mdash; optional logos must survive both scrapes and failures.</strong> <a href="https://github.com/geloavendano/sansayaw/commit/59498c9">59498c9</a> and <a href="https://github.com/geloavendano/sansayaw/commit/b804dd2">b804dd2</a> add nullable <code>studios.logo_url</code>, separate from the wide <code>photo_url</code>. <code>migration_studios_logo_url.sql</code> assigns public storage paths; <code>scrapers/db.py::seed_studios</code> does not include that field in its upsert payload. Mobile <code>StudioLogo.tsx</code> tries cached image, remote image, then initials; the web has its own fallback. The migration and image files do not prove the bucket upload or database rollout happened. Test missing fields, stale cached files, broken remote URLs, and a subsequent scrape; a decorative asset failure must not hide the class information.</p>
+
         <div class="guided-lab" id="lab-sansayaw-analytics">
           <h3>Operations lab &middot; Shared analytics events, different platform boundaries</h3>
           <p><strong>Learning objective:</strong> design events whose names, timing, and data explain what was observed. <a href="https://github.com/geloavendano/sansayaw/commit/3980ac9">3980ac9</a> adds web PostHog and aligns event names with iOS. This is a shared convention across separate files, not a generated schema or proof that telemetry is arriving in production.</p>
@@ -1065,7 +1115,7 @@ revalidateTag('app-data')</code></pre>
           </table></div>
           <p><strong>Analytics adds a data boundary.</strong> Calls now send search text, full outbound URLs, and error messages to a third party; even a Google Calendar URL can contain class details in its query string. No account system does not mean no user-supplied data. The privacy page was updated, but the explicit event calls do not redact these values. For the next app, decide which properties are necessary, strip sensitive query parameters, review error payloads, and test with synthetic values. Autocapture also needs review alongside custom events.</p>
           <h4 id="sansayaw-widget-observation">Widget observation: a native bridge and a sampled count</h4>
-          <p><a href="https://github.com/geloavendano/sansayaw/commit/515c49a">515c49a</a>, inspected at remote main <code>15402fd</code> on 2 Oct 2026, adds widget analytics. The committed tree contains the iOS implementation; despite the commit message and TypeScript comment mentioning Android, it contains no Android <code>WidgetInfoPlugin.java</code> or <code>MainActivity</code> implementation. Neither a native release nor production telemetry is verified here.</p>
+          <p><a href="https://github.com/geloavendano/sansayaw/commit/515c49a">515c49a</a>, inspected at remote main <code>15402fd</code> on 2 Oct 2026, adds widget analytics. That snapshot contained only the iOS implementation. <a href="https://github.com/geloavendano/sansayaw/commit/b4314fe">b4314fe</a>, inspected at <code>b804dd2</code> on 4 Oct 2026, now adds Android <code>WidgetInfoPlugin.java</code> and registers it in <code>MainActivity</code> before bridge creation. It returns one entry per configured provider widget, each with <code>family: android</code>; this reports presence/count, not Android widget dimensions. See the <a href="#lab-sansayaw-android">Android boundary lab</a>. Neither a native release nor production telemetry is verified here.</p>
           <div class="source-trail"><strong>Source trail</strong><br>
             <code>mobile/ios/App/App/SceneDelegate.swift</code>: <code>MainViewController.capacitorDidLoad</code> &rarr; <code>WidgetInfoPlugin.getConfigurations</code><br>
             <code>mobile/src/lib/analytics.ts</code>: <code>registerPlugin('WidgetInfo')</code> &rarr; <code>syncWidgetStatus</code> &rarr; Preferences + PostHog
@@ -1082,17 +1132,17 @@ revalidateTag('app-data')</code></pre>
             </tbody>
           </table></div>
           <p><strong>Failure isolation is partial.</strong> Only the native query is inside <code>try/catch</code>. A Preferences read/write rejection can prevent the awaited lifecycle event; a never-settling query has no timeout. Checks are not serialized, so overlapping launch/foreground calls can read the same baseline and duplicate a change event. Saving a baseline also does not prove that the analytics transport delivered the event. For the next app, isolate optional telemetry from lifecycle reporting, serialize observations, and distinguish unknown, stale, and observed-zero state.</p>
-          <div class="exercise-step"><b>Verify the boundary</b><p>With fake native, Preferences, and capture adapters, test first observation, equal/increased/decreased count, family-only changes, plugin rejection, storage failure, and overlapping checks. On a packaged iOS build, add/remove widgets while backgrounded and reopen. Compare returned configurations with event properties; do not infer support from a platform name in a commit message.</p></div>
+          <div class="exercise-step"><b>Verify the boundary</b><p>With fake native, Preferences, and capture adapters, test first observation, equal/increased/decreased count, family-only changes, plugin rejection, storage failure, and overlapping checks. On packaged iOS and Android builds, add/remove widgets while backgrounded and reopen. Compare returned configurations with event properties; do not infer support from a platform name in a commit message.</p></div>
           <div class="exercise-step"><b>Verify</b><p>Use a fake capture adapter to compare event/property names across platforms. Test a direct instructor landing, one Register tap, a blocked SDK, missing configuration, a debounced search, first load versus reload, and load failure. Check that one user action has the expected event set and that no event is mistaken for booking confirmation.</p></div>
           <div class="exercise-step"><b>Carry forward</b><p>Specify the event trigger, property contract, clock, and failure behavior. Share fixtures across platform adapters, and use independent health checks and alerts for journeys that analytics alone cannot prove.</p></div>
         </div>
 
         <h3>Risks &amp; gotchas</h3>
         <ul class="findings">
-          <li><b>Scrapers are structurally fragile.</b> ~13 different studio booking systems, any of which can redesign, change a widget, or block a bot with no warning. There are partial defences &mdash; a studio returning <em>zero</em> classes is treated as an error, not a quiet week &mdash; but a format change that still parses can slip through and quietly publish wrong data.</li>
+          <li><b>Scrapers are structurally fragile.</b> Multiple studio booking systems, any of which can redesign, change a widget, or block a bot with no warning. There are partial defences &mdash; a studio returning <em>zero</em> classes is treated as an error, not a quiet week &mdash; but a format change that still parses can slip through and quietly publish wrong data.</li>
           <li><b>Failures are visible only in a log.</b> A <em>partial</em> run, or a studio dropping to zero, shows up in the GitHub Actions output &mdash; nothing pages anyone. For a data product whose whole value is freshness and accuracy, that&rsquo;s the biggest gap.</li>
           <li><b>The security was once theatre.</b> Row-level security was switched <em>off</em> on these tables while &ldquo;public read&rdquo; policies existed &mdash; so Postgres ignored the policies, and the underlying grants actually let the public key <em>insert, update, and delete</em>. Anyone loading the site could have wiped the data. Fixed by a hardening migration (RLS on, writes revoked, the rules table fully closed) &mdash; but it was live for a while.</li>
-          <li><b>Two frontends, one dataset.</b> The website and the iOS app are separate codebases reading the same tables; a feature built on the web (instructor pages) had to be <em>ported</em> to the app. The Barkhaus public/admin duplication tax, again.</li>
+          <li><b>Two frontends, one dataset.</b> The website and shared mobile UI are separate codebases; native widgets add independent readers of the same tables; a feature built on the web (instructor pages) had to be <em>ported</em> to the app. The Barkhaus public/admin duplication tax, again.</li>
           <li><b>Identity resolution needs a human.</b> Unmatched instructor/studio pairs sit unlinked until someone runs the review CLI &mdash; low-tech and correct, but a standing chore.</li>
           <li><b>Shared project, single environment.</b> Same as MVL and Bonado: one Supabase project for three products, and the scraper writes straight to production &mdash; no staging.</li>
           <li><b>Repo clutter.</b> An earlier prototype (<code>frontend/</code>, <code>data.json</code>) still sits alongside the real <code>web/</code> &mdash; harmless but confusing.</li>
@@ -1106,7 +1156,7 @@ revalidateTag('app-data')</code></pre>
           <li><b>Keep:</b> the service-role-writes / public-reads split, the pure tested matcher, the webhook seam, and treating &ldquo;0 classes&rdquo; as an error.</li>
         </ul>
 
-        <p style="margin-top:20px"><span class="status-note">Deep-dive updated &mdash; 2 Oct 2026</span></p>
+        <p style="margin-top:20px"><span class="status-note">Deep-dive updated &mdash; 4 Oct 2026</span></p>
       </section>
 
       <section id="bonado">
@@ -1398,7 +1448,7 @@ p_entry_id: claimEntryId()</code></pre>
     <a class="next" href="together.html"><small>Next</small>Part III &middot; Build playbook</a>
   </nav>
 
-  <footer>The Build So Far &middot; v27 &middot; 2 Oct 2026 &middot; <a href="index.html">all parts</a></footer>
+  <footer>The Build So Far &middot; v28 &middot; 4 Oct 2026 &middot; <a href="index.html">all parts</a></footer>
 </div>
 </body>
 </html>
