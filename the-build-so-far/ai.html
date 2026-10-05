@@ -37,6 +37,7 @@
       <p>On this page</p>
       <a href="#agent-loop">The working loop</a>
       <a href="#agent-adapters">Codex &harr; Claude</a>
+      <a href="#model-choice">Picking a model</a>
       <a href="#ai-development">Working with AI, day to day</a>
       <a href="#claude-md">Claude adapter</a>
       <a href="#skills">Skills</a>
@@ -101,6 +102,97 @@ Done when: [observable behaviour], [tests], [live/runtime evidence], and explain
         </div>
         <p class="source-trail"><strong>Official references:</strong> <a href="https://developers.openai.com/es-419/docs/customization/overview">Codex customization overview</a>, <a href="https://developers.openai.com/es-419/docs/agent-configuration/agents-md">AGENTS.md discovery</a>, and <a href="https://developers.openai.com/es-419/guides/best-practices">Codex best practices</a>.</p>
         <div class="learning-outcome"><strong>The useful distinction</strong><p>A feature name tells you where to configure something today. The durable need tells you why it exists and how to reproduce the practice in another tool tomorrow.</p></div>
+      </section>
+
+      <section id="model-choice">
+        <h2>Picking a model: Claude and Codex side by side</h2>
+        <p>Both tools now sell the same shape: a small lineup of models from &ldquo;slow, expensive, very capable&rdquo; down to &ldquo;fast, cheap, good enough.&rdquo; The names differ and change often; the three tiers don&rsquo;t. Prices below are per <strong>million tokens</strong> &mdash; a token is roughly three-quarters of a word, so a million tokens is about a thick novel &mdash; written as <em>input cost / output cost</em>. <span class="status-note">Checked 5 Oct 2026</span></p>
+
+        <figure class="diagram">
+          <svg viewBox="0 0 720 355" role="img" aria-label="A three-by-two grid comparing Claude and Codex models. Top tier, used rarely for the hardest work: Claude Fable 5.1 at ten dollars in and fifty out per million tokens, and GPT-6 Astra at the same price. Everyday tier, used for most work: Claude Opus 5.5 at four and twenty or Sonnet 5.5 at two and ten, and GPT-6.1 Sol at two and ten. Bulk tier, for repetitive high-volume work: Claude Haiku 4.5 at one and five, and GPT-6 Luna at ten cents and fifty cents. A note says the effort setting usually matters more than which model you pick.">
+            <text class="t t--title" x="257" y="30" text-anchor="middle" font-size="14">Claude</text>
+            <text class="t t--title" x="555" y="30" text-anchor="middle" font-size="14">Codex</text>
+
+            <text class="lbl" x="56" y="82" text-anchor="middle" font-size="11">TOP</text>
+            <text class="t" x="56" y="100" text-anchor="middle" font-size="10" opacity="0.6">rarely</text>
+            <rect class="box box--key" x="112" y="46" width="290" height="86" rx="8"></rect>
+            <text class="t t--title" x="257" y="73" text-anchor="middle" font-size="13">Claude Fable 5.1</text>
+            <text class="t" x="257" y="92" text-anchor="middle" font-size="11" opacity="0.62">$10 / $50</text>
+            <text class="t" x="257" y="114" text-anchor="middle" font-size="11" opacity="0.85">money logic, migrations, long passes</text>
+            <rect class="box box--key" x="410" y="46" width="290" height="86" rx="8"></rect>
+            <text class="t t--title" x="555" y="73" text-anchor="middle" font-size="13">GPT-6 Astra</text>
+            <text class="t" x="555" y="92" text-anchor="middle" font-size="11" opacity="0.62">$10 / $50</text>
+            <text class="t" x="555" y="114" text-anchor="middle" font-size="11" opacity="0.85">hardest multi-step code and research</text>
+
+            <text class="lbl" x="56" y="174" text-anchor="middle" font-size="11">EVERYDAY</text>
+            <text class="t" x="56" y="192" text-anchor="middle" font-size="10" opacity="0.6">most work</text>
+            <rect class="box" x="112" y="138" width="290" height="86" rx="8"></rect>
+            <text class="t t--title" x="257" y="165" text-anchor="middle" font-size="13">Opus 5.5 &middot; Sonnet 5.5</text>
+            <text class="t" x="257" y="184" text-anchor="middle" font-size="11" opacity="0.62">$4 / $20 &middot; $2 / $10</text>
+            <text class="t" x="257" y="206" text-anchor="middle" font-size="11" opacity="0.85">features, QA triage, scraper fixes</text>
+            <rect class="box" x="410" y="138" width="290" height="86" rx="8"></rect>
+            <text class="t t--title" x="555" y="165" text-anchor="middle" font-size="13">GPT-6.1 Sol</text>
+            <text class="t" x="555" y="184" text-anchor="middle" font-size="11" opacity="0.62">$2 / $10</text>
+            <text class="t" x="555" y="206" text-anchor="middle" font-size="11" opacity="0.85">near-Astra quality, a fifth of the cost</text>
+
+            <text class="lbl" x="56" y="266" text-anchor="middle" font-size="11">BULK</text>
+            <text class="t" x="56" y="284" text-anchor="middle" font-size="10" opacity="0.6">high volume</text>
+            <rect class="box" x="112" y="230" width="290" height="86" rx="8"></rect>
+            <text class="t t--title" x="257" y="257" text-anchor="middle" font-size="13">Claude Haiku 4.5</text>
+            <text class="t" x="257" y="276" text-anchor="middle" font-size="11" opacity="0.62">$1 / $5</text>
+            <text class="t" x="257" y="298" text-anchor="middle" font-size="11" opacity="0.85">renames, summaries, repetitive edits</text>
+            <rect class="box" x="410" y="230" width="290" height="86" rx="8"></rect>
+            <text class="t t--title" x="555" y="257" text-anchor="middle" font-size="13">GPT-6 Luna</text>
+            <text class="t" x="555" y="276" text-anchor="middle" font-size="11" opacity="0.62">$0.10 / $0.50</text>
+            <text class="t" x="555" y="298" text-anchor="middle" font-size="11" opacity="0.85">summarise, extract, focused edits</text>
+
+            <text class="lbl" x="360" y="340" text-anchor="middle" font-size="10.5">the effort setting usually moves quality more than the row you pick</text>
+          </svg>
+          <figcaption>The two lineups line up almost price-for-price at the top and the middle. The real gap is at the bottom: Codex&rsquo;s cheapest model is about a tenth the price of Claude&rsquo;s cheapest, which matters only if you run very high volumes.</figcaption>
+        </figure>
+
+        <h3>The lineups in full</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Tier</th><th>Claude</th><th>Codex</th><th>Price in / out</th><th>What it&rsquo;s for</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Top</td><td>Claude Fable 5.1</td><td>GPT-6 Astra</td><td>$10 / $50 &mdash; both</td><td>The hardest reasoning and longest multi-step runs. Identically priced, so the choice is which tool you&rsquo;re already in.</td></tr>
+              <tr><td class="grp">Strong default</td><td>Claude Opus 5.5</td><td>GPT-6.1 Sol</td><td>$4 / $20 &middot; $2 / $10</td><td>Most of the quality of the top tier for a fraction of the price. Claude&rsquo;s default; Codex&rsquo;s newest, released 29 Sep 2026.</td></tr>
+              <tr><td class="grp">Everyday</td><td>Claude Sonnet 5.5</td><td>GPT-6 Sol</td><td>$2 / $10 &mdash; both</td><td>Daily coding and agent work. Where most sessions should sit.</td></tr>
+              <tr><td class="grp">Bulk</td><td>Claude Haiku 4.5</td><td>GPT-6 Luna</td><td>$1 / $5 &middot; $0.10 / $0.50</td><td>Clear, repeatable, high-volume jobs with a well-defined answer.</td></tr>
+              <tr><td class="grp">Effort levels</td><td>low &middot; medium &middot; high &middot; xhigh &middot; max</td><td>Light &middot; Medium &middot; High &middot; Extra High &middot; Max &middot; Ultra</td><td>&mdash;</td><td>A separate dial for how hard the model thinks. Codex&rsquo;s Luna stops at Max; the others go to Ultra.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:13px;color:var(--muted)">These are the published per-token rates. Inside a Claude Code or Codex subscription you don&rsquo;t pay them directly &mdash; you spend against usage limits &mdash; but the ratios still decide how fast you burn through a window. OpenAI puts it concretely: Sol uses about a fifth of Astra&rsquo;s credits per token, which it estimates at roughly three times as many messages in a five-hour window.</p>
+
+        <h3>Which one for the work you actually do</h3>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>When you&rsquo;re doing this</th><th>Reach for</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td class="grp">Barkhaus payments, pricing or RLS</td><td>Top tier, highest effort</td><td>Real customer money, and mistakes here are the ones this handbook keeps recording. One wrong charge costs more than a month of the expensive model.</td></tr>
+              <tr><td class="grp">Drafting a Supabase migration or policy</td><td>Top or strong default</td><td>You execute it yourself under the <a href="#ai-development">Supabase rule</a>, so the draft needs to be right the first time &mdash; there&rsquo;s no cheap undo on a live shared database.</td></tr>
+              <tr><td class="grp">Building a feature in Bonado or Sansayaw</td><td>Everyday, high effort</td><td>Ordinary coding against a codebase that already has patterns to follow. Step up a tier only when it stalls twice on the same thing.</td></tr>
+              <tr><td class="grp">Working a QA list</td><td>Everyday</td><td>Triage is mostly pattern-matching over code you already have. The <code>/qa-pass</code> skill carries the method, so the model carries less.</td></tr>
+              <tr><td class="grp">Handbook writing and diagrams</td><td>Strong default or top</td><td>Long pages, held structure, and SVG layout at the same time &mdash; the combination that rewards a bigger model.</td></tr>
+              <tr><td class="grp">Study sessions and explanations</td><td>Everyday</td><td>Explanation quality levels off early. Spend the saving on more sessions instead.</td></tr>
+              <tr><td class="grp">Renames, redirect lists, copy tweaks</td><td>Bulk</td><td>No judgment, lots of repetition, and every result is obviously right or obviously wrong.</td></tr>
+              <tr><td class="grp">Commit messages and changelogs</td><td>Bulk</td><td>Short and templated. A bigger model produces the same line more slowly.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>The rules that outlast the names</h3>
+        <ul class="findings">
+          <li><b>Turn the effort dial before changing the model.</b> Both tools separate <em>which model</em> from <em>how hard it thinks</em>. Raising effort on the everyday tier is usually cheaper and better than jumping to the top tier at a low setting.</li>
+          <li><b>Judge cost per finished task, not per message.</b> A cheap model that needs three attempts and a correction is not cheap. The published price is only the starting figure.</li>
+          <li><b>Start one tier lower than feels right.</b> Stepping up after it stalls costs one retry. Running every task on the top tier costs five times more, every time, forever.</li>
+          <li><b>Spend the top tier on what can&rsquo;t be undone.</b> Money, migrations, access rules, security. Not on volume &mdash; volume is exactly where the cheap tier pays off.</li>
+          <li><b>Assume this page is out of date.</b> Four of the six models here were released within five weeks of each other. Check the date stamp above before trusting a price.</li>
+        </ul>
+        <p class="source-trail"><strong>Official references:</strong> <a href="https://learn.chatgpt.com/docs/models">Codex models</a> and <a href="https://help.openai.com/en/articles/20001516-managing-usage-with-gpt-6-astra-in-work-and-codex">managing usage with GPT-6 Astra</a>; Claude model IDs and prices from the Anthropic model documentation.</p>
+        <div class="learning-outcome"><strong>The useful distinction</strong><p>Model choice is a cost decision far more often than a capability decision. The question that matters is not &ldquo;which is best&rdquo; but &ldquo;what does being wrong here cost me&rdquo; &mdash; and that answer is set by the task, not by the model.</p></div>
       </section>
 
       <section id="ai-development">
