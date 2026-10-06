@@ -44,6 +44,7 @@
       <a href="#lab-sansayaw-native">Native release lessons</a>
       <a href="#lab-sansayaw-discovery">URLs &amp; history lab</a>
       <a href="#lab-sansayaw-batch">Batch identity lab</a>
+      <a href="#lab-sansayaw-admin">Instructor admin lab</a>
       <a href="#lab-sansayaw-registration">Registration lab</a>
       <a href="#lab-sansayaw-analytics">Analytics lab</a>
       <a href="#sansayaw-widget-observation">Widget observation</a>
@@ -93,7 +94,7 @@
               <tr>
                 <td class="grp">Sansayaw<span>sansayaw.org</span></td>
                 <td>Directory of dance classes, gathered by scrapers</td>
-                <td>Next.js site + scraper scripts</td>
+                <td>Next.js public/admin apps + scraper scripts</td>
                 <td>Vercel + GitHub Actions</td>
                 <td>Supabase <span style="opacity:.6">(shared)</span></td>
                 <td>iOS + Android source (Capacitor)</td>
@@ -712,14 +713,14 @@ inside_radius := st_distance(v_point, v_venue.location)
         <p>A directory of drop-in dance classes across Manila studios (<strong>sansayaw.org</strong>), plus a shared mobile app with iOS and Android native source. Its defining trait: <strong>automated collection with curated exceptions</strong>. The default daily job reads multiple booking systems, cleans up the results, and publishes them. G-Force is excluded from that default and has a separate selected-source run path. Manual schedule files and instructor identity edits cover information the adapters cannot reliably resolve.</p>
 
         <h3>Architecture</h3>
-        <p>Three parts in one repository, one job each: a set of <strong>Python scrapers</strong>, a <strong>Next.js website</strong>, and a <strong>React mobile app with iOS and Android shells</strong>. The default scrapers run on a schedule; G-Force requires an explicitly selected run from a suitable network. Both write to Supabase; the website and the app read from it. The seam between the two halves is a single <em>&ldquo;refresh your cache now&rdquo;</em> webhook.</p>
+        <p>Four parts in one repository, one job each: a set of <strong>Python scrapers</strong>, a <strong>Next.js website</strong>, a <strong>React mobile app with iOS and Android shells</strong>, and a separate <strong>Next.js instructor-admin app</strong>. The default scrapers run on a schedule; G-Force requires an explicitly selected run from a suitable network. Both write to Supabase; the website and the app read from it. The admin server also writes curated identities and calls the public site&rsquo;s cache-refresh webhook; its authorization boundary is separate from the public readers.</p>
 
-        <h3>Repository map &mdash; pipeline, website, and app</h3>
+        <h3>Repository map &mdash; pipeline, public readers, and private admin</h3>
         <figure class="repo-map">
-          <div class="repo-map__intro"><strong>Three programs share one repository.</strong> Root-level Python produces clean class data, <code>web/</code> turns it into a server-rendered website, and <code>mobile/</code> turns the same data into a native-wrapped React app.</div>
+          <div class="repo-map__intro"><strong>Four programs share one repository.</strong> Root-level Python produces clean class data, <code>web/</code> turns it into a server-rendered website, <code>mobile/</code> turns the same data into a native-wrapped React app, and <code>admin/</code> provides authorized identity maintenance.</div>
           <div class="repo-map__body">
             <ul class="repo-tree" aria-label="Sansayaw repository structure">
-              <li><div class="file-node file-node--root"><span class="file-kind file-kind--folder">dir</span><code>sansayaw/</code><span class="file-purpose">Sansayaw&rsquo;s data pipeline and two frontends</span></div>
+              <li><div class="file-node file-node--root"><span class="file-kind file-kind--folder">dir</span><code>sansayaw/</code><span class="file-purpose">Sansayaw&rsquo;s pipeline, public web/mobile readers, and private admin</span></div>
                 <ul>
                   <li><div class="file-node"><span class="file-kind">py</span><code>run.py</code><span class="file-purpose">selects full/default or --only sources, writes data, and refreshes the cache</span></div></li>
                   <li><div class="file-node"><span class="file-kind">py</span><code>manage_instructors.py</code><span class="file-purpose">identity editing, normalized handles/slugs, and diagnostic repairs</span></div></li>
@@ -748,6 +749,14 @@ inside_radius := st_distance(v_point, v_venue.location)
                       <li><div class="file-node"><span class="file-kind">css</span><code>app/globals.css</code><span class="file-purpose">site-wide visual system</span></div></li>
                     </ul>
                   </li>
+                  <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>admin/</code><span class="file-purpose">separate Next.js deployment for instructor maintenance</span></div>
+                    <ul>
+                      <li><div class="file-node"><span class="file-kind">js</span><code>proxy.js · lib/auth.js · lib/db.js</code><span class="file-purpose">session gate, allowlist authorization, and server-only privileged client</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">js/jsx</span><code>app/ · components/</code><span class="file-purpose">handles, review, merge, health pages; guarded actions and interactive forms</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">js</span><code>lib/queries.js · ops.js · repairs.js</code><span class="file-purpose">read models, injected database operations, and recomputed repairs</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">tests</span><code>tests/</code><span class="file-purpose">Python-derived golden fixtures and a database fake with uniqueness checks</span></div></li>
+                    </ul>
+                  </li>
                   <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>mobile/</code><span class="file-purpose">React + TypeScript app wrapped by Capacitor</span></div>
                     <ul>
                       <li><div class="file-node"><span class="file-kind">tsx</span><code>src/App.tsx · src/components/*.tsx</code><span class="file-purpose">app shell, screens, class sheets, and screenshot share prompt</span></div></li>
@@ -763,7 +772,7 @@ inside_radius := st_distance(v_point, v_venue.location)
               </li>
             </ul>
             <ol class="repo-decisions">
-              <li><b>Separate by program first.</b>The scheduled producer, public website, and installed app run in different places and deploy differently, so each gets a clear top-level home.</li>
+              <li><b>Separate by program first.</b>The scheduled producer, public website, private admin, and installed app run in different places and deploy differently, so each gets a clear top-level home.</li>
               <li><b>One scraper per unstable outside source.</b>If Ember changes its booking page, <code>ember.py</code> can change without risking every other studio adapter.</li>
               <li><b>Normalize after extraction.</b>Adapters report what they found; shared <code>normalize.py</code> and <code>match.py</code> decide Sansayaw&rsquo;s consistent spelling and identity rules.</li>
               <li><b>Routes, components, and libraries answer different questions.</b>A route decides what a URL means, a component decides what users see, and a library decides how data or an external service works.</li>
@@ -811,7 +820,7 @@ inside_radius := st_distance(v_point, v_venue.location)
             <text class="t" x="360" y="196" text-anchor="middle" font-size="11" opacity="0.62">Scrapers write with the service-role key. The site, mobile app, and widgets read with the</text>
             <text class="t" x="360" y="212" text-anchor="middle" font-size="11" opacity="0.62">public key, select-only &mdash; they can never change the data.</text>
           </svg>
-          <figcaption>&ldquo;Users enter data&rdquo; is replaced by a timed job. The pipeline writes classes; maintenance tools manage curated metadata. The website, mobile app, and widgets read data. G-Force&rsquo;s separate run uses the same write/cache path; see <a href="#sansayaw-source-selection">source selection</a>. Between them sits one webhook: when the scrape finishes, it tells the site to drop its cached copy so the next visitor sees fresh classes. If that webhook fails, the site just catches up on its own timer &mdash; nothing breaks.</figcaption>
+          <figcaption>&ldquo;Users enter data&rdquo; is replaced by a timed job. The pipeline writes classes; the CLI and authorized admin server manage curated metadata; see the <a href="#lab-sansayaw-admin">admin trust boundary</a>. The website, mobile app, and widgets read data. G-Force&rsquo;s separate run uses the same write/cache path; see <a href="#sansayaw-source-selection">source selection</a>. Between them sits one webhook: when the scrape finishes, it tells the site to drop its cached copy so the next visitor sees fresh classes. If that webhook fails, the database edit can succeed while public pages remain stale until timer-based revalidation.</figcaption>
         </figure>
 
         <h3>Systems &amp; why</h3>
@@ -821,9 +830,10 @@ inside_radius := st_distance(v_point, v_venue.location)
             <tbody>
               <tr><td class="grp">Python + Playwright</td><td>The scraping job: read studio booking systems (Wix, Mindbody, Shopify, HelixPay, widget APIs&hellip;), parse and clean</td><td>Python has the best ecosystem for &ldquo;drive a browser, parse messy data, normalise it.&rdquo; A real browser (Playwright) is only needed for Nude Floor, TADS, and Ember; the rest read data endpoints directly. Deliberately the <em>only</em> Python in the portfolio.</td></tr>
               <tr><td class="grp">GitHub Actions (cron)</td><td>Runs default sources every day at 6 AM Manila time; excludes G-Force</td><td>A free scheduled runner &mdash; no server to keep alive. Learned the hard way: a 30-minute timeout (a hung run once held a runner for 6 hours) and unbuffered logs (a killed job used to lose all its output).</td></tr>
-              <tr><td class="grp">Supabase</td><td>Holds studios, instructors, classes, and one row per scrape run &mdash; in the shared project&rsquo;s <code>sansayaw</code> schema</td><td>The scraper writes with the powerful service-role key; the site and app read with the public key, restricted to SELECT. Clean split of &ldquo;who can change this&rdquo; from &ldquo;who can see it.&rdquo;</td></tr>
+              <tr><td class="grp">Supabase</td><td>Holds studios, instructors, classes, and one row per scrape run &mdash; in the shared project&rsquo;s <code>sansayaw</code> schema</td><td>The scraper and authorized admin server write with the powerful service-role key; the public site and mobile app read with the public key, restricted to SELECT. Clean split of &ldquo;who can change this&rdquo; from &ldquo;who can see it.&rdquo;</td></tr>
               <tr><td class="grp">Next.js + Vercel (ISR)</td><td>Server-renders the site; fetches the whole dataset once into a cached function</td><td>Every visitor gets the cached copy (fast, cheap), and the scraper&rsquo;s webhook is what makes it refresh &mdash; but fresh rendering cannot repair a source that stopped producing data.</td></tr>
-              <tr><td class="grp">The revalidate webhook</td><td>One authenticated <code>POST</code> from the scraper that clears the site&rsquo;s cache tag</td><td>The entire coupling between the two halves. Guarded by a shared secret; non-blocking &mdash; a failed call just means the site refreshes on its own timer instead.</td></tr>
+              <tr><td class="grp">Next.js admin</td><td>Separate <code>admin/</code> root, magic-link sign-in, allowlisted server actions</td><td>Moves recurring CLI work into a UI, but duplicates Python identity rules and adds a privileged server; golden fixtures and authorization checks are essential.</td></tr>
+              <tr><td class="grp">The revalidate webhook</td><td>One authenticated <code>POST</code> from the scraper or admin server that clears the site&rsquo;s cache tag</td><td>The cache-refresh seam between writers and the public website. Guarded by a shared secret; non-blocking &mdash; a failed call just means the site refreshes on its own timer instead.</td></tr>
               <tr><td class="grp">PostHog (web + mobile)</td><td>Shared event names with a platform property; load timing and error reports</td><td>Separate adapters make cross-platform comparison possible. Events describe attempts or observed state, not proof of registration; see the <a href="#lab-sansayaw-analytics">analytics lab</a>.</td></tr>
               <tr><td class="grp">Capacitor (iOS + Android)</td><td>Shared React mobile UI, separate native bridges and widgets, Android build/signing commands; store release not established by source alone</td><td>The widget and native share need an app. It reads the same Supabase data &mdash; but it&rsquo;s a <em>separate</em> codebase from the website, so features get ported between the two.</td></tr>
             </tbody>
@@ -989,6 +999,8 @@ revalidateTag('app-data')</code></pre>
           <div class="exercise-step"><b>Carry forward</b><p>Add system menus and permission states to the <a href="together.html#deployment">native release checks</a>. A merged fix still needs a rebuilt, archived, distributed, and tested binary.</p></div>
         </div>
 
+        <p id="sansayaw-date-drift"><strong>Parser regression &mdash; valid page, zero classes.</strong> <a href="https://github.com/geloavendano/sansayaw/commit/6af73b4">6af73b4</a> fixes Unfold date tiles changing from abbreviated months to <code>October 7, Wednesday</code>. <code>scrapers/unfold.py::_resolve_date</code> previously looked up the whole captured month; it now looks up its first three lowercase letters. Unrecognized labels are skipped before category fetching, so a reachable page can still yield no classes. Preserve abbreviated and full-month fixtures, invalid days, and year rollover. The parser still infers the year from today (more than 30 days past becomes next year), ignores the weekday, and accepts any month token sharing a recognized prefix. A parsing fix needs count/freshness checks and explicit date assumptions, not just an HTTP-success check; see <a href="#sansayaw-source-selection">source freshness</a>.</p>
+
         <div class="guided-lab" id="lab-sansayaw-android">
           <h3>Native lab &middot; Android boundaries across runtimes</h3>
           <p><strong>Learning objective:</strong> separate shared UI from OS lifecycle, widget execution, and release identity. <a href="https://github.com/geloavendano/sansayaw/commit/b4314fe">b4314fe</a> adds Android source; <a href="https://github.com/geloavendano/sansayaw/commit/986be0b">986be0b</a> changes launch coordination. Inspected at <code>b804dd2</code> on 4 Oct 2026. A committed native project and store checklist do not establish a signed upload, verified App Links, or public Play release.</p>
@@ -1015,7 +1027,7 @@ revalidateTag('app-data')</code></pre>
           <p><a href="https://github.com/geloavendano/sansayaw/commit/e837013">e837013</a> makes <code>set --instagram</code> normalize handles before storing them and deriving the slug. For example, a pasted <code>@Example\n</code> becomes <code>example</code>, avoiding stray URL hyphens. The doctor command detects malformed handles, edge hyphens, and placeholder slugs that lag an assigned handle; <code>--fix</code> performs database writes. Tests use a fake database adapter to check the patch without production access.</p>
           <p><strong>Renaming needs a compatibility policy.</strong> The route resolves exact slugs and redirects legacy ID-bearing slugs to the current one. It is not a complete old-handle alias registry. A direct database edit can bypass normalization, and changing a published handle-based slug can break old links. The next app should give one boundary responsibility for normalization, collision checks, and redirect history.</p>
           <h4>2. Make navigation exist as HTML</h4>
-          <p><a href="https://github.com/geloavendano/sansayaw/commit/8de825a">8de825a</a> adds a homepage H1, real instructor/studio links, and a city-grouped studio directory in the server route outside the interactive <code>DanceApp</code>. That directory is present before hydration. Instructor links inside an opened sheet still depend on that sheet being rendered; a real anchor alone does not put every instructor into the initial HTML. Class cards link the resolved single-instructor case; collaboration labels stay plain text.</p>
+          <p><a href="https://github.com/geloavendano/sansayaw/commit/8de825a">8de825a</a> added a homepage H1, real instructor/studio links, and a server-rendered studio directory. <a href="https://github.com/geloavendano/sansayaw/commit/a2a77d1">a2a77d1</a> removes that directory and links studio names from <code>DanceApp.jsx::ClassCard</code> instead. Both studio and instructor anchors stop click and keydown propagation so Enter follows the link without also opening the parent card. Navigation now depends on which cards render; it no longer provides the former all-studio footer inventory. Instructor links inside an opened sheet still require that sheet to render. Compare initial HTML and the sitemap, and test keyboard navigation as well as taps.</p>
           <p><a href="https://github.com/geloavendano/sansayaw/commit/1e2ec9b">1e2ec9b</a> builds the sitemap from the same cached <code>getAppData()</code>: home, all studios, instructors with a slug and at least one class in the served window, privacy, and support. This reduces drift between the directory and route inventory. It does not establish that a search engine has indexed those pages. <a href="https://developers.google.com/search/docs/crawling-indexing/links-crawlable">Google&rsquo;s link guidance</a> explains why anchors with usable destinations matter.</p>
           <p><strong>Current caveat:</strong> studio/instructor <code>lastModified</code> is the maximum matching <em>class date</em>, which can be in the future and can miss a later biography edit. It is stable across requests, but it is not a page modification timestamp. Use an actual significant-content update time, or omit an unreliable value. <a href="https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap">Google&rsquo;s sitemap documentation</a> requires accurate modification dates for that signal and says it ignores <code>priority</code> and <code>changefreq</code>.</p>
           <p><strong>Grouping must preserve destination identity.</strong> <a href="https://github.com/geloavendano/sansayaw/commit/15402fd">15402fd</a> fixes the About directory: <code>groupStudiosByName</code> previously retained one studio ID while merging branch cities, so Full schedule always opened the first branch. It now preserves <code>branches: [{ id, city }]</code>, deduplicates by ID, and renders a link per branch in <code>StudioListRow</code>. A city label is presentation; the branch ID owns the route. Grouping still uses the exact studio name and retains the first available website/Instagram, so this is not a general brand-identity model. Test two branches in the same city, duplicate rows, a missing city, and reversed input order: every distinct branch must remain reachable.</p>
@@ -1066,6 +1078,45 @@ revalidateTag('app-data')</code></pre>
           <div class="exercise-step"><b>Carry forward</b><p>Make parsing and planning pure, reuse the established write path, and state whether warnings, partial success, and retries are acceptable. Test absent optional fields as carefully as the rich example that inspired the tool.</p></div>
         </div>
 
+        <div class="guided-lab" id="lab-sansayaw-admin">
+          <h3>Maintenance lab &middot; Instructor admin: authorize, preserve identity, refresh readers</h3>
+          <p><strong>Learning objective:</strong> move a CLI workflow into a browser without moving its privileged database key there. <a href="https://github.com/geloavendano/sansayaw/commit/9ce0bd7">9ce0bd7</a> adds <code>admin/</code>; <a href="https://github.com/geloavendano/sansayaw/commit/d827845">d827845</a> fixes merge ordering in the Python CLI. Inspected at remote main <code>6af73b4</code> on 6 Oct 2026. These are committed implementations; the admin deployment, DNS, sign-in configuration, and production writes have not been verified here.</p>
+          <div class="source-trail"><strong>Source trail</strong><br>
+            <code>admin/proxy.js</code> &rarr; <code>lib/auth.js</code> &rarr; pages + <code>app/actions.js</code> &rarr; <code>lib/db.js</code><br>
+            <code>lib/queries.js</code>, <code>ops.js</code>, <code>repairs.js</code> &rarr; <code>lib/revalidate.js</code><br>
+            <code>manage_instructors.py::cmd_merge</code>; <code>admin/tests/golden.test.js</code>, <code>ops.test.js</code>, <code>queries.test.js</code>; <code>tests/test_merge.py</code>
+          </div>
+          <figure class="diagram">
+            <svg viewBox="0 0 420 350" style="max-width:440px;display:block;margin:0 auto" role="img" aria-label="Admin browser sends an action to a server which validates the session and email allowlist before using a service-role client to update Supabase. The server then requests public cache refresh.">
+              <rect class="box" x="30" y="10" width="360" height="75" rx="8"></rect>
+              <text class="t t--title" x="210" y="41" text-anchor="middle" font-size="18">Admin browser</text>
+              <text class="t" x="210" y="66" text-anchor="middle" font-size="15">Session + form input</text>
+              <text class="lbl" x="210" y="110" text-anchor="middle" font-size="22">&#8595;</text>
+              <rect class="box box--key" x="30" y="120" width="360" height="75" rx="8"></rect>
+              <text class="t t--title" x="210" y="151" text-anchor="middle" font-size="18">Admin server</text>
+              <text class="t" x="210" y="176" text-anchor="middle" font-size="15">Validate user + allowlist</text>
+              <text class="lbl" x="210" y="220" text-anchor="middle" font-size="22">&#8595;</text>
+              <rect class="box" x="30" y="230" width="360" height="75" rx="8"></rect>
+              <text class="t t--title" x="210" y="261" text-anchor="middle" font-size="18">Supabase writes</text>
+              <text class="t" x="210" y="286" text-anchor="middle" font-size="15">Service role; bypasses RLS</text>
+              <text class="t" x="210" y="337" text-anchor="middle" font-size="14">Then: refresh admin + public cache</text>
+            </svg>
+            <figcaption>The browser has a session, not the privileged database client. Cache refresh is a separate outcome from saving the identity.</figcaption>
+          </figure>
+          <h4>1. A private-looking page is not an authorization boundary</h4>
+          <p><code>proxy.js</code> refreshes cookies and redirects anonymous visitors. The real gate is <code>requireAdmin()</code>: Supabase validates the user, then the server checks a configured email allowlist before page reads or actions obtain <code>db()</code>. The client is marked <code>server-only</code>, uses the <code>sansayaw</code> schema, and carries the service role. Schema selection narrows queries; it does not reduce that key&rsquo;s database privileges. <a href="https://nextjs.org/docs/app/guides/authentication">Next.js documents action-level authorization</a>; <a href="https://supabase.com/docs/guides/database/postgres/row-level-security">Supabase documents service-role RLS bypass</a>. Hiding buttons, noindex headers, and a successful login cannot replace this gate.</p>
+          <p>The deployment instructions create a separate Vercel project rooted at <code>admin/</code>, with its own domain and Auth redirect configuration. The optional token-hash email route changes the shared Supabase project&rsquo;s magic-link template: review the other apps before adopting it. The login form normally gives the same reply for allowed and unknown emails, but a send failure returns a different error; do not upgrade that intent into a proven absence of enumeration or timing differences.</p>
+          <h4>2. Separate UI, decisions, and database effects</h4>
+          <p>Handles, review, merge, and health pages call read loaders; pure <code>build*</code> functions turn rows into page models. Actions validate input and invoke operations with an injected database client. A studio-scoped assignment creates a rule, records name variants, and backfills both first-instructor and full-roster links. New records strip titles such as Coach, matching the CLI correction in <code>36c6bac</code>. Python-derived golden fixtures compare normalization and suggestions across languages; the fake database checks write effects and uniqueness. These fixtures constrain drift on covered inputs, not every possible name or production policy.</p>
+          <h4>3. Unique-slug handoff needs ordering; ordering is not a transaction</h4>
+          <p>Keeping <code>dancer-2</code> while merging a duplicate on <code>dancer</code> used to assign an occupied unique slug. Both implementations now move the duplicate to <code>instructor-&lt;id&gt;</code> before the keeper takes the final slug, then delete the duplicate. A carried handle also moves a keeper off its placeholder URL. Earlier steps repoint aliases, classes, and roster rows and preserve rules for future scrapes.</p>
+          <p><strong>Failure lesson:</strong> a surviving duplicate does not mean nothing changed. These are sequential requests: a late failure can leave relationships moved or the duplicate&rsquo;s URL changed. Preview is not a lock, and concurrent operators can invalidate its assumptions. The field policy also matters: missing display name, bio, handle, and photo are carried; reels are unioned; <code>full_name</code> is not filled from the duplicate. Read the actual field list before treating &ldquo;merge&rdquo; as lossless. For stronger guarantees, move the operation into a database transaction with explicit conflict handling and a recovery record.</p>
+          <h4>4. Saved data and refreshed pages are separate results</h4>
+          <p>After a successful operation, actions invalidate admin routes and call <code>bustWebCache()</code>. That helper has an eight-second timeout and returns false on missing configuration or failure. Its caller ignores the boolean, so the UI can report Saved while public pages retain old data. If an earlier database step fails, refresh is skipped despite possible partial writes. The generic error path also returns <code>e.message</code>; logging on the server does not by itself sanitize the user-facing message.</p>
+          <div class="exercise-step"><b>Verify</b><p>Run the committed golden, operation, and query tests against the fake adapter. Add synthetic failure injection after slug parking and before deletion; inspect every changed relationship. In a disposable environment, try unauthenticated and disallowed action calls, a stale merge preview, an occupied placeholder, and a failed cache refresh. Confirm the public identity separately from the success toast.</p></div>
+          <div class="exercise-step"><b>Carry forward</b><p>Authorize where data is accessed, keep privileged clients on the server, share behavioral fixtures across language ports, and report database completion separately from cache freshness. A convenient admin UI inherits every invariant and failure mode of the maintenance tool it replaces.</p></div>
+        </div>
+
         <div class="guided-lab" id="lab-sansayaw-registration">
           <h3>Feature X-ray &middot; Registration links across a schema rollout</h3>
           <p><strong>Learning objective:</strong> trace one optional field through a producer, a database view, and two readers. <a href="https://github.com/geloavendano/sansayaw/commit/9c805c9">9c805c9</a> adds Register on web and iOS; inspected at remote main <code>9bd24a1</code> on 1 Oct 2026. The code is committed; the migration, production scrape, web deployment, and installed iOS binary have not been verified here.</p>
@@ -1114,6 +1165,9 @@ revalidateTag('app-data')</code></pre>
             </tbody>
           </table></div>
           <p><strong>Analytics adds a data boundary.</strong> Calls now send search text, full outbound URLs, and error messages to a third party; even a Google Calendar URL can contain class details in its query string. No account system does not mean no user-supplied data. The privacy page was updated, but the explicit event calls do not redact these values. For the next app, decide which properties are necessary, strip sensitive query parameters, review error payloads, and test with synthetic values. Autocapture also needs review alongside custom events.</p>
+          <h4 id="sansayaw-internal-analytics">Internal analytics: tagging is not exclusion</h4>
+          <p><a href="https://github.com/geloavendano/sansayaw/commit/bda80d1">bda80d1</a> adds a web initialization toggle (<code>?internal=1</code>, undo with <code>0</code>) and a mobile About-wordmark toggle after seven taps less than 600 ms apart. The web loaded callback sets the flag and removes the parameter before subsequent URL sharing; it treats any present value other than <code>0</code> as enabled. Both adapters register an <code>internal</code> event property and set the SDK&rsquo;s internal/test person marker. Undo removes the event property and sets the person marker to false.</p>
+          <p>The <code>track()</code> functions still capture events. The mobile alert&rsquo;s promise of exclusion depends on a configured analytics filter; it is not a collection opt-out. <a href="https://posthog.com/tutorials/filter-internal-users">PostHog&rsquo;s filtering guide</a> distinguishes defining a filter from enabling it on insights. Check that the cohort tests equality to true, not merely whether the property exists, or the false undo value can remain included. Verify first-pageview ordering, on/off events, a disabled SDK, and reset browser/app storage using synthetic traffic. No live dashboard setting or native release is established by this commit.</p>
           <h4 id="sansayaw-widget-observation">Widget observation: a native bridge and a sampled count</h4>
           <p><a href="https://github.com/geloavendano/sansayaw/commit/515c49a">515c49a</a>, inspected at remote main <code>15402fd</code> on 2 Oct 2026, adds widget analytics. That snapshot contained only the iOS implementation. <a href="https://github.com/geloavendano/sansayaw/commit/b4314fe">b4314fe</a>, inspected at <code>b804dd2</code> on 4 Oct 2026, now adds Android <code>WidgetInfoPlugin.java</code> and registers it in <code>MainActivity</code> before bridge creation. It returns one entry per configured provider widget, each with <code>family: android</code>; this reports presence/count, not Android widget dimensions. See the <a href="#lab-sansayaw-android">Android boundary lab</a>. Neither a native release nor production telemetry is verified here.</p>
           <div class="source-trail"><strong>Source trail</strong><br>
@@ -1143,7 +1197,7 @@ revalidateTag('app-data')</code></pre>
           <li><b>Failures are visible only in a log.</b> A <em>partial</em> run, or a studio dropping to zero, shows up in the GitHub Actions output &mdash; nothing pages anyone. For a data product whose whole value is freshness and accuracy, that&rsquo;s the biggest gap.</li>
           <li><b>The security was once theatre.</b> Row-level security was switched <em>off</em> on these tables while &ldquo;public read&rdquo; policies existed &mdash; so Postgres ignored the policies, and the underlying grants actually let the public key <em>insert, update, and delete</em>. Anyone loading the site could have wiped the data. Fixed by a hardening migration (RLS on, writes revoked, the rules table fully closed) &mdash; but it was live for a while.</li>
           <li><b>Two frontends, one dataset.</b> The website and shared mobile UI are separate codebases; native widgets add independent readers of the same tables; a feature built on the web (instructor pages) had to be <em>ported</em> to the app. The Barkhaus public/admin duplication tax, again.</li>
-          <li><b>Identity resolution needs a human.</b> Unmatched instructor/studio pairs sit unlinked until someone runs the review CLI &mdash; low-tech and correct, but a standing chore.</li>
+          <li><b>Identity resolution needs a human.</b> Unmatched instructor/studio pairs need a human decision in the CLI or new admin review queue. A UI reduces friction; it does not make a fuzzy guess authoritative.</li>
           <li><b>Shared project, single environment.</b> Same as MVL and Bonado: one Supabase project for three products, and the scraper writes straight to production &mdash; no staging.</li>
           <li><b>Repo clutter.</b> An earlier prototype (<code>frontend/</code>, <code>data.json</code>) still sits alongside the real <code>web/</code> &mdash; harmless but confusing.</li>
         </ul>
@@ -1156,7 +1210,7 @@ revalidateTag('app-data')</code></pre>
           <li><b>Keep:</b> the service-role-writes / public-reads split, the pure tested matcher, the webhook seam, and treating &ldquo;0 classes&rdquo; as an error.</li>
         </ul>
 
-        <p style="margin-top:20px"><span class="status-note">Deep-dive updated &mdash; 4 Oct 2026</span></p>
+        <p style="margin-top:20px"><span class="status-note">Deep-dive updated &mdash; 6 Oct 2026</span></p>
       </section>
 
       <section id="bonado">
@@ -1448,7 +1502,7 @@ p_entry_id: claimEntryId()</code></pre>
     <a class="next" href="together.html"><small>Next</small>Part III &middot; Build playbook</a>
   </nav>
 
-  <footer>The Build So Far &middot; v28 &middot; 4 Oct 2026 &middot; <a href="index.html">all parts</a></footer>
+  <footer>The Build So Far &middot; v29 &middot; 6 Oct 2026 &middot; <a href="index.html">all parts</a></footer>
 </div>
 </body>
 </html>
