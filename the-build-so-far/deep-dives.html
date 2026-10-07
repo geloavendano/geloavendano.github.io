@@ -51,6 +51,7 @@
       <a href="#sansayaw-source-selection">Source selection</a>
       <a href="#lab-sansayaw-android">Android boundaries</a>
       <a href="#bonado">D &nbsp;Bonado</a>
+      <a href="#lab-ab-prototype">Angat Buhay prototype</a>
     </nav>
 
     <main id="main" class="content prose">
@@ -110,8 +111,8 @@
                 <td><span class="pill pill--proto">In build</span></td>
               </tr>
               <tr>
-                <td class="grp">Demos &amp; personal<span>5 small folders</span></td>
-                <td>A health-records mock, a portfolio, a dashboard proxy, scaffolds</td>
+                <td class="grp">Demos &amp; personal<span>prototypes and references</span></td>
+                <td>Health-record and CMS prototypes, a portfolio, a dashboard proxy, scaffolds</td>
                 <td>Various</td>
                 <td>GitHub Pages / Cloudflare</td>
                 <td>Mostly none</td>
@@ -1481,6 +1482,8 @@ p_entry_id: claimEntryId()</code></pre>
         <h2><span class="letter">E</span> Demos &amp; personal <span class="pill pill--demo">Demo</span></h2>
         <p>Smaller things &mdash; useful as references or one-offs, not products.</p>
         <dl class="mini">
+          <dt><code>ab website/prototype</code></dt>
+          <dd>A committed Angat Buhay public-site and staff-admin structural prototype. Plain HTML/CSS/JS, collection-shaped fixtures, no backend or saved edits. See the <a href="#lab-ab-prototype">content visibility lab</a>; Payload CMS is a proposed successor, not an installed stack.</dd>
           <dt><code>MyTingin-Demo</code></dt>
           <dd>A clickable, <strong>no-backend</strong> mock of a patient health-record platform built on the FHIR healthcare data standard. A &ldquo;provider&rdquo; phone scans a &ldquo;patient&rdquo; QR code and adds a record that appears live &mdash; all faked in the browser&rsquo;s local storage. A pitch/prototype artefact.</dd>
           <dt><code>geloavendano.github.io</code></dt>
@@ -1492,7 +1495,49 @@ p_entry_id: claimEntryId()</code></pre>
           <dt><code>ux-design-kit-gelo</code></dt>
           <dd>A single-file UX reference document.</dd>
         </dl>
-        <p class="pending"><b>Deep-dive:</b> light pass only &mdash; MyTingin&rsquo;s mock approach and the dashboard proxy are the only parts worth a diagram.</p>
+        <p>Most of these need only a light pass. The new CMS prototype below adds a concrete lesson about sharing rules before introducing a trusted backend.</p>
+      </section>
+
+      <section class="group" id="lab-ab-prototype">
+        <h2>Angat Buhay prototype &middot; content visibility before a CMS</h2>
+        <p><strong>Learning objective:</strong> use a clickable prototype to settle content relationships and editorial rules, then identify which rules must cross into trusted server code. Inspected committed local and remote main <a href="https://github.com/geloavendano/ab-website/commit/13cb6ba08bf9fe1621b4567fbb6764d467a2bd7b"><code>13cb6ba</code></a> on 7 Oct 2026. This is a structural prototype, not a production CMS or a verified replacement for the organization&rsquo;s website.</p>
+        <figure class="repo-map">
+          <div class="repo-map__intro"><strong>Separate content, rendering, and the editorial sketch.</strong> These are source files served directly; there is no package manifest or build step.</div>
+          <div class="repo-map__body">
+            <ul class="repo-tree" aria-label="Angat Buhay prototype repository structure">
+              <li><div class="file-node file-node--root"><span class="file-kind file-kind--folder">dir</span><code>ab website/prototype/</code><span class="file-purpose">separate ab-website repository</span></div><ul>
+                <li><div class="file-node"><span class="file-kind">html</span><code>index.html · stories.html · story.html</code><span class="file-purpose">public page shells, data-page selectors, and render slots</span></div></li>
+                <li><div class="file-node"><span class="file-kind">js</span><code>assets/data.js</code><span class="file-purpose">window.AB fixture collections; delivered to every reader</span></div></li>
+                <li><div class="file-node"><span class="file-kind">js</span><code>assets/app.js</code><span class="file-purpose">public renderers plus window.ABX shared lookups and rules</span></div></li>
+                <li><div class="file-node"><span class="file-kind">html</span><code>admin/index.html · admin/edit.html</code><span class="file-purpose">collection lists and mock editing routes</span></div></li>
+                <li><div class="file-node"><span class="file-kind">js</span><code>assets/admin.js</code><span class="file-purpose">editor fields and toast-only actions; no persistence or authorization</span></div></li>
+                <li><div class="file-node"><span class="file-kind">css</span><code>assets/style.css</code><span class="file-purpose">shared public and admin presentation</span></div></li>
+                <li><div class="file-node"><span class="file-kind">html</span><code>sitemap.html · README.md</code><span class="file-purpose">review journeys, sample-content labels, and preview instructions</span></div></li>
+              </ul></li>
+            </ul>
+          </div>
+        </figure>
+        <p>The HTML loads deferred scripts in order: <code>data.js</code>, then <code>app.js</code>, then <code>admin.js</code> on admin pages. The public boot selects a renderer using <code>body.dataset.page</code>; the admin surface skips public chrome and consumes the shared <code>ABX</code> helpers. This makes both surfaces agree on what a field means while each owns its markup.</p>
+        <div class="learning-outcome">
+          <h3>Trace the current flow</h3>
+          <ol>
+            <li><strong>Fixture collections &rarr; shared rules:</strong> stories refer to projects and advocacy pillars; area parent links let a specific place match its province or region.</li>
+            <li><strong>Shared rules &rarr; public listings:</strong> <code>listedStories()</code> filters and sorts before page-specific search, area and format filters. The feed reveals six more existing records at a time; its delay and observer do not fetch another server page.</li>
+            <li><strong>Shared rules &rarr; admin explanation:</strong> the &ldquo;On public site?&rdquo; column calls the same visibility predicate. Save, publish, archive and restore buttons only display a toast.</li>
+          </ol>
+        </div>
+        <h3>Dates are rules, not just labels</h3>
+        <p><code>isListedInFeed(story, now)</code> permits only <code>published</code> or <code>scheduled</code> records with a nonempty, parseable publication date at or before <code>now</code>. Drafts and archives remain excluded; even &ldquo;published&rdquo; future records are hidden. A scheduled item can become eligible without changing its status. Project progress is separate: <code>projectIsOngoing()</code> checks the implementation end date, not a story&rsquo;s publication date.</p>
+        <p><strong>Freshness limit:</strong> <code>NOW</code> is captured once when the script loads. An already-open page does not advance the clock or rerender itself at a scheduled publication time. A production implementation needs a deliberate refresh/cache policy as well as the predicate. The mock editor also fills a timezone-free <code>datetime-local</code> field with a sliced UTC ISO value; define timezone conversion before those controls actually save dates.</p>
+        <h3>A shared filter is not an access boundary</h3>
+        <p>All fixtures reach the browser. The individual story renderer uses <code>storyBy(slug)</code> without the listing predicate, so knowing a fixture&rsquo;s slug can show content excluded from the feed. The admin&rsquo;s &ldquo;Signed in as Editor&rdquo; text is a label, and its project/advocacy mismatch message does not disable the toast action. These are useful sketches of intended behavior, not enforcement. Keep real unpublished or private content out of this prototype.</p>
+        <p><strong>Carry forward:</strong> when replacing fixtures with a CMS, apply the publication rule to every public list and detail read on the server; authorize preview access separately; enforce role permissions and project/advocacy consistency on writes. Preserve the shared pure rule and its fixtures, but replace the browser-only trust model. The source mentions Payload CMS as a future destination; this commit contains no Payload implementation.</p>
+        <div class="source-trail"><strong>Source trail</strong><br><code>assets/app.js</code>: <code>isListedInFeed</code>, <code>listedStories</code>, <code>ancestors</code>, <code>pages.stories</code>, <code>pages.story</code>, and <code>window.ABX</code>.<br><code>assets/admin.js</code>: <code>listView</code>, <code>editView</code>, <code>toLocal</code>, and <code>[data-act]</code> handlers.<br><code>admin/edit.html</code> proves script order; <code>README.md</code> and <code>sitemap.html</code> define the prototype&rsquo;s scope and review journeys.</div>
+        <div class="guided-lab">
+          <h3>Practice before connecting a backend</h3>
+          <p>Use synthetic records and a fixed clock: test draft, archive, missing/invalid date, future published, and scheduled exactly at the boundary. Then compare a hidden record&rsquo;s feed result with direct slug lookup. Sketch the future server list, detail, preview, and write checks in the <a href="together.html#templates">feature X-ray and data dictionary templates</a>. A clickable success message proves interaction design; only a persisted, authorized read-back proves a write.</p>
+        </div>
+        <p><span class="status-note">Prototype source reviewed &mdash; 7 Oct 2026; production CMS and deployment behavior unverified.</span></p>
       </section>
     </main>
   </div>
@@ -1502,7 +1547,7 @@ p_entry_id: claimEntryId()</code></pre>
     <a class="next" href="together.html"><small>Next</small>Part III &middot; Build playbook</a>
   </nav>
 
-  <footer>The Build So Far &middot; v29 &middot; 6 Oct 2026 &middot; <a href="index.html">all parts</a></footer>
+  <footer>The Build So Far &middot; v30 &middot; 7 Oct 2026 &middot; <a href="index.html">all parts</a></footer>
 </div>
 </body>
 </html>
