@@ -50,6 +50,7 @@
       <a href="#lab-sansayaw-analytics">Analytics lab</a>
       <a href="#sansayaw-widget-observation">Widget observation</a>
       <a href="#sansayaw-source-selection">Source selection</a>
+      <a href="#sansayaw-feed-migration">Manual-to-feed migration</a>
       <a href="#lab-sansayaw-android">Android boundaries</a>
       <a href="#bonado">D &nbsp;Bonado</a>
       <a href="#lab-ab-prototype">Angat Buhay prototype</a>
@@ -729,6 +730,7 @@ inside_radius := st_distance(v_point, v_venue.location)
                   <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>scrapers/</code><span class="file-purpose">source adapters and shared data rules</span></div>
                     <ul>
                       <li><div class="file-node"><span class="file-kind">py</span><code>ember.py · tads.py · gforce.py · …</code><span class="file-purpose">one adapter per studio or booking platform</span></div></li>
+                      <li><div class="file-node"><span class="file-kind">py</span><code>studioatthethird.py</code><span class="file-purpose">public JSON fetch and pure parser replacing this studio&rsquo;s manual CSV</span></div></li>
                       <li><div class="file-node"><span class="file-kind">py</span><code>normalize.py · match.py</code><span class="file-purpose">one vocabulary for messy names, genres, and identities</span></div></li>
                       <li><div class="file-node"><span class="file-kind">py</span><code>db.py</code><span class="file-purpose">all Supabase reads and writes for the pipeline</span></div></li>
                     </ul>
@@ -822,7 +824,7 @@ inside_radius := st_distance(v_point, v_venue.location)
             <text class="t" x="360" y="196" text-anchor="middle" font-size="11" opacity="0.62">Scrapers write with the service-role key. The site, mobile app, and widgets read with the</text>
             <text class="t" x="360" y="212" text-anchor="middle" font-size="11" opacity="0.62">public key, select-only &mdash; they can never change the data.</text>
           </svg>
-          <figcaption>&ldquo;Users enter data&rdquo; is replaced by a timed job. The pipeline writes classes; the CLI and authorized admin server manage curated metadata; see the <a href="#lab-sansayaw-admin">admin trust boundary</a>. The website, mobile app, and widgets read data. Promos have a separate browser read outside this schedule-cache diagram; see <a href="#lab-sansayaw-promos">promo freshness</a>. G-Force&rsquo;s separate run uses the same write/cache path; see <a href="#sansayaw-source-selection">source selection</a>. Between them sits one webhook: when the scrape finishes, it tells the site to drop its cached copy so the next visitor sees fresh classes. If that webhook fails, the database edit can succeed while public pages remain stale until timer-based revalidation.</figcaption>
+          <figcaption>&ldquo;Users enter data&rdquo; is replaced by a timed job. The pipeline writes classes; the CLI and authorized admin server manage curated metadata; see the <a href="#lab-sansayaw-admin">admin trust boundary</a>. The website, mobile app, and widgets read data. Promos have a separate browser read outside this schedule-cache diagram; see <a href="#lab-sansayaw-promos">promo freshness</a>. Studio at the Third now joins the default run through a JSON adapter, replacing its manual file; see the <a href="#sansayaw-feed-migration">feed migration</a>. G-Force&rsquo;s separate run uses the same write/cache path; see <a href="#sansayaw-source-selection">source selection</a>. Between them sits one webhook: when the scrape finishes, it tells the site to drop its cached copy so the next visitor sees fresh classes. If that webhook fails, the database edit can succeed while public pages remain stale until timer-based revalidation.</figcaption>
         </figure>
 
         <h3>Systems &amp; why</h3>
@@ -961,6 +963,17 @@ revalidateTag('app-data')</code></pre>
             <tr><td class="grp">Partial data</td><td>Failed day pages are logged; successful days still return. G-Force errors are classified as best effort by the runner.</td><td>All G-Force branches can fail while overall status remains <code>success</code>. Partial days can also lack a structured error on the returned branch.</td></tr>
           </tbody></table></div>
           <div class="exercise-step"><b>Verify safely</b><p>Use synthetic category/product HTML and extracted pure selection functions. Test noon crossing, irregular slugs, one failed day, all failed days, default/explicit/empty selection, and unknown source names. Keep HTTP and database calls out of these checks.</p></div>
+          <h4 id="sansayaw-feed-migration">Manual-to-feed migration &mdash; Studio at the Third</h4>
+          <p><a href="https://github.com/geloavendano/sansayaw/commit/89e9481">89e9481</a> replaces an expired manual schedule with an automated adapter. Reviewed on 9 Oct 2026: this establishes code on main, not a verified production scrape or fresh public results. The useful architectural change is who supplies the schedule; downstream readers keep the same studio identity and class contract.</p>
+          <div class="source-trail"><strong>Source trail</strong><br><code>scrapers/studioatthethird.py</code>: <code>_fetch_json</code> &rarr; <code>parse_classes</code> &rarr; <code>scrape</code><br><code>run.py</code>: <code>ALL_STUDIO_META</code>, <code>SOURCES</code>, <code>_build_class_rows</code>, <code>best_effort_prefixes</code> &rarr; existing database writes and cache refresh.<br><code>scrapers/manual.py</code> and the former <code>manual_data/studio_at_the_third.csv</code> lose this studio&rsquo;s old feed.</div>
+          <p><strong>Read the data behind the page.</strong> The adapter targets the public <code>/api/classes</code> JSON endpoint behind the React storefront. It needs one HTTP request with a 20-second timeout, not browser rendering. The network helper and pure parser are separate, so synthetic records can test the transformation without fetching a studio page or opening a database connection. The unchanged daily workflow invokes <code>run.py</code>; adding <code>studioatthethird</code> to its source registry includes it by default. An explicit selected run still has the write side effects described above.</p>
+          <ol>
+            <li><strong>Keep one supplier and one identity.</strong> Remove the manual registration and CSV while adding the adapter metadata with the same <code>studio_at_the_third</code> ID. Leaving both suppliers active could insert the same schedule twice; changing the ID would split the existing studio relationship.</li>
+            <li><strong>Normalize at the edge.</strong> Skip hidden entries, past dates, and records missing date, time, or name. Convert a start such as <code>19:00</code> plus 90 minutes into <code>7:00 PM – 8:30 PM</code>; missing duration yields only the start. Blank instructors become <code>None</code>, while all booking links point to the studio&rsquo;s classes page. The shared runner then applies its existing naming, genre, and identity rules.</li>
+            <li><strong>Check coverage separately.</strong> An empty response produces zero classes without an error. Exceptions are logged under a best-effort prefix, so they do not alone make the run partial. A successful run and a cache refresh therefore cannot prove this studio has fresh classes.</li>
+          </ol>
+          <p><strong>Boundary cases still belong to the adapter.</strong> Date comparison assumes ISO-shaped strings and defaults to the host&rsquo;s calendar date, with no explicit Manila timezone. A malformed time or nonnumeric duration aborts the whole source rather than skipping one record. Sorting uses formatted time strings, so <code>12:00 PM</code> can precede <code>9:00 AM</code>; a midnight-crossing range does not carry an end date. These are parser limitations, not evidence that the app itself displays classes in that order. Validate raw dates/times and sort on structured values before formatting in the next adapter.</p>
+          <div class="exercise-step"><b>Verify the migration safely</b><p>Call only the pure parser with a fixed date and synthetic records: hidden, past, missing fields, blank instructor, absent duration, noon/midnight crossing, invalid time/duration, and morning/noon ordering. Separately check that the old manual ID is absent and the new default source is present. For rollout evidence, inspect per-studio counts and date coverage, then the public result; never use the live runner as a parser test.</p></div>
           <div class="exercise-step"><b>Carry forward</b><p>Track last successful data per source and expected coverage separately from job status. A local-only source needs an owner, a schedule, and an absence alert; a green default job does not prove that source ran.</p></div>
         </div>
 
@@ -1230,10 +1243,10 @@ revalidateTag('app-data')</code></pre>
           <li><b>Alert on scrape health.</b> A partial run or a studio at zero should send a message, not just sit in a log. Highest-value addition for a scraper product.</li>
           <li><b>Per-scraper &ldquo;expected shape&rdquo; checks.</b> Assert each studio returns a plausible count and structure, so a silent format drift becomes a loud failure.</li>
           <li><b>Decide the two-frontend question.</b> Either share one codebase, or keep them separate on purpose and factor the shared data/render logic into a package.</li>
-          <li><b>Keep:</b> the service-role-writes / public-reads split, the pure tested matcher, the webhook seam, and treating &ldquo;0 classes&rdquo; as an error.</li>
+          <li><b>Keep:</b> the service-role-writes / public-reads split, the pure tested matcher, the webhook seam, and explicit zero-class checks where present. Extend coverage checks to every source; the new JSON adapter still accepts an empty feed silently.</li>
         </ul>
 
-        <p style="margin-top:20px"><span class="status-note">Deep-dive updated &mdash; 8 Oct 2026</span></p>
+        <p style="margin-top:20px"><span class="status-note">Deep-dive updated &mdash; 9 Oct 2026</span></p>
       </section>
 
       <section id="bonado">
@@ -1573,7 +1586,7 @@ p_entry_id: claimEntryId()</code></pre>
     <a class="next" href="together.html"><small>Next</small>Part III &middot; Build playbook</a>
   </nav>
 
-  <footer>The Build So Far &middot; v31 &middot; 8 Oct 2026 &middot; <a href="index.html">all parts</a></footer>
+  <footer>The Build So Far &middot; v32 &middot; 9 Oct 2026 &middot; <a href="index.html">all parts</a></footer>
 </div>
 </body>
 </html>
