@@ -1022,6 +1022,7 @@ Name the measurable condition that would make the decision wrong.
       </section>
 
       <section id="production-readiness">
+        <p><strong>Cross-device and migration checks:</strong> trace <a href="deep-dives.html#sansayaw-native-state">native account recovery</a>, <a href="deep-dives.html#sansayaw-personal-widgets">confirmed widget snapshots</a>, <a href="deep-dives.html#sansayaw-native-registration">registration retries</a> and <a href="deep-dives.html#sansayaw-payment-proof">payment evidence</a>. Test delayed writes, Undo, guest restart, partial cleanup and old native shells. Review <a href="deep-dives.html#sansayaw-shared-session">parent-domain cookie scope</a> independently of portal authorization. For <a href="deep-dives.html#bonado-currency-settlements">currency settlements</a>, record migration order, legacy-client behavior and historical reconciliation before frontend rollout. Reuse the existing release checklist to distinguish committed code, applied SQL, packaged builds and verified user outcomes.</p>
         <p><strong>Optional content and installed versions:</strong> the <a href="deep-dives.html#lab-sansayaw-promos">promo lab</a> separates table authorization, next-read freshness, optional-request failures, and URL routing. Record empty/error/delayed behavior and old-client link fallbacks in the release checklist. For <a href="deep-dives.html#sansayaw-image-sharing">image sharing</a>, test slow rendering, clipboard denial, cancelled/rejected shares, and stale IDs; an attempt event is not delivery evidence. Record the native About version/build with each device check.</p>
         <p><strong>Durable links and private data:</strong> the <a href="deep-dives.html#sansayaw-class-keys">class-key lesson</a> separates repeatable identity from resolver guesses and orders migration, writer, backfill, and reader rollout. The <a href="deep-dives.html#sansayaw-cache-format">cache-format lesson</a> adds payload-size and old-entry compatibility checks. The <a href="deep-dives.html#sansayaw-user-data">user-data lesson</a> adds own-row role tests, anonymous-session denial, shared-Auth deletion effects, and a warning to keep personal data out of global caches. Record each boundary in the existing data dictionary and release checklist.</p>
         <p><strong>Admin operations:</strong> the <a href="deep-dives.html#lab-sansayaw-admin">instructor admin lab</a> connects server authorization, service-role access, cross-language fixtures, partial merges, <a href="deep-dives.html#sansayaw-instructor-split">studio-scoped splits</a>, and cache freshness. Use the existing release/readiness templates to record separate evidence for permission checks, database completion, and the rendered public result.</p>
@@ -1168,7 +1169,7 @@ Name the measurable condition that would make the decision wrong.
     <a class="next" href="ai.html"><small>Next</small>Part IV &middot; AI development</a>
   </nav>
 
-  <footer>The Build So Far &middot; v37 &middot; 16 Oct 2026 &middot; <a href="index.html">all parts</a></footer>
+  <footer>The Build So Far &middot; v38 &middot; 19 Oct 2026 &middot; <a href="index.html">all parts</a></footer>
 </div>
 </body>
 </html>
