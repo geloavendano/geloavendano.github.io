@@ -52,8 +52,8 @@
       <a href="#sansayaw-source-selection">Source selection</a>
       <a href="#sansayaw-feed-migration">Manual-to-feed migration</a>
       <a href="#lab-sansayaw-android">Android boundaries</a>
-      <a href="#sansayaw-same-slot">Positional-key collisions</a> <a href="#sansayaw-duplicate-status">Duplicate suppression</a> <a href="#sansayaw-update-prompts">Optional update prompts</a> <a href="#sansayaw-distribution-state">Beta distribution</a> <a href="#sansayaw-analytics-contract">Analytics contracts</a> <a href="#sansayaw-schedule-loading">Schedule concurrency</a> <a href="#sansayaw-startup-cache">Startup cache</a> <a href="#sansayaw-registration-recovery">Guest registration recovery</a> <a href="#sansayaw-registration-state">Receipt-driven payment</a> <a href="#sansayaw-scrape-observation">Scraper health</a> <a href="#sansayaw-manual-coverage">Manual schedule coverage</a> <a href="#sansayaw-history-backfill">Historical backfills</a> <a href="#sansayaw-native-state">Native account recovery</a> <a href="#sansayaw-onboarding">Offline onboarding</a> <a href="#sansayaw-personal-widgets">Confirmed widget state</a> <a href="#sansayaw-native-registration">Native registration</a> <a href="#sansayaw-payment-proof">Payment evidence</a> <a href="#sansayaw-shared-session">Subdomain sessions</a> <a href="#sansayaw-server-discovery">Server-rendered discovery</a> <a href="#bonado">D &nbsp;Bonado</a> <a href="#bonado-fixed-animation">Fixed-button bug</a>         <a href="#bonado-currency-settlements">Currency settlements</a>
-      <a href="#lab-ab-prototype">Angat Buhay prototype</a>
+      <a href="#sansayaw-same-slot">Positional-key collisions</a> <a href="#sansayaw-duplicate-status">Duplicate suppression</a> <a href="#sansayaw-update-prompts">Optional update prompts</a> <a href="#sansayaw-distribution-state">Beta distribution</a> <a href="#sansayaw-analytics-contract">Analytics contracts</a> <a href="#sansayaw-schedule-loading">Schedule concurrency</a> <a href="#sansayaw-startup-cache">Startup cache</a> <a href="#sansayaw-registration-recovery">Guest registration recovery</a> <a href="#sansayaw-registration-state">Receipt-driven payment</a> <a href="#sansayaw-scrape-observation">Scraper health</a> <a href="#sansayaw-manual-coverage">Manual schedule coverage</a> <a href="#sansayaw-history-backfill">Historical backfills</a> <a href="#sansayaw-native-state">Native account recovery</a> <a href="#sansayaw-onboarding">Offline onboarding</a> <a href="#sansayaw-personal-widgets">Confirmed widget state</a> <a href="#sansayaw-native-registration">Native registration</a> <a href="#sansayaw-payment-proof">Payment evidence</a> <a href="#sansayaw-shared-session">Subdomain sessions</a> <a href="#sansayaw-server-discovery">Server-rendered discovery</a> <a href="#bonado">D &nbsp;Bonado</a> <a href="#bonado-fixed-animation">Fixed-button bug</a> <a href="#bonado-fluid-layout">Web/native layout</a>         <a href="#bonado-currency-settlements">Currency settlements</a>
+      <a href="#lab-ab-prototype">Angat Buhay prototype</a> <a href="#ab-design-integration">Design integration</a>
     </nav>
 
     <main id="main" class="content prose">
@@ -1693,7 +1693,8 @@ Health:  main CSV dates only → runway + weekly volume → warning
                       <li><div class="file-node"><span class="file-kind">ts</span><code>functions/push-dispatch/index.ts</code><span class="file-purpose">trusted push-notification delivery</span></div></li>
                     </ul>
                   </li>
-                  <li><div class="file-node"><span class="file-kind file-kind--generated">native</span><code>ios/ · android/</code><span class="file-purpose">Capacitor-generated native projects plus small platform hooks</span></div></li>
+                  <li><div class="file-node"><span class="file-kind file-kind--folder">native</span><code>ios/ · android/</code><span class="file-purpose">native projects, tracked platform code and copied web payloads</span></div></li>
+                  <li><div class="file-node"><span class="file-kind">swift</span><code>ios/App/App/MainViewController.swift</code><span class="file-purpose">iOS message bridge, native navigation/action controls and layout constraints</span></div></li>
                   <li><div class="file-node"><span class="file-kind file-kind--generated">build</span><code>dist/</code><span class="file-purpose">compiled web/PWA output; regenerated from source</span></div></li>
                   <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>public/ · assets/ · app store assets/</code><span class="file-purpose">served icons, link-association files, and store screenshots</span></div></li>
                   <li><div class="file-node"><span class="file-kind">json</span><code>package.json · tsconfig*.json</code><span class="file-purpose">dependencies, commands, and compiler rules</span></div></li>
@@ -1707,7 +1708,7 @@ Health:  main CSV dates only → runway + weekly volume → warning
               <li><b><code>.tsx</code> is for typed code that renders UI; <code>.ts</code> is for typed code that does not.</b>This is a convention, not a security boundary, but it makes visual and non-visual work easier to locate.</li>
               <li><b>Pages compose; components repeat; hooks coordinate; libraries calculate.</b><code>AddExpense.tsx</code> owns the screen, <code>useCreateExpense.ts</code> runs the workflow, and <code>moneyMath.ts</code> performs a pure rule that can be tested alone.</li>
               <li><b>Tests sit beside the rule they protect.</b><code>moneyMath.test.ts</code> is next to <code>moneyMath.ts</code>, so a future editor finds the examples with the implementation.</li>
-              <li><b>Native folders are packaging, not a second product.</b>The source of truth remains the web app. Capacitor syncs that output into iOS and Android projects, where only genuinely platform-specific code should be edited.</li>
+              <li><b>Native folders own platform behavior as well as packaging.</b>Capacitor copies the web output into native projects, while tracked Swift source owns iOS controls and their layout. Trace both renderers in the <a href="#bonado-fluid-layout">fluid-layout lesson</a>; generated web copies are not the place to edit either one.</li>
               <li><b>Numbered migrations make change order explicit.</b>A new environment can replay the same database evolution instead of relying on remembered dashboard edits.</li>
             </ol>
           </div>
@@ -1914,6 +1915,19 @@ p_entry_id: claimEntryId()</code></pre>
           <div class="exercise-step"><b>Verify &amp; carry forward</b><p>The committed PGlite harness tests migration/RPC behavior in an isolated database, with Auth and notification stubs. Cover partial payment, mixed-currency overflow, missing rates, rounding, metadata edits, rebasing, deletion, access denial and exports. Run client fixtures separately. Production migration and real notification delivery are separate checks. Preserve units in the data model; conversion belongs at explicit quotation boundaries, not inside identity or historical truth.</p></div>
         </div>
 
+        <div class="guided-lab" id="bonado-fluid-layout">
+          <h3>Layout lesson &middot; one width policy, two rendering systems</h3>
+          <p>Bonado <a href="https://github.com/geloavendano/bonado/commit/e4fabce">e4fabce</a>, reviewed on remote main on 23 Oct 2026, removes the old 430px phone-shaped ceiling across shared pages, loading states, sheets and bottom controls. This is committed source; web deployment and an installed native release remain unverified. The durable lesson is to trace every owner of geometry when widening a screen.</p>
+          <div class="source-trail"><strong>Source trail</strong><br><code>src/components/layout/PageShell.tsx</code> &rarr; <code>src/components/trip/TripLayout.tsx</code> &rarr; <code>TripNav.tsx</code> / <code>layout/StickyActionBar.tsx</code> &rarr; <code>ios/App/App/MainViewController.swift</code>.</div>
+          <p><strong>Web content:</strong> <code>PageShell</code> uses full width with <code>min-w-0</code>; standalone pages cap at 960px, while <code>wide</code> fills the available trip column at every breakpoint. The desktop trip shell caps at 1440px. Its fixed web navigation reproduces the shell width and 220px/260px rail offsets before centering a 640px control group. Item and settlement sheets cap at 640px; the web action bar uses 960px, then 880px at the large breakpoint. These are separate constraints, not one universal maximum.</p>
+          <p><strong>Native controls:</strong> iOS <code>TripNav</code> sends state through a message handler and returns no web navigation; eligible actions use <code>NativeActionButton</code>. Changing Tailwind classes cannot resize these Swift views. Both native containers now prefer safe-area width minus 40 points at <code>.defaultHigh</code> priority, with required side margins and maximum widths of 640 points for navigation and 880 for the action button. The navigation&rsquo;s inner width limits also change. Apple&rsquo;s <a href="https://developer.apple.com/library/archive/documentation/UserExperience/Conceptual/AutolayoutPG/AnatomyofaConstraint.html">Auto Layout guide</a> explains the distinction: optional preferences yield when they conflict with required limits. Making the preferred width required would conflict with the maximum on wide screens.</p>
+          <div class="snippet"><p class="snippet-label">Follow the rendered control, not just the React component</p><pre><code>PageShell → available content width
+Browser → fixed CSS dock → desktop rail offsets
+ iOS    → bridge state → Swift constraints → safe-area margins</code></pre></div>
+          <p><strong>What could fail:</strong> hard-coded rail offsets can drift from the actual rails; a loading state or modal can retain an older cap; landscape safe areas can expose centering assumptions. Web pixels and UIKit points belong to different layout systems. A wider cap alone proves neither readable content nor reachable controls.</p>
+          <div class="exercise-step"><b>Verify &amp; carry forward</b><p>Compare narrow/wide phones, tablet, desktop and landscape; inspect loading, long forms, open sheets and keyboard-visible actions. Check document overflow, content/control alignment and touch targets. Repeat on iOS with constraint diagnostics; browser screenshots do not verify Swift geometry. Keep layout ownership visible in the repository map and verify every renderer that implements the same interaction.</p></div>
+        </div>
+
         <div class="guided-lab" id="bonado-fixed-animation">
           <h3>Bug lesson &middot; a finished animation can move a fixed button</h3>
           <p><strong>Now on remote main:</strong> Bonado <code>83293ed</code> (13 Oct) is an ancestor of reviewed main <code>ce89c50</code> on 19 Oct. Deployment and native release remain unverified. Its <code>src/index.css</code> changes four entrance animations from <code>both</code> to <code>backwards</code>. Trace <code>src/pages/AddExpense.tsx</code> &rarr; <code>components/layout/StickyActionBar.tsx</code> &rarr; the parent motion class.</p>
@@ -1964,7 +1978,7 @@ p_entry_id: claimEntryId()</code></pre>
 
       <section class="group" id="lab-ab-prototype">
         <h2>Angat Buhay prototype &middot; content visibility before a CMS</h2>
-        <p><strong>Learning objective:</strong> use a clickable prototype to settle content relationships and editorial rules, then identify which rules must cross into trusted server code. Reviewed remote main <a href="https://github.com/geloavendano/ab-website/commit/6e22915"><code>6e22915</code></a> on 10 Oct 2026. Earlier homepage alternatives and the new <code>ui/</code> track are now committed on main; a production rollout remains unverified. This is a structural prototype, not a production CMS or a verified replacement for the organization&rsquo;s website.</p>
+        <p><strong>Learning objective:</strong> use a clickable prototype to settle content relationships and editorial rules, then identify which rules must cross into trusted server code. Reviewed remote main <a href="https://github.com/geloavendano/ab-website/commit/97c2bf8"><code>97c2bf8</code></a> on 23 Oct 2026. Public pages now use the v3 visual layer; the staff admin remains a structural mock-up. A production rollout remains unverified. The prototype still has no production CMS or saved editorial writes.</p>
         <figure class="repo-map">
           <div class="repo-map__intro"><strong>Separate content, rendering, and the editorial sketch.</strong> These are source files served directly; there is no package manifest or build step.</div>
           <div class="repo-map__body">
@@ -1975,8 +1989,9 @@ p_entry_id: claimEntryId()</code></pre>
                 <li><div class="file-node"><span class="file-kind">js</span><code>assets/app.js</code><span class="file-purpose">public renderers plus window.ABX shared lookups and rules</span></div></li>
                 <li><div class="file-node"><span class="file-kind">html</span><code>admin/index.html · admin/edit.html</code><span class="file-purpose">collection lists and mock editing routes</span></div></li>
                 <li><div class="file-node"><span class="file-kind">js</span><code>assets/admin.js</code><span class="file-purpose">editor fields and toast-only actions; no persistence or authorization</span></div></li>
-                <li><div class="file-node"><span class="file-kind">css</span><code>assets/style.css</code><span class="file-purpose">shared public and admin presentation</span></div></li>
-                <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>ui/</code><span class="file-purpose">standalone versioned homepage/component reviews; separate from data rendering</span></div></li>
+                <li><div class="file-node"><span class="file-kind">css</span><code>assets/style.css</code><span class="file-purpose">legacy admin and archived homepage presentation</span></div></li>
+                <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>ui/</code><span class="file-purpose">versioned design sources; v3 now styles and enhances public pages</span></div></li>
+                <li><div class="file-node"><span class="file-kind">css/js</span><code>ui/ab-ui-v3.css · ui/ab-doodles-v3.js</code><span class="file-purpose">public design tokens, components, SVG sprite and post-render behavior</span></div></li>
                 <li><div class="file-node"><span class="file-kind">html</span><code>sitemap.html · README.md</code><span class="file-purpose">review journeys, sample-content labels, and preview instructions</span></div></li>
               </ul></li>
             </ul>
@@ -1991,6 +2006,15 @@ p_entry_id: claimEntryId()</code></pre>
             <li><strong>Shared rules &rarr; admin explanation:</strong> the &ldquo;On public site?&rdquo; column calls the same visibility predicate. Save, publish, archive and restore buttons only display a toast.</li>
           </ol>
         </div>
+        <h3 id="ab-design-integration">Design integration &middot; rendering before enhancement</h3>
+        <p><a href="https://github.com/geloavendano/ab-website/commit/5b8e9af">5b8e9af</a> promotes the versioned design into the public runtime. <code>ui/ab-ui-v3.css</code> owns tokens, components and site styles; <code>ui/ab-doodles-v3.js</code> owns the shared SVG sprite, decorative enhancement and hero-video behavior. <code>assets/app.js</code> still owns content selection and page rendering. <code>assets/style.css</code> remains for admin and archived explorations. This file boundary matters more than the new colors: a design review source has become a runtime dependency.</p>
+        <div class="source-trail"><strong>Source trail</strong><br><code>stories.html</code> &rarr; <code>assets/data.js</code> &rarr; <code>assets/app.js</code> &rarr; <code>ui/ab-doodles-v3.js</code>; compare <code>admin/index.html</code>, <code>ui/components-v3.html</code> and <code>ui/VERSIONS.md</code>.</div>
+        <div class="snippet"><p class="snippet-label">Public page boot sequence</p><pre><code>Deferred scripts: fixtures → register renderer → sprite + register enhancer
+DOMContentLoaded: renderer creates markup → enhancer queries that markup
+Admin: shared rules + admin renderer → legacy stylesheet</code></pre></div>
+        <p><strong>Parsed HTML is not necessarily rendered content.</strong> The enhancement script waits for <code>DOMContentLoaded</code> unless the document is already complete. Its listener is registered after the page renderer&rsquo;s listener, so it can find the header, hero and video that the renderer inserts. <a href="https://developer.mozilla.org/en-US/docs/Web/API/Document/DOMContentLoaded_event">MDN documents</a> that deferred scripts run before this event, while <code>readyState</code> may already be <code>interactive</code>. Treating that state as proof that another script has finished rendering would initialize against missing elements. Switching these scripts to <code>async</code> or making rendering asynchronous would require an explicit completion contract.</p>
+        <p><strong>Enhancements have failure states.</strong> The video keeps its URL in <code>data-src</code> until playback is requested. Reduced-motion or Save-Data starts it paused, explicit play can override that, and an observer pauses it outside the hero. These are startup preferences, not listeners for later preference changes. Playback rejection updates the button state. The stylesheet also disables draw animations for reduced motion. Test blocked media, offscreen/resumed playback and missing optional browser APIs; no-backend does not mean no runtime behavior.</p>
+        <div class="exercise-step"><b>Verify &amp; carry forward</b><p>Trace a public page and an admin page to their actual stylesheets and boot scripts. Delay the enhancement script, disable motion, block video, and verify that content links and the menu still work. Recheck shared fixture visibility rules after a visual redesign. Keep the component review sheet and live renderer aligned, and make render completion explicit before adding asynchronous work.</p></div>
         <h3>Dates are rules, not just labels</h3>
         <p><code>isListedInFeed(story, now)</code> permits only <code>published</code> or <code>scheduled</code> records with a nonempty, parseable publication date at or before <code>now</code>. Drafts and archives remain excluded; even &ldquo;published&rdquo; future records are hidden. A scheduled item can become eligible without changing its status. Project progress is separate: <code>projectIsOngoing()</code> checks the implementation end date, not a story&rsquo;s publication date.</p>
         <p><strong>Freshness limit:</strong> <code>NOW</code> is captured once when the script loads. An already-open page does not advance the clock or rerender itself at a scheduled publication time. A production implementation needs a deliberate refresh/cache policy as well as the predicate. The mock editor also fills a timezone-free <code>datetime-local</code> field with a sliced UTC ISO value; define timezone conversion before those controls actually save dates.</p>
@@ -2010,7 +2034,7 @@ p_entry_id: claimEntryId()</code></pre>
           <h3>Practice before connecting a backend</h3>
           <p>Use synthetic records and a fixed clock: test draft, archive, missing/invalid date, future published, and scheduled exactly at the boundary. Then compare a hidden record&rsquo;s feed result with direct slug lookup. Sketch the future server list, detail, preview, and write checks in the <a href="together.html#templates">feature X-ray and data dictionary templates</a>. A clickable success message proves interaction design; only a persisted, authorized read-back proves a write.</p>
         </div>
-        <p><span class="status-note">Prototype source reviewed &mdash; 10 Oct 2026; production CMS and deployment behavior unverified.</span></p>
+        <p><span class="status-note">Prototype source reviewed &mdash; 23 Oct 2026; production CMS and deployment behavior unverified.</span></p>
       </section>
     </main>
   </div>
@@ -2020,7 +2044,7 @@ p_entry_id: claimEntryId()</code></pre>
     <a class="next" href="together.html"><small>Next</small>Part III &middot; Build playbook</a>
   </nav>
 
-  <footer>The Build So Far &middot; v41 &middot; 22 Oct 2026 &middot; <a href="index.html">all parts</a></footer>
+  <footer>The Build So Far &middot; v42 &middot; 23 Oct 2026 &middot; <a href="index.html">all parts</a></footer>
 </div>
 </body>
 </html>
