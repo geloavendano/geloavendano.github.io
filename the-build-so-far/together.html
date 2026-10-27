@@ -916,7 +916,8 @@ Name the measurable condition that would make the decision wrong.
             </tbody>
           </table>
         </div>
-        <p><strong>In this portfolio:</strong> MVL&rsquo;s plain files need no compile step; Vercel stores and serves them. Bonado&rsquo;s React source is built by Vite into <code>dist/</code>, which Vercel deploys. Barkhaus serves its public files directly, but its React admin must first be built into <code>admin/</code>&mdash;the fragile part is that generated output is committed instead of being built by the deployment system. Vite&rsquo;s guide confirms that <code>dist/</code> is the default deployable output; Vercel documents each Git push as a distinct preview or production deployment.</p>
+        <p><strong>Gate a release by dependencies and cardinality.</strong> Barkhaus&rsquo;s <a href="deep-dives.html#barkhaus-orders-release">orders release</a> needs schema, functions, hosting and cart enablement in sequence. A single-item payment or simulator run cannot prove a multi-item settlement. Check every child payment allocation and preserve return/retry state. Sansayaw&rsquo;s <a href="deep-dives.html#sansayaw-profile-freshness">profile reads</a> and <a href="deep-dives.html#sansayaw-source-completeness">scrapers</a> show the corresponding read rule: an outage must not masquerade as a valid empty or complete result.</p>
+        <p><strong>In this portfolio:</strong> MVL&rsquo;s plain files need no compile step; Vercel stores and serves them. Bonado&rsquo;s React source is built by Vite into <code>dist/</code>, which Vercel deploys. Barkhaus now copies its public files into a Cloudflare Pages <code>dist/</code> artifact; its React admin must first be built into <code>admin/</code>&mdash;the fragile part is that generated output is committed instead of being built by the deployment system. Vite&rsquo;s guide confirms that <code>dist/</code> is the default deployable output; Vercel documents each Git push as a distinct preview or production deployment.</p>
 
         <h3>The Capacitor bridge: why both web files and an Xcode project exist</h3>
         <p>Bonado is not rewritten from React into Swift. <strong>Capacitor packages the built web app inside a normal native container.</strong> The iPhone runs a native app whose main view hosts a WebView; plugins form controlled bridges from JavaScript to native capabilities such as push notifications, the share sheet, or haptics.</p>
@@ -1174,7 +1175,7 @@ Name the measurable condition that would make the decision wrong.
     <a class="next" href="ai.html"><small>Next</small>Part IV &middot; AI development</a>
   </nav>
 
-  <footer>The Build So Far &middot; v44 &middot; 25 Oct 2026 &middot; <a href="index.html">all parts</a></footer>
+  <footer>The Build So Far &middot; v45 &middot; 28 Oct 2026 &middot; <a href="index.html">all parts</a></footer>
 </div>
 </body>
 </html>

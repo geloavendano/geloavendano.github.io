@@ -99,7 +99,7 @@
         <h3>Environments: local &rarr; staging &rarr; production</h3>
         <p>The same app is run in up to three settings, each with a different job.</p>
         <figure class="diagram">
-          <svg viewBox="0 0 720 240" role="img" aria-label="Three boxes left to right: Local on your laptop for free experimentation with fake data; Staging, a private copy that matches production, safe to break, with seeded data; Production, real customers and real money, changed carefully. Arrows labelled promote and release run between them. A note says Barkhaus currently has only local and production.">
+          <svg viewBox="0 0 720 240" role="img" aria-label="Three boxes left to right: Local on your laptop for free experimentation with fake data; Staging, a private copy that matches production, safe to break, with seeded data; Production, real customers and real money, changed carefully. Arrows labelled promote and release run between them. A note distinguishes staging simulation from real payment-provider verification.">
             <defs>
               <marker id="ahe" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
                 <path class="arrowhead" d="M0 0 L10 5 L0 10 z"></path>
@@ -129,9 +129,9 @@
             <text class="lbl" x="482" y="68" text-anchor="middle" font-size="9.5">release</text>
 
             <line class="edge" x1="114" y1="185" x2="606" y2="185" stroke-dasharray="4 5"></line>
-            <text class="lbl" x="360" y="205" text-anchor="middle" font-size="10.5">Barkhaus has only Local + Production today &mdash; the missing middle is the risk</text>
+            <text class="lbl" x="360" y="205" text-anchor="middle" font-size="10.5">Barkhaus staging simulates payment; verify the real provider separately</text>
           </svg>
-          <figcaption>More environments cost a little setup and buy a lot of safety: a place to test destructive changes (schema edits, payment webhooks) without touching customer data. Every current product still lacks a separate backend staging environment; that repeated gap is why the build playbook makes staging a default.</figcaption>
+          <figcaption>More environments cost a little setup and buy a lot of safety: a place to test destructive changes (schema edits, payment webhooks) without touching customer data. Barkhaus now has a non-production simulator path; verify backend isolation, representative fixtures and real-provider coverage separately. A preview URL alone does not establish those boundaries.</figcaption>
         </figure>
 
         <h3>Languages, and why these</h3>
@@ -152,7 +152,7 @@
         </ul>
 
         <h3>The house stack &mdash; and when it strains</h3>
-        <p>The four real products are all the same deliberate choice: a frontend that&rsquo;s just files, <strong>one managed backend</strong> (Supabase), a <strong>static host</strong> (Vercel or GitHub Pages), and a few <strong>rented services</strong> for the specialist jobs (payments, email, error tracking). The diagram in <a href="#pattern">The recurring pattern</a> is this stack.</p>
+        <p>The four real products are all the same deliberate choice: a frontend that&rsquo;s just files, <strong>one managed backend</strong> (Supabase), a <strong>frontend host</strong> (Vercel or Cloudflare Pages), and a few <strong>rented services</strong> for the specialist jobs (payments, email, error tracking). The diagram in <a href="#pattern">The recurring pattern</a> is this stack.</p>
         <ul class="findings">
           <li><b>Great at:</b> one or two people shipping fast; near-zero fixed cost; no servers to patch or scale. Each product <em>can</em> be fully isolated in its own project &mdash; though in this portfolio only Barkhaus is; the other three share one.</li>
           <li><b>Strains when:</b> you need heavy background processing, operations that must all-succeed-or-all-fail across several services at once, very high traffic on a tight latency budget, or you outgrow a vendor &mdash; moving off it is real work (&ldquo;lock-in&rdquo;).</li>
@@ -165,7 +165,7 @@
           <li><b>Changes ship through git.</b> Edit &rarr; commit &rarr; push &rarr; the host redeploys on its own. Every change is recorded, attributable, and reversible.</li>
           <li><b>Database changes ride a separate, slower track.</b> They don&rsquo;t auto-deploy &mdash; each is a migration applied on purpose, because a bad one can&rsquo;t be rolled back with a click.</li>
           <li><b>Secrets never live in the repo.</b> API keys sit in the host&rsquo;s environment settings. Assume the repo is readable.</li>
-          <li><b>Feature flags keep things &ldquo;built but dark.&rdquo;</b> Card checkout in Barkhaus is fully written and switched off by one setting &mdash; you can build ahead of launch without exposing it.</li>
+          <li><b>Feature flags keep things &ldquo;built but dark.&rdquo;</b> Barkhaus introduced its multi-service cart behind a switch before enabling it in the 27 Oct release. A flag controls exposure; backend compatibility and payment evidence still need separate gates.</li>
         </ul>
       </section>
 
@@ -854,7 +854,7 @@
     <a class="next" href="deep-dives.html"><small>Next</small>Part II &middot; The deep-dives</a>
   </nav>
 
-  <footer>The Build So Far &middot; v44 &middot; 25 Oct 2026 &middot; <a href="index.html">all parts</a></footer>
+  <footer>The Build So Far &middot; v45 &middot; 28 Oct 2026 &middot; <a href="index.html">all parts</a></footer>
 </div>
 </body>
 </html>
