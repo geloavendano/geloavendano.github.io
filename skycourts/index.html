@@ -135,8 +135,11 @@ figcaption { font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-tra
   </section>
 
   <section id="art" aria-labelledby="s2">
-    <div class="sec-head"><span class="n">02</span><h2 id="s2">Social post · artwork</h2><span class="note">Line art with horizon bands, light and dark, with and without the sunset band</span></div>
+    <div class="sec-head"><span class="n">02</span><h2 id="s2">Social post · artwork</h2><span class="note">The same line art with and without the horizon bands</span></div>
+    <h3 class="sub">With horizon bands</h3>
     <div class="grid4" id="sec-art"></div>
+    <h3 class="sub">Without bands</h3>
+    <div class="grid3" id="sec-art-plain"></div>
   </section>
 
   <section id="photo" aria-labelledby="s3">
@@ -178,6 +181,9 @@ const PAL = {
     ramps: { light: ['#E4D6C5','#D2B796','#BA9872','#9D7B5C','#7E614D','#5A4C49','#383641','#18222F'], light_s: ['#E4D6C5','#E0BE78','#C39D5D','#A97B48','#8A5F41','#664742','#43323E','#18222F'],
              dark: ['#2C4159','#554D53','#755844','#8F6F54','#A98765','#C2A079','#D5BB9C','#E4D6C5'], dark_s: ['#2C4159','#5E4C54','#835F4A','#A57644','#BD9458','#D6B46E','#EAD3A2','#F3EDE4'] },
     poster: { text: '#F3EDE4', muted: '#A9C1D6', arrow: '#D4B26A', bands: { natural: '#2C4159', duo: '#18222F', tri: '#2C4159' } },
+    plain: [ ['light', 'Light', '#F3EDE4', '#2C4159', '#2C4159', { lw: '#2C4159', le: '#8E7731', lb: '#8E7731' }, 'court-a-light.svg'],
+             ['dark', 'Dark', '#18222F', '#F3EDE4', '#F3EDE4', { lw: '#F3EDE4', le: '#D4B26A', lb: '#D4B26A' }, 'court-a-dark.svg'],
+             ['heavy', 'Heavy · teak', '#6E5240', '#F3EDE4', '#F3EDE4', { lw: '#F3EDE4', le: '#D4B26A', lb: '#D4B26A' }, 'court-a-heavy.svg'] ],
     polo: [ ['Navy', 'a-navy'], ['Travertine', 'a-travertine'], ['Teak', 'a-teak'] ] },
   b1: { short: 'B1', name: 'Sunset', dots: ['#2C4159', '#F3EDE4', '#FF6F2E'],
     lgDark: { lw: '#F3EDE4', le: '#F3EDE4', lb: '#FF6F2E' }, lgLight: { lw: '#2C4159', le: '#2C4159', lb: '#FF6F2E' },
@@ -188,6 +194,9 @@ const PAL = {
     ramps: { light: ['#A9C1D6','#95A6C0','#818CAA','#6C7493','#545E7B','#3D4864','#2A3549','#18222F'], light_s: ['#A9C1D6','#EBBEA0','#FE8F54','#E86234','#B8473A','#813C43','#4D2F45','#18222F'],
              dark: ['#2C4159','#465774','#636E8D','#8385A3','#A79CAF','#CCB3B3','#E9CDBC','#F3EDE4'], dark_s: ['#2C4159','#644B6E','#9B506A','#C95F59','#F96D36','#FF9B62','#FCC6A3','#F3EDE4'] },
     poster: { text: '#F3EDE4', muted: '#A9C1D6', arrow: '#FF6F2E', bands: { natural: '#2C4159', duo: '#18222F', tri: '#2C4159' } },
+    plain: [ ['light', 'Light', '#F3EDE4', '#2C4159', '#18222F', { lw: '#2C4159', le: '#2C4159', lb: '#FF6F2E' }, 'court-b1-light.svg'],
+             ['dark', 'Dark', '#18222F', '#F3EDE4', '#F3EDE4', { lw: '#F3EDE4', le: '#F3EDE4', lb: '#FF6F2E' }, 'court-b1-dark.svg'],
+             ['heavy', 'Heavy · teak', '#6E5240', '#F3EDE4', '#F3EDE4', { lw: '#F3EDE4', le: '#F3EDE4', lb: '#FF6F2E' }, 'court-b1-heavy.svg'] ],
     polo: [ ['Navy', 'b1-navy'], ['Linen', 'b1-linen'], ['Orange', 'b1-orange'] ] },
   b4: { short: 'B4', name: 'Coastal', dots: ['#174560', '#4EACB7', '#E0786C'],
     lgDark: { lw: '#FDFCDF', le: '#FDFCDF', lb: '#E0786C' }, lgLight: { lw: '#174560', le: '#174560', lb: '#E0786C' },
@@ -198,6 +207,9 @@ const PAL = {
     ramps: { light: ['#F8DABB','#E6B39A','#BF968F','#947F85','#4E7981','#2F5B6E','#143E57','#0A2433'], light_s: ['#F8DABB','#F1AF94','#E48474','#BF676C','#90556A','#574E6B','#2B3C55','#0A2433'],
              dark: ['#174560','#255F6C','#34797F','#41939C','#54AEB8','#87C4C2','#BCD5C5','#F8DABB'], dark_s: ['#174560','#4D5A72','#876378','#BA6E75','#E48273','#F1AB93','#F9D3B8','#FDFCDF'] },
     poster: { text: '#FDFCDF', muted: '#F8DABB', arrow: '#E0786C', bands: { natural: '#174560', duo: '#123548', tri: '#174560' } },
+    plain: [ ['light', 'Light', '#FDFCDF', '#174560', '#174560', { lw: '#174560', le: '#174560', lb: '#E0786C' }, 'court-b4-light.svg'],
+             ['dark', 'Dark', '#0A2433', '#FDFCDF', '#FDFCDF', { lw: '#FDFCDF', le: '#FDFCDF', lb: '#E0786C' }, 'court-b4-dark.svg'],
+             ['heavy', 'Heavy · teal', '#4EACB7', '#0A2433', '#0A2433', { lw: '#0A2433', le: '#0A2433', lb: '#FDFCDF' }, 'court-b4-heavy.svg'] ],
     polo: [ ['Harbour', 'b4-harbour'], ['Cream', 'b4-cream'], ['Teal', 'b4-teal'] ] }
 };
 const FONTS = {
@@ -257,6 +269,14 @@ function render() {
       ${logo(lg, 'position:absolute;left:340px;top:100px;width:400px;height:auto')}
       <div class="p-head" style="position:absolute;left:0;right:0;top:250px;text-align:center;font-size:${F.head}px;color:${t.head}">Open Play</div>${bands(ramp, t.t1)}`;
     return `<figure>${frame(1080, 1350, inner, t.bg)}<figcaption>${label}</figcaption></figure>`;
+  }).join('');
+
+  document.getElementById('sec-art-plain').innerHTML = P.plain.map(([v, label, bg, head, text, lg, art]) => {
+    const inner = `<img src="${A}${art}" alt="" style="position:absolute;left:0;top:330px;width:1080px;height:auto">
+      ${logo(lg, 'position:absolute;left:340px;top:100px;width:400px;height:auto')}
+      <div class="p-head" style="position:absolute;left:0;right:0;top:250px;text-align:center;font-size:${F.head}px;color:${head}">Open Play</div>
+      <div class="content-band" style="position:absolute;left:0;right:0;bottom:24px;color:${text}"><span class="date">NOVEMBER 11, 2026</span><span class="url">${globe}SKYCOURTS.PH</span></div>`;
+    return `<figure>${frame(1080, 1350, inner, bg)}<figcaption>${label}</figcaption></figure>`;
   }).join('');
 
   document.getElementById('sec-photo').innerHTML = variants.map(([v, s, label]) => {
