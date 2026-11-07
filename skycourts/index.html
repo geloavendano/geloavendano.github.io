@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estancia SkyCourts · Brand Direction</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="assets/fav-b1-dark.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Italiana&family=Ysabeau:wght@400;600;800&family=Belleza&family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Hanken+Grotesk:wght@400;500;600;700&family=Figtree:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap">
+<style>
+:root {
+  --page: #EEEBE6; --ink: #1E2329; --muted: #5A5650; --rule: #D8D2C8; --card: #F8F6F2;
+  --island: #1E2329; --island-ink: #F3EDE4; --island-muted: #A7A29A;
+  --ui: 'Geist', 'Helvetica Neue', Arial, sans-serif;
+  --f-display: 'Ysabeau', sans-serif; --f-dw: 800; --f-dcase: uppercase; --f-dtrack: 0.01em;
+  --f-label: 'Hanken Grotesk', sans-serif; --f-lw: 600; --f-body: 'Hanken Grotesk', sans-serif; --f-num: 'Hanken Grotesk', sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--page); color: var(--ink); font-family: var(--ui); font-size: 16px; line-height: 1.5; }
+.wrap { max-width: 1240px; margin: 0 auto; padding: 48px max(20px, env(safe-area-inset-left, 0px)) 180px; display: flex; flex-direction: column; gap: 80px; }
+header h1 { margin: 0; font-size: 28px; font-weight: 600; letter-spacing: -0.01em; }
+header p { margin: 6px 0 0; color: var(--muted); max-width: 64ch; }
+nav.toc { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 18px; font-size: 14px; }
+nav.toc a { color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--rule); }
+nav.toc a:hover { color: var(--ink); }
+section { display: flex; flex-direction: column; gap: 22px; scroll-margin-top: 24px; }
+.sec-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+.sec-head .n { font-size: 13px; font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+.sec-head h2 { margin: 0; font-size: 22px; font-weight: 600; }
+.sec-head .note { color: var(--muted); font-size: 15px; }
+h3.sub { margin: 8px 0 0; font-size: 13px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+figure { margin: 0; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+figcaption { font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.frame { position: relative; width: 100%; overflow: hidden; box-shadow: 0 8px 24px rgba(30,35,41,0.14); }
+.canvas { position: absolute; left: 0; top: 0; transform-origin: 0 0; overflow: hidden; }
+.photo { width: 100%; height: auto; display: block; box-shadow: 0 8px 24px rgba(30,35,41,0.12); }
+
+/* logo */
+.logo-panel { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 44px; }
+.logo-panel svg { width: 760px; height: auto; display: block; }
+.tagline { font-family: var(--f-display); font-weight: var(--f-dw); font-size: 46px; letter-spacing: 0.32em; text-transform: uppercase; padding-left: 0.32em; }
+.tile { display: flex; align-items: center; justify-content: center; aspect-ratio: 1 / 1; box-shadow: 0 8px 24px rgba(30,35,41,0.12); }
+.tile img { width: 70%; height: auto; display: block; }
+.avatars { display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-end; padding: 24px; background: var(--card); }
+.av { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.av .c { border-radius: 50%; overflow: hidden; }
+.av .c img { width: 100%; height: 100%; display: block; }
+.av span, .fav span { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.favs { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 22px; padding: 24px; background: var(--card); }
+.fav { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.fav img { display: block; }
+.tab { margin-left: auto; display: flex; flex-direction: column; min-width: 0; }
+.tabbar { display: flex; align-items: flex-end; gap: 2px; padding: 0 8px; height: 40px; background: #DEE1E6; border-radius: 10px 10px 0 0; }
+.tabbar div { display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; font-size: 13px; white-space: nowrap; border-radius: 8px 8px 0 0; }
+.tabbar div.on { background: #fff; }
+.urlbar { height: 32px; background: #fff; font-size: 13px; color: #5A5650; display: flex; align-items: center; padding: 0 12px; }
+
+/* print pieces */
+.p-logo { position: absolute; display: block; height: auto; }
+.p-head { font-family: var(--f-display); font-weight: var(--f-dw); text-transform: var(--f-dcase); letter-spacing: var(--f-dtrack); line-height: 0.92; }
+.p-tag { font-family: var(--f-label); font-weight: var(--f-lw); font-size: 18px; letter-spacing: 0.26em; text-transform: uppercase; }
+.p-eyebrow { font-family: var(--f-label); font-weight: var(--f-lw); letter-spacing: 0.2em; text-transform: uppercase; }
+.bands { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; }
+.content-band { height: 120px; padding: 0 72px; display: flex; align-items: center; justify-content: space-between; gap: 24px; font-family: var(--f-label); }
+.content-band .date { font-weight: 700; font-size: 40px; letter-spacing: 0.08em; }
+.content-band .url { display: flex; align-items: center; gap: 12px; font-weight: 500; font-size: 24px; letter-spacing: 0.1em; }
+
+/* island */
+.island { position: fixed; left: 50%; bottom: max(20px, env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); width: max-content; z-index: 10; background: var(--island); color: var(--island-ink); border-radius: 22px; padding: 12px 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; box-shadow: 0 14px 40px rgba(0,0,0,0.28); max-width: calc(100vw - 24px); }
+.island fieldset { border: 0; margin: 0; padding: 0; display: flex; align-items: center; gap: 10px; min-width: 0; }
+.island legend { float: left; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--island-muted); margin-right: 2px; }
+.seg { display: flex; gap: 4px; background: rgba(255,255,255,0.08); padding: 4px; border-radius: 14px; }
+.seg input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.seg label { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; white-space: nowrap; color: var(--island-muted); }
+.seg label:hover { color: var(--island-ink); }
+.seg input:checked + label { background: #F3EDE4; color: #1E2329; }
+.seg input:focus-visible + label { outline: 2px solid #F3EDE4; outline-offset: 2px; }
+.dots { display: inline-flex; }
+.dots i { width: 12px; height: 12px; border-radius: 50%; margin-left: -4px; box-shadow: 0 0 0 1.5px var(--island); }
+.dots i:first-child { margin-left: 0; }
+.divider { width: 1px; align-self: stretch; background: rgba(255,255,255,0.14); }
+.seg .short { display: none; }
+
+@media (max-width: 960px) {
+  .seg .long { display: none; }
+  .seg .short { display: inline; }
+  .grid4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 860px) {
+  .grid3 { grid-template-columns: minmax(0, 1fr); max-width: 460px; }
+  .grid2 { grid-template-columns: minmax(0, 1fr); }
+  .tab { margin-left: 0; width: 100%; }
+}
+@media (max-width: 600px) {
+  .grid4 { grid-template-columns: minmax(0, 1fr); max-width: 420px; }
+  .divider { display: none; }
+  .island { left: 12px; right: 12px; width: auto; transform: none; flex-direction: column; align-items: stretch; gap: 8px; padding: 10px; }
+  .island fieldset { justify-content: space-between; }
+  .seg { flex: 1; justify-content: space-between; }
+  .seg label { flex: 1; justify-content: center; padding: 0 8px; font-size: 13px; }
+  .island legend { width: 48px; }
+  .dots { display: none; }
+  .wrap { padding-bottom: 200px; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="logo" viewBox="0 0 917 214"><path d="M906.7 189.1C906.7 175.3 896.2 169.9 883.15 166.75L868 162.85C850.3 158.35 838.75 151.3 838.75 135.1C838.75 118.3 854.5 106 874.75 106C892.6 106 906.4 114.25 912.55 126.85L911.05 127.9C905.2 115.3 891.7 107.5 874.9 107.5C859.45 107.5 848.05 115.75 848.05 128.8C848.05 142.6 858.7 146.35 872.35 149.95L886.9 153.85C904.45 158.35 916.3 166 916.3 182.05C916.3 202.6 897.85 214 877.75 214C858.1 214 841.3 204.85 835 189.4L836.5 188.5C842.65 203.8 859 212.5 877.45 212.5C896.2 212.5 906.7 202.15 906.7 189.1Z" style="fill:var(--lw)"></path><path d="M774.1 212.5V109.15H733V107.5H829V109.15H787.9V212.5H774.1Z" style="fill:var(--lw)"></path><path d="M652.95 109.15V162.4H676.95C692.85 162.4 705.3 155.95 705.3 135.7C705.3 117.1 694.05 109.15 677.1 109.15H652.95ZM652.95 164.05V212.5H639V107.5H679.65C701.55 107.5 720.15 115.15 720.15 135.4C720.15 155.35 700.8 163 687.15 163.3V163.6C700.95 164.65 709.05 170.05 712.95 181.15L718.8 197.8C720.6 203.2 723 208.6 726.9 212.5H711.45C708.45 208.3 706.65 203.35 705.15 198.85L699.45 182.65C695.1 169.75 689.1 164.05 673.95 164.05H652.95Z" style="fill:var(--lw)"></path><path d="M616.038 107.5H617.688V171.85C617.688 199.3 599.838 214 576.588 214C547.638 214 532.188 197.05 532.188 171.85L532 137.015C539 136.373 539 136.373 545.988 136.373V170.05C545.988 194.35 556.038 209.95 580.038 209.95C600.438 209.95 616.038 196.9 616.038 171.25V107.5Z" style="fill:var(--lw)"></path><path d="M286.703 160.3C286.703 128.8 309.653 106 338.603 106C357.203 106 372.053 114.85 378.503 133L377.003 133.6C371.153 116.95 357.503 107.95 340.853 107.95C317.603 107.95 302.153 126.55 302.153 160C302.153 193.45 317.603 212.05 340.853 212.05C357.503 212.05 371.303 203.5 377.453 186.55L378.953 187.15C372.203 205.3 357.203 214 338.603 214C309.653 214 286.703 191.8 286.703 160.3Z" style="fill:var(--lw)"></path><path d="M248.6 166.45L285.65 107.5H287.3L249.2 168.7V212.5H235.4V169L197 107.5H212.45L248.6 166.45Z" style="fill:var(--lw)"></path><path d="M174.25 212.5L130.6 159.7L116.95 172.9V212.5H103V107.5H116.95V170.8L183.25 107.5H185.5L140.65 150.25L190.9 212.5H174.25Z" style="fill:var(--lw)"></path><path d="M71.7 189.1C71.7 175.3 61.2 169.9 48.15 166.75L33 162.85C15.3 158.35 3.75 151.3 3.75 135.1C3.75 118.3 19.5 106 39.75 106C57.6 106 71.4 114.25 77.55 126.85L76.05 127.9C70.2 115.3 56.7 107.5 39.9 107.5C24.45 107.5 13.05 115.75 13.05 128.8C13.05 142.6 23.7 146.35 37.35 149.95L51.9 153.85C69.45 158.35 81.3 166 81.3 182.05C81.3 202.6 62.85 214 42.75 214C23.1 214 6.3 204.85 0 189.4L1.5 188.5C7.65 203.8 24 212.5 42.45 212.5C61.2 212.5 71.7 202.15 71.7 189.1Z" style="fill:var(--lw)"></path><path d="M501.72 139.987C504.024 146.082 505.3 152.806 505.3 160C505.3 191.5 480.849 214 452.649 214C427.508 214 405.348 196.117 400.836 169.916C405.741 168.024 410.64 166.185 415.528 164.406C416.651 195.508 429.854 212.5 452.649 212.5C476.499 212.5 489.85 193.9 489.85 160C489.85 153.686 489.385 147.904 488.478 142.673C488.507 142.666 488.537 142.66 488.566 142.653C492.997 141.678 497.383 140.789 501.72 139.987ZM452.649 106C470.347 106 486.567 114.863 496.194 129.25C492.673 129.932 489.128 130.677 485.564 131.489C479.861 115.826 468.606 107.5 452.649 107.5C430.248 107.5 417.111 123.91 415.598 153.994C410.396 156.097 405.195 158.287 400.003 160.553C400.001 160.369 400 160.185 400 160C400 128.5 424.45 106 452.649 106Z" style="fill:var(--lw)"></path><path d="M469.261 0C469.99 0.0902108 470.52 0.254226 471.047 0.748335C481.571 10.6472 492.363 20.3343 502.844 30.2667C502.582 20.3625 502.536 10.9745 502.536 1.04768L507.056 1.01589C506.817 10.5726 507.173 20.3782 507.034 29.9428C506.994 32.7534 507.293 40.4777 506.661 42.7243L506.393 42.6418C503.528 41.773 477.473 17.1272 473.286 13.0308C473.311 21.8069 472.867 34.0938 473.442 42.5195L468.717 42.51C468.996 32.5082 468.515 22.1634 468.848 12.1318C468.968 8.50442 468.791 3.50669 469.261 0Z" style="fill:var(--le)"></path><path d="M672.649 0.352631C674.278 1.00615 679.248 12.9909 680.273 15.2523L692.304 41.7758C689.507 41.9137 686.462 41.8473 683.64 41.8306C681.606 37.6446 679.715 32.7234 677.741 28.3833L673.295 28.3882L663.99 28.4033C662.068 32.9003 660.088 37.3785 658.057 41.8371C656.594 41.8765 654.899 41.8178 653.415 41.7989C656.064 35.9183 670.06 3.11816 672.649 0.352631ZM665.132 25.6662L671.017 25.6824L676.596 25.6414C675.804 23.6498 671.68 13.0173 670.891 11.8968C668.997 16.4455 667.109 21.1601 665.132 25.6662Z" style="fill:var(--le)"></path><path d="M416.432 0.306732C418.15 0.953072 422.962 12.6654 424.101 15.1736L436.152 41.8006C433.431 41.9116 430.291 41.8434 427.535 41.8355C425.872 38.7757 423.085 31.7467 421.635 28.3838L417.245 28.3882L407.85 28.402L401.959 41.8514C400.488 41.8716 398.863 41.8091 397.38 41.7801C399.539 35.8121 404.419 26.4848 406.911 20.3645C408.179 17.2515 414.773 2.40695 416.432 0.306732ZM409.006 25.6793L414.468 25.6824L420.483 25.6501C419.199 22.4566 416.252 14.5549 414.8 11.8747L409.006 25.6793Z" style="fill:var(--le)"></path><path d="M562.986 0.845204C568.423 0.0689295 576.019 1.29522 579.571 5.34779C580.493 6.39982 582.145 8.81321 581.26 10.0792C579.502 10.1431 576.415 6.32499 574.851 5.72273C570.263 3.90699 564.962 3.70812 560.146 4.71479C546.572 7.55181 546.088 32.7455 557.309 37.9316C562.339 40.256 568.665 39.8555 574.005 38.2496C574.145 38.193 574.282 38.1366 574.421 38.0802L574.64 37.9787C577.386 36.7471 578.753 34.2024 581.251 33.6343L581.675 33.8739C581.744 34.6912 581.354 35.3826 581.015 36.1227C579.064 40.3744 574.057 42.4811 569.183 42.8942C558.474 43.8025 547.036 40.4354 542.445 30.98C537.66 21.129 541.132 8.41445 552.217 3.40826C555.885 1.73962 558.947 1.15633 562.986 0.845204Z" style="fill:var(--le)"></path><path d="M224 1.98692C226.913 1.97898 246.285 1.5228 247.497 2.48078C247.556 3.57586 247.541 3.74552 247.24 4.80678C246.235 5.56768 234.989 5.23452 232.865 5.27143C232.81 9.69739 232.861 14.2015 232.867 18.6339L246.563 18.6224L246.442 21.8746C241.907 21.8935 237.373 21.8599 232.839 21.7733L232.844 29.31L232.855 38.5541C237.767 38.6243 242.714 38.5115 247.62 38.6017C248.35 38.6151 248.164 38.601 248.573 39.029C248.524 40.0989 248.531 40.2991 248.096 41.2868C246.78 42.0964 227.418 41.7466 224.001 41.7468L224 1.98692Z" style="fill:var(--le)"></path><path d="M293.36 0.808815C298.07 0.230902 301.878 1.81702 304.289 5.46057C304.384 6.85268 304.645 10.0711 303.643 11.1369C301.548 10.9496 301.74 3.87727 295.734 3.8419C289.597 3.56512 285.472 8.52927 290.232 13.0462C294.812 17.5206 303.684 21.2065 305.323 27.646C307.967 38.0344 299.575 42.9032 289.525 43.0359C284.584 42.449 280.811 40.05 280.402 35.2222C280.276 33.7404 280.226 31.8485 281.359 30.6655C283.685 30.6404 282.729 36.2483 285.624 38.091C289.18 40.3545 295.254 40.286 297.744 36.7476C302.34 30.2129 290.117 24.5755 285.922 20.3571C277.841 12.2305 280.781 2.39801 293.36 0.808815Z" style="fill:var(--le)"></path><path d="M336.62 1.99542C348.54 1.79655 361.178 1.99312 373.159 1.99389C373.86 3.00005 374.556 4.15484 375.214 5.19662C370.763 5.48263 363.064 5.2876 358.435 5.29324L358.421 28.5412L358.44 41.8294C355.73 41.8847 353.089 41.8412 350.379 41.8015L350.354 5.26275C348.004 5.27018 335.966 5.56772 334.99 4.80836C335.195 3.72353 335.928 2.93444 336.62 1.99542Z" style="fill:var(--le)"></path><path d="M615.825 1.81651L624.107 1.80472C624.278 4.25425 624.17 8.10076 624.173 10.6472L624.187 27.5394C624.187 29.5581 624.435 41.007 623.808 41.8517C621.236 41.9319 618.246 41.8588 615.64 41.8491L615.62 14.1539C615.62 12.0296 615.457 3.40904 615.825 1.81651Z" style="fill:var(--le)"></path><path d="M529.988 81.3408C537.931 77.1806 547.655 78.6644 553.995 85.0039C560.335 91.3436 561.82 101.068 557.66 109.011C553.566 116.828 544.928 121.148 536.218 119.735C527.507 118.323 520.679 111.493 519.266 102.783C517.852 94.0728 522.172 85.4354 529.988 81.3408ZM547.787 111.934C543.859 112.642 543.109 117.195 546.621 116.761C547.916 116.353 549.084 115.5 549.718 114.263C550.629 112.482 549.418 111.844 547.787 111.934ZM535.564 114.271C535.181 112.559 533.102 111.29 531.398 111.481C530.932 111.544 530.395 111.688 530.121 112.085C529.283 113.302 530.929 115.001 531.823 115.64C532.503 116.125 533.315 116.44 534.108 116.356C535.187 116.163 535.811 115.374 535.564 114.271ZM543.221 107.391C542.968 105.486 541.217 104.147 539.312 104.405C537.416 104.662 536.085 106.405 536.336 108.302C536.587 110.199 538.326 111.535 540.224 111.29C542.13 111.044 543.473 109.296 543.221 107.391ZM556.622 105.24C556.183 104.257 554.925 104.207 554.07 104.652C552.991 105.216 552.4 106.177 552.014 107.302C551.886 107.974 551.82 108.876 552.218 109.478C552.403 109.754 552.693 109.944 553.021 110.001C554.009 110.182 555.188 109.128 555.794 108.46C556.466 107.547 557.147 106.419 556.622 105.24ZM524.159 103.396C523.699 103.476 523.194 103.662 522.941 104.069C521.933 105.696 523.528 107.734 524.842 108.627C525.248 108.903 525.588 109.023 526.036 109.12C527.228 109.122 527.519 108.199 527.538 107.189C527.569 105.562 525.957 103.242 524.159 103.396ZM551.282 99.2852C551.01 97.3913 549.257 96.0746 547.362 96.3408C545.46 96.6084 544.135 98.3704 544.408 100.272C544.682 102.174 546.448 103.493 548.35 103.214C550.243 102.936 551.554 101.179 551.282 99.2852ZM534.612 98.8799C534.424 96.9687 532.719 95.574 530.809 95.7666C528.904 95.9588 527.513 97.6563 527.701 99.5615C527.889 101.467 529.584 102.86 531.49 102.677C533.402 102.492 534.801 100.791 534.612 98.8799ZM552.673 89.8945C550.036 90.382 552.046 96.2012 555.178 95.5537C558.178 94.402 554.898 89.7381 552.673 89.8945ZM542.669 90.7393C542.438 88.8346 540.706 87.4786 538.802 87.7109C536.9 87.9431 535.545 89.6714 535.775 91.5732C536.006 93.4753 537.733 94.8317 539.636 94.6035C541.541 94.3749 542.899 92.644 542.669 90.7393ZM525.709 88.9629C524.015 89.1882 521.971 91.4375 522.229 93.2148C522.335 93.9491 522.857 94.5834 523.623 94.627C527.114 94.619 528.255 88.9615 525.709 88.9629ZM544.882 82.6416C544.379 82.7534 543.883 82.9436 543.626 83.4092C542.864 84.7875 544.1 86.3528 545.276 86.9863C546.115 87.438 546.741 87.5645 547.644 87.5195C548.543 87.3807 549.289 86.8839 549.076 85.8496C548.865 84.8237 547.892 83.8567 547.06 83.2803C546.332 82.8078 545.74 82.5853 544.882 82.6416ZM533.204 82.2295C532.154 82.1095 531.343 82.5863 530.542 83.21C529.906 83.7795 528.993 84.7864 528.978 85.6758C528.951 87.1827 530.588 87.1827 531.588 86.9863C532.958 86.6216 534.334 85.6514 534.599 84.1611C534.77 83.1967 534.203 82.3437 533.204 82.2295Z" style="fill:var(--lb)"></path><path d="M327 199.899C428.066 141.935 551.685 99.0922 616 148.656C552.52 110.853 433.078 149.496 327 199.899Z" style="fill:var(--lb)"></path></symbol></svg>
+
+<div class="wrap">
+  <header>
+    <h1>Estancia SkyCourts · brand direction</h1>
+    <p>Use the bar at the bottom to switch the colour scheme and fonts. Every section below updates with your choice. Dates, links and arrow directions are placeholders.</p>
+    <nav class="toc" aria-label="Sections">
+      <a href="#logo">01 Logo</a><a href="#art">02 Post · artwork</a><a href="#photo">03 Post · photo</a><a href="#poster">04 Wayfinding poster</a><a href="#signs">05 Directional signs</a><a href="#uniform">06 Staff uniform</a>
+    </nav>
+  </header>
+
+  <section id="logo" aria-labelledby="s1">
+    <div class="sec-head"><span class="n">01</span><h2 id="s1">Logo</h2><span class="note">Horizontal, stacked, social avatar and favicon</span></div>
+    <h3 class="sub">Horizontal</h3>
+    <div class="grid2" id="sec-logo"></div>
+    <h3 class="sub">Stacked</h3>
+    <div class="grid2" id="sec-stack"></div>
+    <h3 class="sub">Social avatar</h3>
+    <div class="avatars" id="sec-avatar"></div>
+    <h3 class="sub">Favicon and app icon</h3>
+    <div class="favs" id="sec-fav"></div>
+  </section>
+
+  <section id="art" aria-labelledby="s2">
+    <div class="sec-head"><span class="n">02</span><h2 id="s2">Social post · artwork</h2><span class="note">Line art with horizon bands, light and dark, with and without the sunset band</span></div>
+    <div class="grid4" id="sec-art"></div>
+  </section>
+
+  <section id="photo" aria-labelledby="s3">
+    <div class="sec-head"><span class="n">03</span><h2 id="s3">Social post · photo</h2><span class="note">Full-bleed photo into the same horizon bands</span></div>
+    <div class="grid4" id="sec-photo"></div>
+  </section>
+
+  <section id="poster" aria-labelledby="s4">
+    <div class="sec-head"><span class="n">04</span><h2 id="s4">Wayfinding poster</h2><span class="note">The same photo in three treatments</span></div>
+    <div class="grid3" id="sec-poster"></div>
+  </section>
+
+  <section id="signs" aria-labelledby="s5">
+    <div class="sec-head"><span class="n">05</span><h2 id="s5">Directional signs</h2><span class="note">Rooftop fingerpost and wall directory</span></div>
+    <div class="grid2" id="sec-signs"></div>
+  </section>
+
+  <section id="uniform" aria-labelledby="s6">
+    <div class="sec-head"><span class="n">06</span><h2 id="s6">Staff uniform</h2><span class="note">One polo for every role, front and back</span></div>
+    <div class="grid3" id="sec-uniform"></div>
+  </section>
+</div>
+
+<form class="island" aria-label="Choose colour scheme and fonts" onsubmit="return false">
+  <fieldset><legend>Colour</legend><div class="seg" id="seg-palette"></div></fieldset>
+  <span class="divider" aria-hidden="true"></span>
+  <fieldset><legend>Fonts</legend><div class="seg" id="seg-font"></div></fieldset>
+</form>
+
+<script>
+const A = 'assets/';
+const PAL = {
+  a: { short: 'A', name: 'Court & Teak', dots: ['#2C4159', '#6E5240', '#D4B26A'],
+    lgDark: { lw: '#F3EDE4', le: '#D4B26A', lb: '#D4B26A' }, lgLight: { lw: '#2C4159', le: '#8E7731', lb: '#8E7731' },
+    logo: { dark: { bg: '#2C4159', tag: '#A9C1D6' }, light: { bg: '#E4D6C5', tag: '#6E5240' } },
+    avatar: [ ['Dark', '#2C4159', 'dark'], ['Light', '#E4D6C5', 'light'], ['Gold', '#D4B26A', 'accent'] ],
+    art: { light: { bg: '#F3EDE4', head: '#2C4159', t1: '#2C4159' }, dark: { bg: '#18222F', head: '#F3EDE4', t1: '#F3EDE4' } },
+    photoHead: { light: '#2C4159', dark: '#F3EDE4' },
+    ramps: { light: ['#E4D6C5','#D2B796','#BA9872','#9D7B5C','#7E614D','#5A4C49','#383641','#18222F'], light_s: ['#E4D6C5','#E0BE78','#C39D5D','#A97B48','#8A5F41','#664742','#43323E','#18222F'],
+             dark: ['#2C4159','#554D53','#755844','#8F6F54','#A98765','#C2A079','#D5BB9C','#E4D6C5'], dark_s: ['#2C4159','#5E4C54','#835F4A','#A57644','#BD9458','#D6B46E','#EAD3A2','#F3EDE4'] },
+    poster: { text: '#F3EDE4', muted: '#A9C1D6', arrow: '#D4B26A', bands: { natural: '#2C4159', duo: '#18222F', tri: '#2C4159' } },
+    polo: [ ['Navy', 'a-navy'], ['Travertine', 'a-travertine'], ['Teak', 'a-teak'] ] },
+  b1: { short: 'B1', name: 'Sunset', dots: ['#2C4159', '#F3EDE4', '#FF6F2E'],
+    lgDark: { lw: '#F3EDE4', le: '#F3EDE4', lb: '#FF6F2E' }, lgLight: { lw: '#2C4159', le: '#2C4159', lb: '#FF6F2E' },
+    logo: { dark: { bg: '#2C4159', tag: '#A9C1D6' }, light: { bg: '#F3EDE4', tag: '#6E5240' } },
+    avatar: [ ['Dark', '#2C4159', 'dark'], ['Light', '#F3EDE4', 'light'], ['Orange', '#FF6F2E', 'accent'] ],
+    art: { light: { bg: '#F3EDE4', head: '#2C4159', t1: '#18222F' }, dark: { bg: '#18222F', head: '#F3EDE4', t1: '#F3EDE4' } },
+    photoHead: { light: '#2C4159', dark: '#F3EDE4' },
+    ramps: { light: ['#A9C1D6','#95A6C0','#818CAA','#6C7493','#545E7B','#3D4864','#2A3549','#18222F'], light_s: ['#A9C1D6','#EBBEA0','#FE8F54','#E86234','#B8473A','#813C43','#4D2F45','#18222F'],
+             dark: ['#2C4159','#465774','#636E8D','#8385A3','#A79CAF','#CCB3B3','#E9CDBC','#F3EDE4'], dark_s: ['#2C4159','#644B6E','#9B506A','#C95F59','#F96D36','#FF9B62','#FCC6A3','#F3EDE4'] },
+    poster: { text: '#F3EDE4', muted: '#A9C1D6', arrow: '#FF6F2E', bands: { natural: '#2C4159', duo: '#18222F', tri: '#2C4159' } },
+    polo: [ ['Navy', 'b1-navy'], ['Linen', 'b1-linen'], ['Orange', 'b1-orange'] ] },
+  b4: { short: 'B4', name: 'Coastal', dots: ['#174560', '#4EACB7', '#E0786C'],
+    lgDark: { lw: '#FDFCDF', le: '#FDFCDF', lb: '#E0786C' }, lgLight: { lw: '#174560', le: '#174560', lb: '#E0786C' },
+    logo: { dark: { bg: '#174560', tag: '#F8DABB' }, light: { bg: '#FDFCDF', tag: '#2E6E73' } },
+    avatar: [ ['Dark', '#174560', 'dark'], ['Light', '#FDFCDF', 'light'], ['Salmon', '#E0786C', 'accent'] ],
+    art: { light: { bg: '#FDFCDF', head: '#174560', t1: '#174560' }, dark: { bg: '#0A2433', head: '#FDFCDF', t1: '#FDFCDF' } },
+    photoHead: { light: '#174560', dark: '#FDFCDF' },
+    ramps: { light: ['#F8DABB','#E6B39A','#BF968F','#947F85','#4E7981','#2F5B6E','#143E57','#0A2433'], light_s: ['#F8DABB','#F1AF94','#E48474','#BF676C','#90556A','#574E6B','#2B3C55','#0A2433'],
+             dark: ['#174560','#255F6C','#34797F','#41939C','#54AEB8','#87C4C2','#BCD5C5','#F8DABB'], dark_s: ['#174560','#4D5A72','#876378','#BA6E75','#E48273','#F1AB93','#F9D3B8','#FDFCDF'] },
+    poster: { text: '#FDFCDF', muted: '#F8DABB', arrow: '#E0786C', bands: { natural: '#174560', duo: '#123548', tri: '#174560' } },
+    polo: [ ['Harbour', 'b4-harbour'], ['Cream', 'b4-cream'], ['Teal', 'b4-teal'] ] }
+};
+const FONTS = {
+  club:      { name: 'Members’ Club', short: 'Club', sub: 'Italiana + Geist', display: "'Italiana', Didot, serif", dw: 400, dcase: 'uppercase', dtrack: '0.04em', head: 112, photoHead: 120, way: 124,
+               label: "'Geist', 'Helvetica Neue', sans-serif", lw: 500, body: "'Geist', 'Helvetica Neue', sans-serif", num: "'Geist Mono', ui-monospace, monospace" },
+  social:    { name: 'Rooftop Social', short: 'Social', sub: 'Ysabeau + Hanken Grotesk', display: "'Ysabeau', 'Gill Sans', sans-serif", dw: 800, dcase: 'uppercase', dtrack: '0.03em', head: 124, photoHead: 140, way: 166,
+               label: "'Hanken Grotesk', 'Helvetica Neue', sans-serif", lw: 600, body: "'Hanken Grotesk', 'Helvetica Neue', sans-serif", num: "'Hanken Grotesk', 'Helvetica Neue', sans-serif" },
+  editorial: { name: 'Lifestyle Editorial', short: 'Editorial', sub: 'Belleza + Figtree', display: "'Belleza', Optima, sans-serif", dw: 400, dcase: 'none', dtrack: '0', head: 140, photoHead: 150, way: 176,
+               label: "'Figtree', 'Helvetica Neue', sans-serif", lw: 600, body: "'Figtree', 'Helvetica Neue', sans-serif", num: "'Figtree', 'Helvetica Neue', sans-serif" }
+};
+const BAND_H = [46, 36, 28, 22, 18, 14, 11];
+const state = { palette: 'b1', font: 'social' };
+try { const s = JSON.parse(localStorage.getItem('skycourts-island') || 'null'); if (s && PAL[s.palette] && FONTS[s.font]) Object.assign(state, s); } catch (e) {}
+const save = () => { try { localStorage.setItem('skycourts-island', JSON.stringify(state)); } catch (e) {} };
+
+const logo = (c, style = '') => `<svg viewBox="0 0 917 214" role="img" aria-label="Estancia SkyCourts" style="--lw:${c.lw};--le:${c.le};--lb:${c.lb};${style}"><use href="#logo"></use></svg>`;
+const frame = (w, h, inner, bg) => `<div class="frame" data-w="${w}" style="aspect-ratio:${w}/${h};background:${bg}"><div class="canvas" style="width:${w}px;height:${h}px;background:${bg}">${inner}</div></div>`;
+const globe = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"></path></svg>`;
+const arrow = (c) => `<svg width="300" height="120" viewBox="0 40 600 140" aria-hidden="true"><path d="M10 190 C150 100 380 50 520 105 C380 75 170 120 10 190 Z" fill="${c}"></path><path d="M576 127 L499.5 131 L522.5 71 Z" fill="${c}"></path></svg>`;
+const bands = (ramp, t1) => `<div class="bands"><div class="content-band" style="background:${ramp[0]};color:${t1}"><span class="date">NOVEMBER 11, 2026</span><span class="url">${globe}SKYCOURTS.PH</span></div>${ramp.slice(1).map((c, i) => `<div style="height:${BAND_H[i]}px;background:${c}"></div>`).join('')}</div>`;
+const variants = [ ['light', false, 'Light'], ['light', true, 'Light + sunset'], ['dark', false, 'Dark'], ['dark', true, 'Dark + sunset'] ];
+
+function renderIsland() {
+  document.getElementById('seg-palette').innerHTML = Object.entries(PAL).map(([k, p]) =>
+    `<input type="radio" name="palette" id="pal-${k}" value="${k}"${state.palette === k ? ' checked' : ''}><label for="pal-${k}"><span class="dots">${p.dots.map(d => `<i style="background:${d}"></i>`).join('')}</span><span class="long">${p.short} · ${p.name}</span><span class="short">${p.short}</span></label>`).join('');
+  document.getElementById('seg-font').innerHTML = Object.entries(FONTS).map(([k, f]) =>
+    `<input type="radio" name="font" id="font-${k}" value="${k}"${state.font === k ? ' checked' : ''}><label for="font-${k}" title="${f.sub}"><span class="long">${f.name}</span><span class="short">${f.short}</span></label>`).join('');
+  document.querySelectorAll('.island input').forEach(el => el.addEventListener('change', e => { state[e.target.name] = e.target.value; save(); render(); }));
+}
+function applyFonts() {
+  const f = FONTS[state.font], r = document.documentElement.style;
+  r.setProperty('--f-display', f.display); r.setProperty('--f-dw', f.dw); r.setProperty('--f-dcase', f.dcase); r.setProperty('--f-dtrack', f.dtrack);
+  r.setProperty('--f-label', f.label); r.setProperty('--f-lw', f.lw); r.setProperty('--f-body', f.body); r.setProperty('--f-num', f.num);
+}
+
+function render() {
+  applyFonts();
+  const k = state.palette, P = PAL[k], F = FONTS[state.font];
+
+  document.getElementById('sec-logo').innerHTML = ['dark', 'light'].map(v => {
+    const c = P.logo[v], lg = v === 'dark' ? P.lgDark : P.lgLight;
+    return `<figure>${frame(1200, 750, `<div class="logo-panel" style="width:1200px;height:750px;color:${c.tag}">${logo(lg)}<div class="tagline">Play above the city</div></div>`, c.bg)}<figcaption>${v === 'dark' ? 'Dark' : 'Light'}</figcaption></figure>`;
+  }).join('');
+  document.getElementById('sec-stack').innerHTML = ['dark', 'light'].map(v =>
+    `<figure><div class="tile" style="background:${P.logo[v].bg}"><img src="${A}stack-${k}-${v}.svg" alt="Stacked logo, ${v}"></div><figcaption>${v === 'dark' ? 'Dark' : 'Light'}</figcaption></figure>`).join('');
+  document.getElementById('sec-avatar').innerHTML = P.avatar.map(([name, bg, v]) =>
+    `<div class="av"><div class="c" style="width:200px;height:200px;background:${bg}"><img src="${A}icon-${k}-${v}.svg" alt="Avatar, ${name}"></div><span>${name} · 200 px</span></div>`).join('') +
+    P.avatar.map(([name, bg, v]) => `<div class="av"><div class="c" style="width:64px;height:64px;background:${bg}"><img src="${A}icon-${k}-${v}.svg" alt=""></div><span>64</span></div>`).join('') +
+    `<div class="av"><div class="c" style="width:40px;height:40px;background:${P.avatar[0][1]}"><img src="${A}icon-${k}-dark.svg" alt=""></div><span>40</span></div>`;
+  document.getElementById('sec-fav').innerHTML = ['dark', 'light'].map(v =>
+    [120, 64, 32, 16].map(s => `<div class="fav"><img src="${A}fav-${k}-${v}.svg" width="${s}" height="${s}" alt="${s === 120 ? 'Favicon, ' + v : ''}"><span>${s}</span></div>`).join('')).join('<span style="width:12px"></span>') +
+    `<div class="tab"><div class="tabbar"><div class="on"><img src="${A}fav-${k}-dark.svg" width="16" height="16" alt="">Estancia SkyCourts</div><div><img src="${A}fav-${k}-light.svg" width="16" height="16" alt="">Book a court</div></div><div class="urlbar">skycourts.ph</div></div>`;
+
+  document.getElementById('sec-art').innerHTML = variants.map(([v, s, label]) => {
+    const t = P.art[v], ramp = P.ramps[v + (s ? '_s' : '')], lg = v === 'dark' ? P.lgDark : P.lgLight;
+    const inner = `<div style="position:absolute;left:0;top:0;width:1080px;height:1055px;overflow:hidden"><img src="${A}court-${k}-${v}.svg" alt="" style="position:absolute;left:0;top:330px;width:1080px;height:auto"></div>
+      ${logo(lg, 'position:absolute;left:340px;top:100px;width:400px;height:auto')}
+      <div class="p-head" style="position:absolute;left:0;right:0;top:250px;text-align:center;font-size:${F.head}px;color:${t.head}">Open Play</div>${bands(ramp, t.t1)}`;
+    return `<figure>${frame(1080, 1350, inner, t.bg)}<figcaption>${label}</figcaption></figure>`;
+  }).join('');
+
+  document.getElementById('sec-photo').innerHTML = variants.map(([v, s, label]) => {
+    const ramp = P.ramps[v + (s ? '_s' : '')], lg = v === 'dark' ? P.lgDark : P.lgLight, t1 = P.art[v].t1;
+    const inner = `<img src="${A}fb-${k}-${v}.jpg" alt="Player hitting a forehand" style="position:absolute;left:0;top:0;width:1080px;height:1055px;object-fit:cover">
+      ${logo(lg, 'position:absolute;left:72px;top:72px;width:340px;height:auto')}
+      <div class="p-head" style="position:absolute;left:72px;top:190px;font-size:${F.photoHead}px;color:${P.photoHead[v]}">Open<br>Play</div>${bands(ramp, t1)}`;
+    return `<figure>${frame(1080, 1350, inner, ramp[0])}<figcaption>${label}</figcaption></figure>`;
+  }).join('');
+
+  const pc = P.poster;
+  document.getElementById('sec-poster').innerHTML = [['natural', '1 · Natural'], ['duo', '2 · Duotone'], ['tri', '5 · Tritone']].map(([tk, label]) => {
+    const band = pc.bands[tk], img = tk === 'natural' ? `${A}v-natural.jpg` : `${A}v-${k}-${tk}.jpg`;
+    const inner = `<img src="${img}" alt="Player hitting a forehand" style="position:absolute;left:0;top:0;width:1080px;height:1100px;object-fit:cover;object-position:50% 30%">
+      <div style="position:absolute;left:0;right:0;bottom:0;height:427px;box-sizing:border-box;padding:48px 72px 56px;background:${band};color:${pc.text};display:flex;flex-direction:column;justify-content:space-between">
+        <div style="display:flex;justify-content:space-between;align-items:center">${logo(P.lgDark, 'width:340px;height:auto;display:block')}<div class="p-tag" style="color:${pc.muted}">Rooftop pickleball</div></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:24px"><div class="p-head" style="font-size:${F.way}px;line-height:0.85;white-space:nowrap">This way</div>${arrow(pc.arrow)}</div>
+        <div class="p-eyebrow" style="font-size:22px;color:${pc.muted}">[Floor / lift directions] · Courts · Lounge</div>
+      </div>`;
+    return `<figure>${frame(1080, 1527, inner, band)}<figcaption>${label}</figcaption></figure>`;
+  }).join('');
+
+  document.getElementById('sec-signs').innerHTML =
+    `<figure><img class="photo" src="${A}sign-${k}-post.jpg" alt="Rooftop fingerpost sign"><figcaption>Rooftop fingerpost</figcaption></figure>
+     <figure><img class="photo" src="${A}sign-${k}-wall.jpg" alt="Wall directory sign"><figcaption>Wall directory</figcaption></figure>`;
+
+  document.getElementById('sec-uniform').innerHTML = P.polo.map(([name, f]) =>
+    `<figure><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#F2EFEA;box-shadow:0 8px 24px rgba(30,35,41,0.10)"><img src="${A}polo-${f}-front.jpg" alt="${name} polo, front" style="width:100%;height:auto;display:block"><img src="${A}polo-${f}-back.jpg" alt="${name} polo, back" style="width:100%;height:auto;display:block"></div><figcaption>${name}</figcaption></figure>`).join('');
+
+  fit();
+}
+function fit() {
+  document.querySelectorAll('.frame').forEach(fr => { fr.querySelector('.canvas').style.transform = `scale(${fr.clientWidth / Number(fr.dataset.w)})`; });
+}
+window.addEventListener('resize', fit);
+renderIsland(); render();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+</script>
+</body>
+</html>
