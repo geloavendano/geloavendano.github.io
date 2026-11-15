@@ -47,7 +47,7 @@
       <a href="#lab-sansayaw-batch">Batch identity lab</a>
       <a href="#lab-sansayaw-admin">Instructor admin lab</a>
       <a href="#lab-sansayaw-registration">Registration lab</a> <a href="#sansayaw-registration-destination">Registration destinations</a>
-      <a href="#lab-sansayaw-analytics">Analytics lab</a>
+      <a href="#lab-sansayaw-analytics">Analytics lab</a> <a href="#sansayaw-release-telemetry">Release telemetry</a>
       <a href="#sansayaw-widget-observation">Widget observation</a>
       <a href="#sansayaw-source-selection">Source selection</a>
       <a href="#sansayaw-feed-migration">Manual-to-feed migration</a>
@@ -779,6 +779,7 @@ inside_radius := st_distance(v_point, v_venue.location)
             <ul class="repo-tree" aria-label="Sansayaw repository structure">
               <li><div class="file-node file-node--root"><span class="file-kind file-kind--folder">dir</span><code>sansayaw/</code><span class="file-purpose">Sansayaw&rsquo;s pipeline, public web/mobile readers, admin, and studio portal</span></div>
                 <ul>
+                  <li><div class="file-node"><span class="file-kind">ts</span><code>mobile/src/lib/analytics.ts</code><span class="file-purpose">native event/identity adapter; branch-only installed-release context is traced in the <a href="#sansayaw-release-telemetry">release telemetry lesson</a></span></div></li>
                   <li><div class="file-node"><span class="file-kind">py</span><code>run.py</code><span class="file-purpose">selects sources, writes data, refreshes the cache, and reports coverage warnings</span></div></li>
                   <li><div class="file-node"><span class="file-kind">py</span><code>manage_instructors.py</code><span class="file-purpose">identity editing, normalized handles/slugs, and diagnostic repairs</span></div></li>
                   <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>scrapers/</code><span class="file-purpose">source adapters and shared data rules</span></div>
@@ -2041,6 +2042,18 @@ Branch config → book-now-in-bgc/ or book-now-in-podium/
           <p>Web and portal configure shared-subdomain analytics cookies and prefer the cookie when stored identities conflict. This is analytics identity, distinct from the <a href="#sansayaw-shared-session">Auth session cookie</a>; it cannot authorize an action. Identification uses the Auth user ID, and adapters reset cached person properties on account changes/logout. Test anonymous &rarr; signed-in &rarr; signed-out transitions across hosts and delayed SDK loading, so one person&rsquo;s context does not label the next person&rsquo;s events. Transport blockers and initialization failure can still lose events.</p>
           <div class="exercise-step"><b>Verify &amp; carry forward</b><p><code>portal/tests/actionAnalytics.test.js</code> exercises outcome mapping, rejected writes, redirects and synthetic private fields; <code>mobile/tests/analytics.test.ts</code> uses an SDK double for screen/platform and identity behavior. Compare browser requests separately from helper tests. Define event trigger, outcome, allowed properties and identity reset together before relying on a funnel.</p></div>
 
+          <h4 id="sansayaw-release-telemetry">Release telemetry: installed context outlives account identity</h4>
+          <p><strong>Committed work in progress:</strong> <a href="https://github.com/geloavendano/sansayaw/commit/8236a806d53628bb943e1ea16b8253ebb81dabb6">8236a80</a> on <code>claude/posthog-app-version</code> adds native version/build properties; it is not on reviewed main <code>8bb89c8</code> (15 Nov 2026). No installed release or live analytics delivery was verified. The existing JavaScript adapter identified the platform but did not explicitly register the installed release, making release-specific behavior harder to diagnose.</p>
+          <div class="source-trail"><strong>Source trail</strong><br><code>mobile/src/lib/analytics.ts</code>: <code>initAnalytics</code> &rarr; <code>appVersionReady</code> &rarr; <code>trackLaunch</code>; <code>resetUser</code><br><code>mobile/tests/analytics.test.ts</code>; <code>docs/analytics.md</code></div>
+          <p>Only the native path calls <a href="https://capacitorjs.com/docs/apis/app#appinfo">Capacitor App.getInfo()</a> for the installed version/build. It caches these as <code>$app_version</code> and <code>$app_build</code> and registers them as <a href="https://posthog.com/docs/libraries/js/usage#super-properties">PostHog super properties</a> on later events. This belongs in the platform adapter: a shared event-name helper cannot read native package metadata. The launch path waits for this lookup, then widget sampling, before capturing <code>app_opened</code>.</p>
+          <div class="snippet"><pre><code>native init → read installed version/build → register event context
+            → sample widgets → app_opened
+sign-out → reset analytics identity → restore platform + cached release</code></pre></div>
+          <p><strong>Separate lifetimes.</strong> Sign-out clears the SDK identity and cached person properties, then restores platform and cached release metadata. Account context must be cleared; the installed binary has not changed. Registered event properties are not person properties or a historical backfill. An early screen/foreground event does not await this promise and can lack fresh metadata; previously persisted properties can also outlive an upgrade until refreshed.</p>
+          <p><strong>Failure limits:</strong> a rejected metadata lookup is swallowed so launch tracking can continue without a fresh version. There is no timeout, so a promise that never settles holds up <code>app_opened</code>, although unrelated tracking remains enabled. This change neither backfills older events nor guarantees every event has the current release. A version breakdown counts observed traffic; a person using two builds can appear in both buckets. The documented latest-event query answers a different question and is limited to its observation window.</p>
+          <div class="exercise-step"><b>Verify &amp; carry forward</b><p>The committed transport-double tests cover native launch metadata, version/platform after sign-out, and web omission; they do not prove a native bridge or production transport. Add synthetic delayed, rejected and never-settling lookups, a stale persisted version after upgrade, and sign-out before lookup completion; assert build retention too. For the next app, define which events require release context, which metadata survives identity reset, and how long observation may wait.</p></div>
+
+
           <h4 id="sansayaw-internal-analytics">Internal analytics: tagging is not exclusion</h4>
           <p><a href="https://github.com/geloavendano/sansayaw/commit/bda80d1">bda80d1</a> adds a web initialization toggle (<code>?internal=1</code>, undo with <code>0</code>) and a mobile About-wordmark toggle after seven taps less than 600 ms apart. The web loaded callback sets the flag and removes the parameter before subsequent URL sharing; it treats any present value other than <code>0</code> as enabled. Both adapters register an <code>internal</code> event property and set the SDK&rsquo;s internal/test person marker. Undo removes the event property and sets the person marker to false.</p>
           <p>The <code>track()</code> functions still capture events. The mobile alert&rsquo;s promise of exclusion depends on a configured analytics filter; it is not a collection opt-out. <a href="https://posthog.com/tutorials/filter-internal-users">PostHog&rsquo;s filtering guide</a> distinguishes defining a filter from enabling it on insights. Check that the cohort tests equality to true, not merely whether the property exists, or the false undo value can remain included. Verify first-pageview ordering, on/off events, a disabled SDK, and reset browser/app storage using synthetic traffic. No live dashboard setting or native release is established by this commit.</p>
@@ -2114,7 +2127,7 @@ human-authenticated form → schedule choices → proposed additions → reviewe
           <p>The committed layout gives <code>~/Projects/sansayaw</code> a clean main checkout, ticket worktrees under <code>.claude/worktrees/</code>, and unpublished evidence/assets under <code>~/Projects/sansayaw-files</code>. QA evidence belongs under <code>qa/</code>; prototypes, store assets and backups have separate folders. Root <code>migration_*.sql</code> files remain source because SQL tests depend on those paths. The QA workspace also gets an instruction entry point, so starting outside the application checkout should not lose the file-placement rule.</p>
           <p><strong>Why it matters:</strong> repository hygiene reduces accidental publication and makes a release snapshot easier to explain. It does not provide access control for the companion folder or prove what Vercel or an installed binary runs. The instructions also keep shared-database changes scoped, require migration verification and human review, and retire each ticket worktree after merge. Before adopting this pattern in another app, name the source, evidence and release owners; prove the snapshot matches the intended commit; keep sensitive values out of evidence and public artifacts. This review did not inspect the companion folder&rsquo;s private contents.</p>
         </div>
-        <p style="margin-top:20px"><span class="status-note">Deep-dive updated &mdash; 13 Nov 2026</span></p>
+        <p style="margin-top:20px"><span class="status-note">Deep-dive updated &mdash; 15 Nov 2026</span></p>
       </section>
 
       <section id="bonado">
@@ -2511,7 +2524,7 @@ Admin: shared rules + admin renderer → legacy stylesheet</code></pre></div>
     <a class="next" href="together.html"><small>Next</small>Part III &middot; Build playbook</a>
   </nav>
 
-  <footer>The Build So Far &middot; v55 &middot; 13 Nov 2026 &middot; <a href="index.html">all parts</a></footer>
+  <footer>The Build So Far &middot; v56 &middot; 15 Nov 2026 &middot; <a href="index.html">all parts</a></footer>
 </div>
 </body>
 </html>
