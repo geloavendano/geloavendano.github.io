@@ -779,7 +779,7 @@ inside_radius := st_distance(v_point, v_venue.location)
             <ul class="repo-tree" aria-label="Sansayaw repository structure">
               <li><div class="file-node file-node--root"><span class="file-kind file-kind--folder">dir</span><code>sansayaw/</code><span class="file-purpose">Sansayaw&rsquo;s pipeline, public web/mobile readers, admin, and studio portal</span></div>
                 <ul>
-                  <li><div class="file-node"><span class="file-kind">ts</span><code>mobile/src/lib/analytics.ts</code><span class="file-purpose">native event/identity adapter; branch-only installed-release context is traced in the <a href="#sansayaw-release-telemetry">release telemetry lesson</a></span></div></li>
+                  <li><div class="file-node"><span class="file-kind">ts</span><code>mobile/src/lib/analytics.ts</code><span class="file-purpose">native event/identity adapter; installed-release context is now on main; see the <a href="#sansayaw-release-telemetry">release telemetry lesson</a></span></div></li>
                   <li><div class="file-node"><span class="file-kind">py</span><code>run.py</code><span class="file-purpose">selects sources, writes data, refreshes the cache, and reports coverage warnings</span></div></li>
                   <li><div class="file-node"><span class="file-kind">py</span><code>manage_instructors.py</code><span class="file-purpose">identity editing, normalized handles/slugs, and diagnostic repairs</span></div></li>
                   <li><div class="file-node"><span class="file-kind file-kind--folder">dir</span><code>scrapers/</code><span class="file-purpose">source adapters and shared data rules</span></div>
@@ -2052,7 +2052,7 @@ Branch config → book-now-in-bgc/ or book-now-in-podium/
           <div class="exercise-step"><b>Verify &amp; carry forward</b><p><code>portal/tests/actionAnalytics.test.js</code> exercises outcome mapping, rejected writes, redirects and synthetic private fields; <code>mobile/tests/analytics.test.ts</code> uses an SDK double for screen/platform and identity behavior. Compare browser requests separately from helper tests. Define event trigger, outcome, allowed properties and identity reset together before relying on a funnel.</p></div>
 
           <h4 id="sansayaw-release-telemetry">Release telemetry: installed context outlives account identity</h4>
-          <p><strong>Committed work in progress:</strong> <a href="https://github.com/geloavendano/sansayaw/commit/8236a806d53628bb943e1ea16b8253ebb81dabb6">8236a80</a> on <code>claude/posthog-app-version</code> adds native version/build properties; it is not on reviewed main <code>cfe6e02</code> (16 Nov 2026). No installed release or live analytics delivery was verified. The existing JavaScript adapter identified the platform but did not explicitly register the installed release, making release-specific behavior harder to diagnose.</p>
+          <p><strong>Merged on main:</strong> <a href="https://github.com/geloavendano/sansayaw/commit/8236a806d53628bb943e1ea16b8253ebb81dabb6">8236a80</a> adds native version/build properties and reached main through <a href="https://github.com/geloavendano/sansayaw/commit/504fe3aebced01345440cf02e5e143625c9c6b60">504fe3a</a> (PR #306). Reviewed at <code>b87b8c5</code> on 17 Nov 2026, the adapter, tests and analytics documentation match the earlier branch snapshot; this supersedes its work-in-progress label. No installed release or live analytics delivery was verified. The existing JavaScript adapter identified the platform but did not explicitly register the installed release, making release-specific behavior harder to diagnose.</p>
           <div class="source-trail"><strong>Source trail</strong><br><code>mobile/src/lib/analytics.ts</code>: <code>initAnalytics</code> &rarr; <code>appVersionReady</code> &rarr; <code>trackLaunch</code>; <code>resetUser</code><br><code>mobile/tests/analytics.test.ts</code>; <code>docs/analytics.md</code></div>
           <p>Only the native path calls <a href="https://capacitorjs.com/docs/apis/app#appinfo">Capacitor App.getInfo()</a> for the installed version/build. It caches these as <code>$app_version</code> and <code>$app_build</code> and registers them as <a href="https://posthog.com/docs/libraries/js/usage#super-properties">PostHog super properties</a> on later events. This belongs in the platform adapter: a shared event-name helper cannot read native package metadata. The launch path waits for this lookup, then widget sampling, before capturing <code>app_opened</code>.</p>
           <div class="snippet"><pre><code>native init → read installed version/build → register event context
@@ -2139,7 +2139,7 @@ human-authenticated form → schedule choices → proposed additions → reviewe
           <p>The committed layout gives <code>~/Projects/sansayaw</code> a clean main checkout, ticket worktrees under <code>.claude/worktrees/</code>, and unpublished evidence/assets under <code>~/Projects/sansayaw-files</code>. QA evidence belongs under <code>qa/</code>; prototypes, store assets and backups have separate folders. Root <code>migration_*.sql</code> files remain source because SQL tests depend on those paths. The QA workspace also gets an instruction entry point, so starting outside the application checkout should not lose the file-placement rule.</p>
           <p><strong>Why it matters:</strong> repository hygiene reduces accidental publication and makes a release snapshot easier to explain. It does not provide access control for the companion folder or prove what Vercel or an installed binary runs. The instructions also keep shared-database changes scoped, require migration verification and human review, and retire each ticket worktree after merge. Before adopting this pattern in another app, name the source, evidence and release owners; prove the snapshot matches the intended commit; keep sensitive values out of evidence and public artifacts. This review did not inspect the companion folder&rsquo;s private contents.</p>
         </div>
-        <p style="margin-top:20px"><span class="status-note">Deep-dive updated &mdash; 16 Nov 2026</span></p>
+        <p style="margin-top:20px"><span class="status-note">Deep-dive updated &mdash; 17 Nov 2026</span></p>
       </section>
 
       <section id="bonado">
@@ -2536,7 +2536,7 @@ Admin: shared rules + admin renderer → legacy stylesheet</code></pre></div>
     <a class="next" href="together.html"><small>Next</small>Part III &middot; Build playbook</a>
   </nav>
 
-  <footer>The Build So Far &middot; v57 &middot; 16 Nov 2026 &middot; <a href="index.html">all parts</a></footer>
+  <footer>The Build So Far &middot; v58 &middot; 17 Nov 2026 &middot; <a href="index.html">all parts</a></footer>
 </div>
 </body>
 </html>
