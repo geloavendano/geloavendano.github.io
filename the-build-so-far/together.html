@@ -1030,6 +1030,8 @@ Name the measurable condition that would make the decision wrong.
           <li><b>Reconcile projections.</b>Compare authoritative totals, line items and recorded payments, then repeat the write. See <a href="deep-dives.html#barkhaus-fee-projection">Barkhaus fee projections</a>; a client duplicate guard does not serialize concurrent writes.</li>
           <li><b>Inspect the published artifact.</b>Check public-page HTML and response headers as well as build output; keep preview policy distinct. See <a href="deep-dives.html#barkhaus-indexing-gate">indexing gates</a>.</li>
           <li><b>Exercise old identities and interrupted interactions.</b>Try old URLs after renames, partial history writes, reloads, cancelled drags and refused dismissals. See <a href="deep-dives.html#sansayaw-url-migration">URL migrations</a> and <a href="deep-dives.html#sansayaw-navigation-recovery">Feed handoff and gesture recovery</a>.</li>
+          <li><b>Trace completion across workers.</b>For <a href="deep-dives.html#sansayaw-admin-workflows">queued admin work</a>, verify worker availability, database authorization, retries after partial effects, required ownership checks and public visibility after a merge. Separate a saved row from its audit and cache-refresh outcomes.</li>
+          <li><b>Test stale readers and missing history.</b>Keep old media while readers reference it; test two rapid replacements and offline recovery in the <a href="deep-dives.html#sansayaw-photo-lifecycle">photo lifecycle</a>. Exercise a missing previous deployment SHA and every shared build dependency in the <a href="deep-dives.html#sansayaw-build-guard">build guard</a>.</li>
           <li><b>Separate evidence from permission.</b>A source can be nonempty but incomplete; an approved data-only path cannot carry parser changes. See <a href="deep-dives.html#sansayaw-xebu-evidence">XEBU source evidence</a> and <a href="deep-dives.html#sansayaw-schedule-autopublish">schedule autopublishing</a>.</li>
         </ul>
       </section>
@@ -1197,7 +1199,7 @@ Name the measurable condition that would make the decision wrong.
     <a class="next" href="ai.html"><small>Next</small>Part IV &middot; AI development</a>
   </nav>
 
-  <footer>The Build So Far &middot; v60 &middot; 20 Nov 2026 &middot; <a href="index.html">all parts</a></footer>
+  <footer>The Build So Far &middot; v61 &middot; 21 Nov 2026 &middot; <a href="index.html">all parts</a></footer>
 </div>
 </body>
 </html>
