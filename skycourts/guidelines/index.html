@@ -57,7 +57,8 @@ figcaption b { color: var(--ink); font-weight: 600; }
 
 /* logo construction */
 .clear { position: relative; background: var(--travertine); padding: 56px; display: flex; justify-content: center; }
-.clear .box { position: relative; padding: 4.5%; outline: 1.5px dashed rgba(44,65,89,0.55); width: min(640px, 100%); }
+.clear .box { position: relative; outline: 1.5px dashed rgba(44,65,89,0.55); width: min(640px, 100%); container-type: inline-size; }
+.clear .box .pad { padding: 4.38cqi; }
 .clear .box img { width: 100%; height: auto; display: block; }
 .clear .x { position: absolute; font-family: var(--mono); font-size: 12px; color: var(--navy); background: var(--travertine); padding: 0 4px; }
 .donts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
@@ -117,7 +118,7 @@ footer { max-width: 1240px; margin: 0 auto; padding: 32px max(24px, env(safe-are
 
 <header class="cover">
   <div class="in">
-    <img class="logo" src="assets/logo-final-linen.png" alt="Estancia SkyCourts">
+    <img class="logo" src="assets/logo-linen.svg" alt="Estancia SkyCourts">
     <div class="meta">
       <div class="tag">Play above the city</div>
       <div class="ver">Brand guidelines · Version 1.0 · November 2026</div>
@@ -161,24 +162,24 @@ footer { max-width: 1240px; margin: 0 auto; padding: 32px max(24px, env(safe-are
       <h2 id="h-logo">The logo</h2>
       <p class="lede">One logo, always used whole: the ESTANCIA line above the SKYCOURTS wordmark, with the ball and the S-swoosh running through the O.</p>
       <div class="grid2">
-        <figure><div class="panel" style="background: var(--travertine)"><img src="assets/logo-final-navy.png" alt="Logo in Court Navy on Travertine"></div><figcaption><b>Primary.</b> Court Navy on Travertine or Linen.</figcaption></figure>
-        <figure><div class="panel" style="background: var(--navy)"><img src="assets/logo-final-linen.png" alt="Logo in Linen on Court Navy"></div><figcaption><b>Reversed.</b> Linen on Court Navy or Midnight Court.</figcaption></figure>
-        <figure><div class="panel" style="background: var(--midnight)"><img src="assets/logo-final-gold.png" alt="Logo in Lamplight Gold on Midnight Court"></div><figcaption><b>Night and occasion.</b> Lamplight Gold on Midnight Court, for evening events and premium print. Use sparingly.</figcaption></figure>
-        <figure><div class="panel" style="background: var(--teak)"><img src="assets/logo-final-linen.png" alt="Logo in Linen on Teak"></div><figcaption><b>On wood.</b> Linen on Teak, for signage rails and merchandise.</figcaption></figure>
+        <figure><div class="panel" style="background: var(--travertine)"><img src="assets/logo-navy.svg" alt="Logo in Court Navy on Travertine"></div><figcaption><b>Primary.</b> Court Navy on Travertine or Linen.</figcaption></figure>
+        <figure><div class="panel" style="background: var(--navy)"><img src="assets/logo-linen.svg" alt="Logo in Linen on Court Navy"></div><figcaption><b>Reversed.</b> Linen on Court Navy or Midnight Court.</figcaption></figure>
+        <figure><div class="panel" style="background: var(--midnight)"><img src="assets/logo-gold.svg" alt="Logo in Lamplight Gold on Midnight Court"></div><figcaption><b>Night and occasion.</b> Lamplight Gold on Midnight Court, for evening events and premium print. Use sparingly.</figcaption></figure>
+        <figure><div class="panel" style="background: var(--teak)"><img src="assets/logo-linen.svg" alt="Logo in Linen on Teak"></div><figcaption><b>On wood.</b> Linen on Teak, for signage rails and merchandise.</figcaption></figure>
       </div>
       <p>The logo is a single colour. The ball and swoosh are never picked out in a second colour.</p>
 
       <h3>Clear space</h3>
       <div class="clear">
         <div class="box">
-          <img src="assets/logo-final-navy.png" alt="Logo with clear space marked around it">
+          <div class="pad"><img src="assets/logo-navy.svg" alt="Logo with clear space marked around it"></div>
           <span class="x" style="left: 50%; top: -9px; transform: translateX(-50%)">x</span>
           <span class="x" style="left: -6px; top: 50%; transform: translateY(-50%)">x</span>
           <span class="x" style="right: -6px; top: 50%; transform: translateY(-50%)">x</span>
           <span class="x" style="left: 50%; bottom: -9px; transform: translateX(-50%)">x</span>
         </div>
       </div>
-      <p>Keep a margin of <b>x</b> on every side, where <b>x</b> is the diameter of the ball (about 4.5% of the logo’s width). Nothing else goes inside that space: no text, edges, folds or busy photo detail.</p>
+      <p>Keep a margin of <b>x</b> on every side, where <b>x</b> is the diameter of the ball (about 4.8% of the logo’s width). Nothing else goes inside that space: no text, edges, folds or busy photo detail.</p>
 
       <h3>Minimum size</h3>
       <ul class="rules">
@@ -190,11 +191,11 @@ footer { max-width: 1240px; margin: 0 auto; padding: 32px max(24px, env(safe-are
 
       <h3>Don’t</h3>
       <div class="donts">
-        <figure><div class="dont"><img src="assets/logo-final-navy.png" alt="" style="transform: scaleX(1.35)"></div><figcaption>Stretch or squash it.</figcaption></figure>
-        <figure><div class="dont"><img src="assets/logo-final-navy.png" alt="" style="transform: rotate(-12deg)"></div><figcaption>Rotate or tilt it.</figcaption></figure>
-        <figure><div class="dont" style="background: #F3EDE4"><img src="assets/logo-final-navy.png" alt="" style="filter: hue-rotate(150deg) saturate(3)"></div><figcaption>Recolour it outside the palette.</figcaption></figure>
-        <figure><div class="dont"><img src="assets/logo-final-navy.png" alt="" style="filter: drop-shadow(6px 6px 4px rgba(0,0,0,.45))"></div><figcaption>Add shadows, glows or outlines.</figcaption></figure>
-        <figure><div class="dont" style="background: url(assets/natural-fullbleed.jpg) center 70% / cover"><img src="assets/logo-final-linen.png" alt=""></div><figcaption>Place it on a busy part of a photo.</figcaption></figure>
+        <figure><div class="dont"><img src="assets/logo-navy.svg" alt="" style="transform: scaleX(1.35)"></div><figcaption>Stretch or squash it.</figcaption></figure>
+        <figure><div class="dont"><img src="assets/logo-navy.svg" alt="" style="transform: rotate(-12deg)"></div><figcaption>Rotate or tilt it.</figcaption></figure>
+        <figure><div class="dont" style="background: #F3EDE4"><img src="assets/logo-navy.svg" alt="" style="filter: hue-rotate(150deg) saturate(3)"></div><figcaption>Recolour it outside the palette.</figcaption></figure>
+        <figure><div class="dont"><img src="assets/logo-navy.svg" alt="" style="filter: drop-shadow(6px 6px 4px rgba(0,0,0,.45))"></div><figcaption>Add shadows, glows or outlines.</figcaption></figure>
+        <figure><div class="dont" style="background: url(assets/natural-fullbleed.jpg) center 70% / cover"><img src="assets/logo-linen.svg" alt=""></div><figcaption>Place it on a busy part of a photo.</figcaption></figure>
         <figure><div class="dont"><span style="font-family: var(--display); font-size: 34px; letter-spacing: .1em; color: var(--navy)">SKYCOURTS</span></div><figcaption>Retype the wordmark in a font.</figcaption></figure>
       </div>
     </section>
@@ -204,7 +205,7 @@ footer { max-width: 1240px; margin: 0 auto; padding: 32px max(24px, env(safe-are
       <h2 id="h-mark">Logomark &amp; icons</h2>
       <p class="lede">The ball and swoosh, lifted out of the logo, for places where the full logo can’t be read.</p>
       <div class="grid2">
-        <figure><div class="panel" style="background: var(--linen); border: 1px solid var(--rule)"><img src="assets/mark-navy.svg" alt="Logomark: ball and S-swoosh" style="width: min(420px, 80%)"></div><figcaption><b>Logomark.</b> Drawn to the logo’s exact proportions. For merchandise, embroidery, patterns and sign details. Minimum 12 mm / 48 px wide.</figcaption></figure>
+        <figure><div class="panel" style="background: var(--linen); border: 1px solid var(--rule)"><img src="assets/mark-navy.svg" alt="Logomark: ball and S-swoosh" style="width: min(420px, 80%)"></div><figcaption><b>Logomark.</b> Taken directly from the master logo file. For merchandise, embroidery, patterns and sign details. Minimum 12 mm / 48 px wide.</figcaption></figure>
         <figure><div class="icons" style="justify-content: center; flex: 1">
           <div class="it"><img src="assets/avatar-navy.svg" width="150" height="150" alt="Avatar, navy">Navy</div>
           <div class="it"><img src="assets/avatar-travertine.svg" width="150" height="150" alt="Avatar, travertine">Travertine</div>
@@ -361,19 +362,25 @@ footer { max-width: 1240px; margin: 0 auto; padding: 32px max(24px, env(safe-are
       <div class="eyebrow">10 · Files &amp; open items</div>
       <h2 id="h-files">Files</h2>
       <div class="files">
-        <a href="assets/logo-final-navy.png" download>Logo · Court Navy <span>PNG</span></a>
-        <a href="assets/logo-final-linen.png" download>Logo · Linen <span>PNG</span></a>
-        <a href="assets/logo-final-gold.png" download>Logo · Lamplight Gold <span>PNG</span></a>
-        <a href="assets/logo-final-midnight.png" download>Logo · Midnight <span>PNG</span></a>
+        <a href="assets/logo-navy.svg" download>Logo · Court Navy <span>SVG</span></a>
+        <a href="assets/logo-linen.svg" download>Logo · Linen <span>SVG</span></a>
+        <a href="assets/logo-midnight.svg" download>Logo · Midnight Court <span>SVG</span></a>
+        <a href="assets/logo-travertine.svg" download>Logo · Travertine <span>SVG</span></a>
+        <a href="assets/logo-gold.svg" download>Logo · Lamplight Gold <span>SVG</span></a>
+        <a href="assets/logo-estgold.svg" download>Logo · Estancia Gold <span>SVG</span></a>
+        <a href="assets/logo-navy-3000.png" download>Logo · Court Navy, transparent <span>PNG 3000</span></a>
+        <a href="assets/logo-linen-3000.png" download>Logo · Linen, transparent <span>PNG 3000</span></a>
         <a href="assets/mark-navy.svg" download>Logomark · Court Navy <span>SVG</span></a>
         <a href="assets/mark-linen.svg" download>Logomark · Linen <span>SVG</span></a>
+        <a href="assets/mark-gold.svg" download>Logomark · Lamplight Gold <span>SVG</span></a>
         <a href="assets/avatar-navy.svg" download>Social avatar · Navy <span>SVG</span></a>
         <a href="assets/favicon-navy.svg" download>App icon · Navy <span>SVG</span></a>
+        <a href="assets/favicon-navy-small.svg" download>Favicon 16–32 px · Navy <span>SVG</span></a>
       </div>
+      <p>The SVG files are the masters: use them for print, signage, embroidery and the web. Use the PNGs only where SVG isn’t accepted.</p>
       <h3>Still to do</h3>
       <ul class="rules">
-        <li><b>Vector master of the logo</b> (SVG, AI or PDF). The logo files above are traced from a PNG and are fine for screens, not for print or signage.</li>
-        <li><b>Stacked logo</b> for square spaces, to be built from the vector master.</li>
+        <li><b>Stacked logo</b> for square spaces (now possible from the master file).</li>
         <li><b>Print colour values</b> (Pantone / CMYK), matched on proof.</li>
         <li><b>Floor plan</b> for sign positions and arrow directions.</li>
         <li><b>Slogans and copy tone</b>, in English, to be added.</li>
@@ -440,10 +447,10 @@ const frame = (inner, bg) => `<div class="frame" data-w="1080" style="aspect-rat
 const details = (c, bottom = 64) => `<div style="position:absolute;right:72px;bottom:${bottom}px;text-align:right;color:${c};display:flex;flex-direction:column;gap:10px"><div style="font-family:var(--sans);font-weight:500;font-size:34px;letter-spacing:.12em">NOVEMBER 11, 2026</div><div style="font-family:var(--mono);font-size:22px;letter-spacing:.08em">SKYCOURTS.PH</div></div>`;
 const head = (c, top = 250) => `<div style="position:absolute;left:0;right:0;top:${top}px;text-align:center;font-family:var(--display);font-size:124px;line-height:1;letter-spacing:.06em;text-transform:uppercase;color:${c}">Open Play</div>`;
 const ART = [
-  { cap: '<b>0 · No border.</b> Light.', bg: '#F3EDE4', art: 'court-a-light.svg', logo: 'logo-final-navy.png', ink: '#2C4159', field: null },
-  { cap: '<b>0 · No border.</b> Dark.', bg: '#18222F', art: 'court-a-dark.svg', logo: 'logo-final-linen.png', ink: '#F3EDE4', field: null },
-  { cap: '<b>1 · S horizon.</b> Light, Court Navy field.', bg: '#F3EDE4', art: 'court-a-light.svg', logo: 'logo-final-navy.png', ink: '#2C4159', field: '#2C4159', fieldInk: '#F3EDE4' },
-  { cap: '<b>1 · S horizon.</b> Dark, Travertine field.', bg: '#18222F', art: 'court-a-dark.svg', logo: 'logo-final-linen.png', ink: '#F3EDE4', field: '#E4D6C5', fieldInk: '#2C4159' }
+  { cap: '<b>0 · No border.</b> Light.', bg: '#F3EDE4', art: 'court-a-light.svg', logo: 'logo-navy.svg', ink: '#2C4159', field: null },
+  { cap: '<b>0 · No border.</b> Dark.', bg: '#18222F', art: 'court-a-dark.svg', logo: 'logo-linen.svg', ink: '#F3EDE4', field: null },
+  { cap: '<b>1 · S horizon.</b> Light, Court Navy field.', bg: '#F3EDE4', art: 'court-a-light.svg', logo: 'logo-navy.svg', ink: '#2C4159', field: '#2C4159', fieldInk: '#F3EDE4' },
+  { cap: '<b>1 · S horizon.</b> Dark, Travertine field.', bg: '#18222F', art: 'court-a-dark.svg', logo: 'logo-linen.svg', ink: '#F3EDE4', field: '#E4D6C5', fieldInk: '#2C4159' }
 ];
 document.getElementById('art').innerHTML = ART.map(a => {
   const svg = a.field ? `<svg width="1080" height="1350" viewBox="0 0 1080 1350" style="position:absolute;left:0;top:0" aria-hidden="true"><path d="${below(1080, 1350, 1330, 1034)}" fill="${a.field}"></path></svg>` : '';
@@ -461,7 +468,7 @@ document.getElementById('photos').innerHTML = PH.map(p => {
   const extra = p.sw ? `<path d="${swoosh(0, 1080, 1322, 1026, 18)}" fill="${p.sw}"></path>${ball(1036, 986, 30, p.sw)}` : '';
   const inner = `<img src="assets/natural-fullbleed.jpg" alt="Player hitting a forehand at the net" style="position:absolute;left:0;top:0;width:1080px;height:1350px;object-fit:cover">
     <svg width="1080" height="1350" viewBox="0 0 1080 1350" style="position:absolute;left:0;top:0" aria-hidden="true"><path d="${below(1080, 1350, 1330, 1034)}" fill="${p.field}"></path>${extra}</svg>
-    <img src="assets/logo-final-navy.png" alt="Estancia SkyCourts" style="position:absolute;left:72px;top:72px;width:380px;height:auto">
+    <img src="assets/logo-navy.svg" alt="Estancia SkyCourts" style="position:absolute;left:72px;top:72px;width:380px;height:auto">
     <div style="position:absolute;left:72px;top:200px;font-family:var(--display);font-size:128px;line-height:.95;letter-spacing:.06em;text-transform:uppercase;color:#2C4159">Open<br>Play</div>${details(p.fieldInk)}`;
   return `<figure>${frame(inner, p.field)}<figcaption>${p.cap}</figcaption></figure>`;
 }).join('');
