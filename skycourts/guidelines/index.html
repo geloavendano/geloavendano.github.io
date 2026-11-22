@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estancia SkyCourts · Brand Guidelines</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="assets/favicon-navy-small.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Italiana&family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  --navy: #2C4159; --midnight: #18222F; --travertine: #E4D6C5; --linen: #F3EDE4; --teak: #6E5240; --sky: #A9C1D6; --gold: #D4B26A; --estgold: #8E7731;
+  --page: #F3EDE4; --ink: #2C4159; --body: #3B4350; --muted: #6E5240; --rule: #D9CDBD; --card: #EBE2D6;
+  --display: 'Italiana', Didot, 'Bodoni 72', serif; --sans: 'Geist', 'Helvetica Neue', Arial, sans-serif; --mono: 'Geist Mono', ui-monospace, Menlo, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { background: var(--page); color: var(--body); font-family: var(--sans); font-size: 16px; line-height: 1.6; }
+a { color: var(--navy); }
+img { max-width: 100%; }
+
+.cover { background: var(--navy); color: var(--linen); padding: 96px max(24px, env(safe-area-inset-left, 0px)) 80px; }
+.cover .in { max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 56px; }
+.cover img.logo { width: min(640px, 100%); height: auto; display: block; }
+.cover .meta { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 24px; border-top: 1px solid rgba(243,237,228,0.25); padding-top: 24px; }
+.cover .tag { font-family: var(--display); font-size: clamp(34px, 5vw, 56px); letter-spacing: 0.08em; text-transform: uppercase; line-height: 1; color: var(--travertine); }
+.cover .ver { font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--sky); }
+
+.layout { max-width: 1240px; margin: 0 auto; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 56px; padding: 64px max(24px, env(safe-area-inset-left, 0px)) 120px; }
+nav.toc { position: sticky; top: 24px; align-self: start; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+nav.toc .h { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
+nav.toc a { text-decoration: none; color: var(--body); padding: 4px 0; display: flex; gap: 10px; }
+nav.toc a span { font-family: var(--mono); font-size: 12px; color: var(--muted); width: 20px; }
+nav.toc a:hover { color: var(--navy); }
+main { display: flex; flex-direction: column; gap: 112px; min-width: 0; }
+section { display: flex; flex-direction: column; gap: 28px; scroll-margin-top: 24px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+h2 { margin: 0; font-family: var(--display); font-weight: 400; font-size: clamp(40px, 5vw, 60px); line-height: 1; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink); text-wrap: balance; }
+h3 { margin: 12px 0 0; font-size: 13px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink); }
+p { margin: 0; max-width: 68ch; }
+.lede { font-size: 18px; color: var(--body); }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.qual { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+figure { margin: 0; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+figcaption { font-size: 13px; color: var(--muted); line-height: 1.45; }
+figcaption b { color: var(--ink); font-weight: 600; }
+.panel { display: flex; align-items: center; justify-content: center; padding: 48px 32px; min-height: 220px; }
+.panel img { width: min(520px, 90%); height: auto; display: block; }
+.rules { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; max-width: 70ch; }
+.note { border-left: 2px solid var(--gold); padding: 4px 0 4px 16px; font-size: 15px; max-width: 70ch; }
+
+/* logo construction */
+.clear { position: relative; background: var(--travertine); padding: 56px; display: flex; justify-content: center; }
+.clear .box { position: relative; padding: 4.5%; outline: 1.5px dashed rgba(44,65,89,0.55); width: min(640px, 100%); }
+.clear .box img { width: 100%; height: auto; display: block; }
+.clear .x { position: absolute; font-family: var(--mono); font-size: 12px; color: var(--navy); background: var(--travertine); padding: 0 4px; }
+.donts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.dont { position: relative; display: flex; align-items: center; justify-content: center; height: 170px; overflow: hidden; background: var(--travertine); }
+.dont img { width: 70%; height: auto; }
+.dont::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top right, transparent calc(50% - 1.5px), #B4433A calc(50% - 1.5px), #B4433A calc(50% + 1.5px), transparent calc(50% + 1.5px)); opacity: .8; }
+
+/* colour */
+.swatches { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.sw { display: flex; flex-direction: column; background: #fff; border: 1px solid var(--rule); }
+.sw .chip { height: 120px; display: flex; align-items: flex-end; padding: 12px; font-family: var(--mono); font-size: 12px; }
+.sw .info { padding: 12px 14px 16px; display: flex; flex-direction: column; gap: 4px; }
+.sw .nm { font-weight: 600; color: var(--ink); }
+.sw .codes { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.sw .role { font-size: 13px; line-height: 1.45; }
+.mix { display: flex; height: 56px; border: 1px solid var(--rule); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+.tablewrap { overflow-x: auto; }
+th { text-align: left; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); font-weight: 600; padding: 10px; border-bottom: 1px solid var(--rule); }
+td { padding: 10px; border-bottom: 1px solid var(--rule); vertical-align: middle; }
+td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.sample { display: inline-flex; align-items: center; justify-content: center; width: 96px; height: 36px; font-family: var(--display); font-size: 20px; letter-spacing: .06em; }
+
+/* type */
+.spec { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 24px; padding: 28px 0; border-top: 1px solid var(--rule); align-items: baseline; }
+.spec .k { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.spec .k b { color: var(--ink); font-size: 15px; }
+.spec .v { color: var(--ink); min-width: 0; overflow-wrap: anywhere; }
+
+/* posters */
+.frame { position: relative; width: 100%; overflow: hidden; box-shadow: 0 10px 28px rgba(24,34,47,0.16); }
+.canvas { position: absolute; left: 0; top: 0; transform-origin: 0 0; overflow: hidden; }
+.photo { width: 100%; height: auto; display: block; box-shadow: 0 10px 28px rgba(24,34,47,0.12); }
+.icons { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 28px; padding: 28px; background: var(--card); }
+.icons .it { display: flex; flex-direction: column; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.files { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 32px; }
+.files a { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--rule); text-decoration: none; color: var(--ink); font-size: 15px; }
+.files a span { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+footer { max-width: 1240px; margin: 0 auto; padding: 32px max(24px, env(safe-area-inset-left, 0px)) 64px; border-top: 1px solid var(--rule); font-size: 13px; color: var(--muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+
+@media (max-width: 960px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  nav.toc { position: static; flex-direction: row; flex-wrap: wrap; gap: 4px 16px; }
+  nav.toc .h { width: 100%; }
+  .swatches, .grid4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid3, .donts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .qual { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .grid2, .grid3, .donts, .files, .qual { grid-template-columns: minmax(0, 1fr); }
+  .spec { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .clear { padding: 24px; }
+}
+</style>
+</head>
+<body>
+
+<header class="cover">
+  <div class="in">
+    <img class="logo" src="assets/logo-final-linen.png" alt="Estancia SkyCourts">
+    <div class="meta">
+      <div class="tag">Play above the city</div>
+      <div class="ver">Brand guidelines · Version 1.0 · November 2026</div>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="toc" aria-label="Contents">
+    <div class="h">Contents</div>
+    <a href="#brand"><span>01</span>Brand</a>
+    <a href="#logo"><span>02</span>Logo</a>
+    <a href="#mark"><span>03</span>Logomark &amp; icons</a>
+    <a href="#colour"><span>04</span>Colour</a>
+    <a href="#type"><span>05</span>Typography</a>
+    <a href="#curve"><span>06</span>The S-curve</a>
+    <a href="#layouts"><span>07</span>Layouts</a>
+    <a href="#photo"><span>08</span>Photography</a>
+    <a href="#apps"><span>09</span>Applications</a>
+    <a href="#files"><span>10</span>Files &amp; open items</a>
+  </nav>
+
+  <main>
+    <section id="brand" aria-labelledby="h-brand">
+      <div class="eyebrow">01 · Brand</div>
+      <h2 id="h-brand">Play above the city</h2>
+      <p class="lede">Estancia SkyCourts is rooftop pickleball at Estancia, Capitol Commons, in Ortigas: covered and open-air courts with the city on the horizon and a lounge for after the game.</p>
+      <p>The brand should feel like a club more than a sports facility. Every piece of communication should carry five qualities:</p>
+      <div class="qual">
+        <div class="note" style="border-color: var(--navy)"><b>Lifestyle.</b> The game is part of a good day, not the whole of it.</div>
+        <div class="note" style="border-color: var(--navy)"><b>Elevated.</b> Literally up there. Calm, confident, never loud.</div>
+        <div class="note" style="border-color: var(--navy)"><b>Social.</b> Open play, rotating partners, regulars.</div>
+        <div class="note" style="border-color: var(--navy)"><b>Club.</b> Members-first in tone, welcoming to guests.</div>
+        <div class="note" style="border-color: var(--navy)"><b>Scenic.</b> Sky, skyline and light do a lot of the work.</div>
+      </div>
+      <p>In practice: generous space, one display face used large, a quiet palette taken from the venue itself, and a single gesture, the S-curve from the logo, used sparingly.</p>
+    </section>
+
+    <section id="logo" aria-labelledby="h-logo">
+      <div class="eyebrow">02 · Logo</div>
+      <h2 id="h-logo">The logo</h2>
+      <p class="lede">One logo, always used whole: the ESTANCIA line above the SKYCOURTS wordmark, with the ball and the S-swoosh running through the O.</p>
+      <div class="grid2">
+        <figure><div class="panel" style="background: var(--travertine)"><img src="assets/logo-final-navy.png" alt="Logo in Court Navy on Travertine"></div><figcaption><b>Primary.</b> Court Navy on Travertine or Linen.</figcaption></figure>
+        <figure><div class="panel" style="background: var(--navy)"><img src="assets/logo-final-linen.png" alt="Logo in Linen on Court Navy"></div><figcaption><b>Reversed.</b> Linen on Court Navy or Midnight Court.</figcaption></figure>
+        <figure><div class="panel" style="background: var(--midnight)"><img src="assets/logo-final-gold.png" alt="Logo in Lamplight Gold on Midnight Court"></div><figcaption><b>Night and occasion.</b> Lamplight Gold on Midnight Court, for evening events and premium print. Use sparingly.</figcaption></figure>
+        <figure><div class="panel" style="background: var(--teak)"><img src="assets/logo-final-linen.png" alt="Logo in Linen on Teak"></div><figcaption><b>On wood.</b> Linen on Teak, for signage rails and merchandise.</figcaption></figure>
+      </div>
+      <p>The logo is a single colour. The ball and swoosh are never picked out in a second colour.</p>
+
+      <h3>Clear space</h3>
+      <div class="clear">
+        <div class="box">
+          <img src="assets/logo-final-navy.png" alt="Logo with clear space marked around it">
+          <span class="x" style="left: 50%; top: -9px; transform: translateX(-50%)">x</span>
+          <span class="x" style="left: -6px; top: 50%; transform: translateY(-50%)">x</span>
+          <span class="x" style="right: -6px; top: 50%; transform: translateY(-50%)">x</span>
+          <span class="x" style="left: 50%; bottom: -9px; transform: translateX(-50%)">x</span>
+        </div>
+      </div>
+      <p>Keep a margin of <b>x</b> on every side, where <b>x</b> is the diameter of the ball (about 4.5% of the logo’s width). Nothing else goes inside that space: no text, edges, folds or busy photo detail.</p>
+
+      <h3>Minimum size</h3>
+      <ul class="rules">
+        <li><b>Print:</b> 40 mm wide. Below that, the hairlines in the S, C and ESTANCIA line break up.</li>
+        <li><b>Screen:</b> 160 px wide.</li>
+        <li><b>Embroidery:</b> 70 mm wide, or use the logomark alone (section 03).</li>
+        <li>Anything smaller uses the logomark or the app icon.</li>
+      </ul>
+
+      <h3>Don’t</h3>
+      <div class="donts">
+        <figure><div class="dont"><img src="assets/logo-final-navy.png" alt="" style="transform: scaleX(1.35)"></div><figcaption>Stretch or squash it.</figcaption></figure>
+        <figure><div class="dont"><img src="assets/logo-final-navy.png" alt="" style="transform: rotate(-12deg)"></div><figcaption>Rotate or tilt it.</figcaption></figure>
+        <figure><div class="dont" style="background: #F3EDE4"><img src="assets/logo-final-navy.png" alt="" style="filter: hue-rotate(150deg) saturate(3)"></div><figcaption>Recolour it outside the palette.</figcaption></figure>
+        <figure><div class="dont"><img src="assets/logo-final-navy.png" alt="" style="filter: drop-shadow(6px 6px 4px rgba(0,0,0,.45))"></div><figcaption>Add shadows, glows or outlines.</figcaption></figure>
+        <figure><div class="dont" style="background: url(assets/natural-fullbleed.jpg) center 70% / cover"><img src="assets/logo-final-linen.png" alt=""></div><figcaption>Place it on a busy part of a photo.</figcaption></figure>
+        <figure><div class="dont"><span style="font-family: var(--display); font-size: 34px; letter-spacing: .1em; color: var(--navy)">SKYCOURTS</span></div><figcaption>Retype the wordmark in a font.</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="mark" aria-labelledby="h-mark">
+      <div class="eyebrow">03 · Logomark &amp; icons</div>
+      <h2 id="h-mark">Logomark &amp; icons</h2>
+      <p class="lede">The ball and swoosh, lifted out of the logo, for places where the full logo can’t be read.</p>
+      <div class="grid2">
+        <figure><div class="panel" style="background: var(--linen); border: 1px solid var(--rule)"><img src="assets/mark-navy.svg" alt="Logomark: ball and S-swoosh" style="width: min(420px, 80%)"></div><figcaption><b>Logomark.</b> Drawn to the logo’s exact proportions. For merchandise, embroidery, patterns and sign details. Minimum 12 mm / 48 px wide.</figcaption></figure>
+        <figure><div class="icons" style="justify-content: center; flex: 1">
+          <div class="it"><img src="assets/avatar-navy.svg" width="150" height="150" alt="Avatar, navy">Navy</div>
+          <div class="it"><img src="assets/avatar-travertine.svg" width="150" height="150" alt="Avatar, travertine">Travertine</div>
+          <div class="it"><img src="assets/avatar-midnight.svg" width="72" height="72" alt="Avatar, midnight">72 px</div>
+          <div class="it"><img src="assets/avatar-navy.svg" width="40" height="40" alt="">40 px</div>
+        </div><figcaption><b>Social avatar.</b> The ball is enlarged and the swoosh thickened so both survive at profile size. Navy is the default.</figcaption></figure>
+      </div>
+      <div class="icons">
+        <div class="it"><img src="assets/favicon-navy.svg" width="120" height="120" alt="App icon, navy">120</div>
+        <div class="it"><img src="assets/favicon-navy.svg" width="48" height="48" alt="">48</div>
+        <div class="it"><img src="assets/favicon-navy-small.svg" width="32" height="32" alt="">32</div>
+        <div class="it"><img src="assets/favicon-navy-small.svg" width="16" height="16" alt="">16</div>
+        <span style="width: 24px"></span>
+        <div class="it"><img src="assets/favicon-linen.svg" width="120" height="120" alt="App icon, linen">120</div>
+        <div class="it"><img src="assets/favicon-linen-small.svg" width="32" height="32" alt="">32</div>
+        <div class="it"><img src="assets/favicon-linen-small.svg" width="16" height="16" alt="">16</div>
+      </div>
+      <p><b>App icon and favicon</b> use the ball alone. From 48 px up it keeps all twelve holes; at 32 px and 16 px it drops to the four inner holes so it doesn’t blur into a dot.</p>
+    </section>
+
+    <section id="colour" aria-labelledby="h-colour">
+      <div class="eyebrow">04 · Colour</div>
+      <h2 id="h-colour">Court &amp; Teak</h2>
+      <p class="lede">Every colour is taken from the venue itself: the court surface, the teak slats, the travertine walls and the light over the city.</p>
+      <div class="swatches" id="swatches"></div>
+      <h3>Proportion</h3>
+      <div class="mix" role="img" aria-label="Travertine and Linen 50 percent, Court Navy and Midnight 32 percent, Teak 12 percent, Gold 6 percent">
+        <div style="flex: 50; background: linear-gradient(90deg, var(--travertine) 60%, var(--linen) 60%)"></div>
+        <div style="flex: 32; background: linear-gradient(90deg, var(--navy) 70%, var(--midnight) 70%)"></div>
+        <div style="flex: 12; background: var(--teak)"></div>
+        <div style="flex: 6; background: var(--gold)"></div>
+      </div>
+      <p>Roughly half of any layout is Travertine or Linen, a third is the blues, Teak adds warmth, and gold stays scarce so it reads as premium.</p>
+      <h3>Readable pairings</h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Sample</th><th>Text on background</th><th>Contrast</th><th>Use for</th></tr></thead>
+          <tbody id="pairs"></tbody>
+        </table>
+      </div>
+      <p class="note">Hex and RGB values are for screens. For print, match each colour to a Pantone or CMYK value on a physical proof with your printer, and check Teak and Court Navy against the real decking and court samples.</p>
+    </section>
+
+    <section id="type" aria-labelledby="h-type">
+      <div class="eyebrow">05 · Typography</div>
+      <h2 id="h-type">Members’ Club</h2>
+      <p class="lede">Three free, open-source typefaces (SIL Open Font License, all on Google Fonts), so anyone can use them anywhere without licence fees.</p>
+      <div>
+        <div class="spec"><div class="k"><b>Italiana</b>Display · headlines only</div><div class="v" style="font-family: var(--display); font-size: clamp(44px, 7vw, 88px); line-height: 1; letter-spacing: .06em; text-transform: uppercase;">Open Play</div></div>
+        <div class="spec"><div class="k"><b>Geist Medium</b>Labels · caps, tracked +0.2em</div><div class="v" style="font-size: 16px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase;">Rooftop pickleball · Estancia, Capitol Commons</div></div>
+        <div class="spec"><div class="k"><b>Geist Regular</b>Body · 16–18 px, line height 1.6</div><div class="v" style="font-size: 18px; line-height: 1.6;">Covered and open-air courts on the Estancia rooftop, with a lounge for after the game. Book a court, join open play, or bring the whole group.</div></div>
+        <div class="spec"><div class="k"><b>Geist Mono</b>Numbers · times, dates, courts, rates</div><div class="v" style="font-family: var(--mono); font-size: 22px; letter-spacing: .04em;">COURT 03 · 18:00–22:00 · [RATE]</div></div>
+        <div class="spec"><div class="k"><b>Geist SemiBold</b>Signage · caps, tracked +0.1em</div><div class="v" style="font-size: 26px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;">Courts 1–7 → Lockers ↑</div></div>
+      </div>
+      <ul class="rules">
+        <li>Italiana is for large sizes only: 48 px / 24 pt and up. It has a single thin weight and falls apart small.</li>
+        <li>Never set body text, buttons or signage in Italiana.</li>
+        <li>One headline per layout. Let it be the biggest thing on the page after the photo or illustration.</li>
+        <li>Download: <a href="https://fonts.google.com/specimen/Italiana" rel="noopener">Italiana</a>, <a href="https://fonts.google.com/specimen/Geist" rel="noopener">Geist</a>, <a href="https://fonts.google.com/specimen/Geist+Mono" rel="noopener">Geist Mono</a>.</li>
+      </ul>
+    </section>
+
+    <section id="curve" aria-labelledby="h-curve">
+      <div class="eyebrow">06 · Graphic element</div>
+      <h2 id="h-curve">The S-curve</h2>
+      <p class="lede">The swoosh in the logo is the brand’s one graphic gesture. Used as an edge, it cuts layouts the way the skyline cuts the sky.</p>
+      <div class="grid2">
+        <figure>
+          <div class="panel" style="background: var(--linen); border: 1px solid var(--rule); padding: 32px;">
+            <svg viewBox="0 0 520 200" width="100%" role="img" aria-label="The S-curve with its control points">
+              <rect x="40" y="30" width="440" height="120.6" fill="none" stroke="#D9CDBD" stroke-dasharray="4 4"></rect>
+              <path d="M40 150.6 C265.3 124.4 281.1 47.5 480 30" fill="none" stroke="#2C4159" stroke-width="3"></path>
+              <path d="M40 150.6 L265.3 124.4 M480 30 L281.1 47.5" stroke="#8E7731" stroke-width="1.2"></path>
+              <circle cx="265.3" cy="124.4" r="5" fill="#8E7731"></circle><circle cx="281.1" cy="47.5" r="5" fill="#8E7731"></circle>
+              <circle cx="40" cy="150.6" r="5" fill="#2C4159"></circle><circle cx="480" cy="30" r="5" fill="#2C4159"></circle>
+              <text x="40" y="180" font-family="Geist Mono, monospace" font-size="12" fill="#6E5240">width 3.65</text>
+              <text x="488" y="94" font-family="Geist Mono, monospace" font-size="12" fill="#6E5240">1</text>
+            </svg>
+          </div>
+          <figcaption><b>Geometry.</b> One cubic Bézier, traced from the logo to within 1%. In a box of width 1 and height 1 (y down): start (0, 1), control points (0.512, 0.783) and (0.548, 0.145), end (1, 0). Keep the box at 3.65 : 1 and the curve always rises left to right.</figcaption>
+        </figure>
+        <figure>
+          <div class="panel" style="background: var(--linen); border: 1px solid var(--rule); padding: 32px;">
+            <svg viewBox="0 0 520 200" width="100%" role="img" aria-label="Field and swoosh line built from the S-curve">
+              <path id="g-field" d="" fill="#2C4159"></path>
+              <path id="g-sw" d="" fill="#D4B26A"></path>
+              <text x="40" y="40" font-family="Geist, sans-serif" font-size="13" fill="#6E5240">Field: everything below the curve</text>
+              <text x="40" y="62" font-family="Geist, sans-serif" font-size="13" fill="#6E5240">Swoosh: tapered line along the edge</text>
+            </svg>
+          </div>
+          <figcaption><b>Two uses.</b> As the top edge of a solid <b>field</b>, or as a tapered gold <b>swoosh</b> riding that edge with the ball at its high end. No other shapes, outlines or repeats of the curve.</figcaption>
+        </figure>
+      </div>
+      <ul class="rules">
+        <li>Use the curve once per layout, at the bottom. It never frames the top or sides.</li>
+        <li>The field is a single solid colour: Court Navy, or Travertine on dark layouts.</li>
+        <li>Text inside the field is right-aligned, where the field is tallest.</li>
+        <li>No gradients, stacked bands or drop shadows on the field.</li>
+      </ul>
+    </section>
+
+    <section id="layouts" aria-labelledby="h-layouts">
+      <div class="eyebrow">07 · Layouts</div>
+      <h2 id="h-layouts">Posts &amp; posters</h2>
+      <p class="lede">Two approved layouts for illustration, two for photography. All examples are 1080 × 1350 social posts; posters scale the same grid.</p>
+      <h3>Illustration</h3>
+      <div class="grid4" id="art"></div>
+      <h3>Photography</h3>
+      <div class="grid4" id="photos"></div>
+      <h3>Grid, at 1080 × 1350</h3>
+      <ul class="rules">
+        <li><b>Margins:</b> 72 px on every side.</li>
+        <li><b>Logo:</b> 420 px wide. Centred at the top on illustrations; top-left on photos, over a quiet part of the image.</li>
+        <li><b>Headline:</b> Italiana, caps, about 124 px, tracked +0.06em. Centred on illustrations, left on photos.</li>
+        <li><b>Field:</b> the S-curve runs from 1330 px down on the left to 1034 px on the right.</li>
+        <li><b>Details:</b> date in Geist Medium 34 px and link in Geist Mono 22 px, right-aligned, 64 px from the bottom.</li>
+        <li><b>Illustration:</b> line art only. Depth comes from line weight, spacing and overlap; no shading or gradients. Gold appears only on the ball and its flight path.</li>
+      </ul>
+    </section>
+
+    <section id="photo" aria-labelledby="h-photo">
+      <div class="eyebrow">08 · Photography</div>
+      <h2 id="h-photo">Natural, unfiltered</h2>
+      <div class="grid2" style="align-items: start;">
+        <figure><img class="photo" src="assets/natural-fullbleed.jpg" alt="A player hitting a forehand at the net, in natural colour"><figcaption><b>Natural colour.</b> No duotones, tints or heavy filters.</figcaption></figure>
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <ul class="rules">
+            <li>Use photos in natural colour. Correct exposure and white balance only.</li>
+            <li>Real play and real people: mid-rally, between points, at the lounge. Avoid stiff, posed group shots.</li>
+            <li>Shoot with headroom. Leave sky or a quiet wall above the subject for the logo and headline.</li>
+            <li>The headline takes whichever of Court Navy or Linen reads best against that part of the photo.</li>
+            <li>Never put text over a busy area of a photo. Move it into the S-curve field instead.</li>
+            <li>Favour golden hour and evening light. The skyline and sky are part of the brand.</li>
+          </ul>
+          <p class="note">Social posts need at least 1080 × 1350. Print and website heroes need originals of at least 3000 px on the long side.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="apps" aria-labelledby="h-apps">
+      <div class="eyebrow">09 · Applications</div>
+      <h2 id="h-apps">In the venue</h2>
+      <h3>Directional signs</h3>
+      <div class="grid2">
+        <figure><img class="photo" src="assets/sign-post.jpg" alt="Rooftop fingerpost sign"><figcaption><b>Rooftop fingerpost.</b> Court Navy blades with Linen Geist SemiBold caps; Courts, the main destination, in Lamplight Gold. Teak post.</figcaption></figure>
+        <figure><img class="photo" src="assets/sign-wall.jpg" alt="Wall directory sign"><figcaption><b>Wall directory.</b> Court Navy strips between Teak rails, logo in Linen on the top rail. Arrow directions are placeholders until the floor plan is set.</figcaption></figure>
+      </div>
+      <h3>Staff uniform</h3>
+      <div class="grid3" id="polos"></div>
+      <p>One plain piqué polo for every role. Logo on the left chest (about 9–10 cm wide) and across the upper back. Screen print or heat transfer; for embroidery, use the logomark on the chest.</p>
+    </section>
+
+    <section id="files" aria-labelledby="h-files">
+      <div class="eyebrow">10 · Files &amp; open items</div>
+      <h2 id="h-files">Files</h2>
+      <div class="files">
+        <a href="assets/logo-final-navy.png" download>Logo · Court Navy <span>PNG</span></a>
+        <a href="assets/logo-final-linen.png" download>Logo · Linen <span>PNG</span></a>
+        <a href="assets/logo-final-gold.png" download>Logo · Lamplight Gold <span>PNG</span></a>
+        <a href="assets/logo-final-midnight.png" download>Logo · Midnight <span>PNG</span></a>
+        <a href="assets/mark-navy.svg" download>Logomark · Court Navy <span>SVG</span></a>
+        <a href="assets/mark-linen.svg" download>Logomark · Linen <span>SVG</span></a>
+        <a href="assets/avatar-navy.svg" download>Social avatar · Navy <span>SVG</span></a>
+        <a href="assets/favicon-navy.svg" download>App icon · Navy <span>SVG</span></a>
+      </div>
+      <h3>Still to do</h3>
+      <ul class="rules">
+        <li><b>Vector master of the logo</b> (SVG, AI or PDF). The logo files above are traced from a PNG and are fine for screens, not for print or signage.</li>
+        <li><b>Stacked logo</b> for square spaces, to be built from the vector master.</li>
+        <li><b>Print colour values</b> (Pantone / CMYK), matched on proof.</li>
+        <li><b>Floor plan</b> for sign positions and arrow directions.</li>
+        <li><b>Slogans and copy tone</b>, in English, to be added.</li>
+      </ul>
+    </section>
+  </main>
+</div>
+
+<footer><span>Estancia SkyCourts · Brand guidelines v1.0</span><span>November 2026</span></footer>
+
+<script>
+const SW = [
+  ['Court Navy', '#2C4159', '44, 65, 89', 'Primary. Logo, headlines, fields, sign faces.', '#F3EDE4'],
+  ['Midnight Court', '#18222F', '24, 34, 47', 'Dark backgrounds, night layouts, footers.', '#F3EDE4'],
+  ['Travertine', '#E4D6C5', '228, 214, 197', 'Main light background. Fields on dark layouts.', '#2C4159'],
+  ['Linen', '#F3EDE4', '243, 237, 228', 'Light backgrounds, text on dark.', '#2C4159'],
+  ['Teak', '#6E5240', '110, 82, 64', 'Warmth: rails, posts, merchandise.', '#F3EDE4'],
+  ['Open Sky', '#A9C1D6', '169, 193, 214', 'Secondary text on navy. Use lightly.', '#18222F'],
+  ['Lamplight Gold', '#D4B26A', '212, 178, 106', 'Accent on dark: ball, swoosh, key sign.', '#18222F'],
+  ['Estancia Gold', '#8E7731', '142, 119, 49', 'Accent on light, large sizes only.', '#F3EDE4']
+];
+document.getElementById('swatches').innerHTML = SW.map(([n, h, rgb, role, fg]) =>
+  `<div class="sw"><div class="chip" style="background:${h};color:${fg}">${h}</div><div class="info"><span class="nm">${n}</span><span class="codes">RGB ${rgb}</span><span class="role">${role}</span></div></div>`).join('');
+const PAIRS = [
+  ['#F3EDE4', '#18222F', 'Linen on Midnight Court', '13.8', 'All text'],
+  ['#2C4159', '#F3EDE4', 'Court Navy on Linen', '9.0', 'All text'],
+  ['#F3EDE4', '#2C4159', 'Linen on Court Navy', '9.0', 'All text'],
+  ['#D4B26A', '#18222F', 'Lamplight Gold on Midnight Court', '7.9', 'All text'],
+  ['#2C4159', '#E4D6C5', 'Court Navy on Travertine', '7.3', 'All text'],
+  ['#F3EDE4', '#6E5240', 'Linen on Teak', '6.1', 'All text'],
+  ['#A9C1D6', '#2C4159', 'Open Sky on Court Navy', '5.6', 'All text'],
+  ['#D4B26A', '#2C4159', 'Lamplight Gold on Court Navy', '5.2', 'All text'],
+  ['#8E7731', '#F3EDE4', 'Estancia Gold on Linen', '3.7', 'Large text and logo only'],
+  ['#8E7731', '#E4D6C5', 'Estancia Gold on Travertine', '3.0', 'Logo only']
+];
+document.getElementById('pairs').innerHTML = PAIRS.map(([f, b, label, r, use]) =>
+  `<tr><td><span class="sample" style="background:${b};color:${f}">Sky</span></td><td>${label}</td><td class="num">${r} : 1</td><td>${use}</td></tr>`).join('');
+
+/* S-curve helpers */
+const fx = (n) => n.toFixed(1);
+const C1 = [0.512, 0.783], C2 = [0.548, 0.145];
+const below = (W, H, yL, yR) => `M-2 ${yL} L0 ${yL} C${fx(W * C1[0])} ${fx(yR + (yL - yR) * C1[1])} ${fx(W * C2[0])} ${fx(yR + (yL - yR) * C2[1])} ${W} ${yR} L${W + 2} ${yR} L${W + 2} ${H + 2} L-2 ${H + 2} Z`;
+function swoosh(x0, x1, yL, yR, T) {
+  const P = [[x0, yL], [x0 + (x1 - x0) * C1[0], yR + (yL - yR) * C1[1]], [x0 + (x1 - x0) * C2[0], yR + (yL - yR) * C2[1]], [x1, yR]];
+  const top = [], bot = [];
+  for (let i = 0; i <= 60; i++) {
+    const t = i / 60, m = 1 - t;
+    const x = m*m*m*P[0][0] + 3*m*m*t*P[1][0] + 3*m*t*t*P[2][0] + t*t*t*P[3][0];
+    const y = m*m*m*P[0][1] + 3*m*m*t*P[1][1] + 3*m*t*t*P[2][1] + t*t*t*P[3][1];
+    const dx = 3*m*m*(P[1][0]-P[0][0]) + 6*m*t*(P[2][0]-P[1][0]) + 3*t*t*(P[3][0]-P[2][0]);
+    const dy = 3*m*m*(P[1][1]-P[0][1]) + 6*m*t*(P[2][1]-P[1][1]) + 3*t*t*(P[3][1]-P[2][1]);
+    const l = Math.hypot(dx, dy) || 1, nx = -dy / l, ny = dx / l, h = (T / 2) * Math.pow(Math.sin(Math.PI * t), 0.85);
+    top.push(`${fx(x + nx * h)} ${fx(y + ny * h)}`); bot.push(`${fx(x - nx * h)} ${fx(y - ny * h)}`);
+  }
+  return 'M' + top.join(' L') + ' L' + bot.reverse().join(' L') + ' Z';
+}
+const circ = (x, y, r) => `M${fx(x - r)} ${fx(y)} A${fx(r)} ${fx(r)} 0 1 1 ${fx(x + r)} ${fx(y)} A${fx(r)} ${fx(r)} 0 1 1 ${fx(x - r)} ${fx(y)} Z`;
+const HOLES = [[0,-.402,.167],[-.402,0,.167],[.402,0,.167],[0,.402,.167]].concat([-117,-63,-27,27,63,117,153,207].map(a => [.8*Math.cos(a*Math.PI/180), .8*Math.sin(a*Math.PI/180), .12]));
+const ball = (x, y, r, c) => `<path fill-rule="evenodd" fill="${c}" d="${circ(x, y, r)} ${HOLES.map(([a, b, s]) => circ(x + a * r, y + b * r, s * r)).join(' ')}"></path>`;
+document.getElementById('g-field').setAttribute('d', below(520, 200, 196, 104));
+document.getElementById('g-sw').setAttribute('d', swoosh(0, 520, 190, 98, 9));
+
+const frame = (inner, bg) => `<div class="frame" data-w="1080" style="aspect-ratio:1080/1350;background:${bg}"><div class="canvas" style="width:1080px;height:1350px;background:${bg}">${inner}</div></div>`;
+const details = (c, bottom = 64) => `<div style="position:absolute;right:72px;bottom:${bottom}px;text-align:right;color:${c};display:flex;flex-direction:column;gap:10px"><div style="font-family:var(--sans);font-weight:500;font-size:34px;letter-spacing:.12em">NOVEMBER 11, 2026</div><div style="font-family:var(--mono);font-size:22px;letter-spacing:.08em">SKYCOURTS.PH</div></div>`;
+const head = (c, top = 250) => `<div style="position:absolute;left:0;right:0;top:${top}px;text-align:center;font-family:var(--display);font-size:124px;line-height:1;letter-spacing:.06em;text-transform:uppercase;color:${c}">Open Play</div>`;
+const ART = [
+  { cap: '<b>0 · No border.</b> Light.', bg: '#F3EDE4', art: 'court-a-light.svg', logo: 'logo-final-navy.png', ink: '#2C4159', field: null },
+  { cap: '<b>0 · No border.</b> Dark.', bg: '#18222F', art: 'court-a-dark.svg', logo: 'logo-final-linen.png', ink: '#F3EDE4', field: null },
+  { cap: '<b>1 · S horizon.</b> Light, Court Navy field.', bg: '#F3EDE4', art: 'court-a-light.svg', logo: 'logo-final-navy.png', ink: '#2C4159', field: '#2C4159', fieldInk: '#F3EDE4' },
+  { cap: '<b>1 · S horizon.</b> Dark, Travertine field.', bg: '#18222F', art: 'court-a-dark.svg', logo: 'logo-final-linen.png', ink: '#F3EDE4', field: '#E4D6C5', fieldInk: '#2C4159' }
+];
+document.getElementById('art').innerHTML = ART.map(a => {
+  const svg = a.field ? `<svg width="1080" height="1350" viewBox="0 0 1080 1350" style="position:absolute;left:0;top:0" aria-hidden="true"><path d="${below(1080, 1350, 1330, 1034)}" fill="${a.field}"></path></svg>` : '';
+  const inner = `<img src="assets/${a.art}" alt="" style="position:absolute;left:0;top:330px;width:1080px;height:auto">${svg}
+    <img src="assets/${a.logo}" alt="Estancia SkyCourts" style="position:absolute;left:330px;top:100px;width:420px;height:auto">${head(a.ink)}${details(a.field ? a.fieldInk : a.ink)}`;
+  return `<figure>${frame(inner, a.bg)}<figcaption>${a.cap}</figcaption></figure>`;
+}).join('');
+const PH = [
+  { cap: '<b>1 · S horizon.</b> Court Navy field.', field: '#2C4159', fieldInk: '#F3EDE4', sw: null },
+  { cap: '<b>1 · S horizon.</b> Travertine field.', field: '#E4D6C5', fieldInk: '#2C4159', sw: null },
+  { cap: '<b>2 · S horizon + swoosh.</b> Court Navy field.', field: '#2C4159', fieldInk: '#F3EDE4', sw: '#D4B26A' },
+  { cap: '<b>2 · S horizon + swoosh.</b> Travertine field.', field: '#E4D6C5', fieldInk: '#2C4159', sw: '#8E7731' }
+];
+document.getElementById('photos').innerHTML = PH.map(p => {
+  const extra = p.sw ? `<path d="${swoosh(0, 1080, 1322, 1026, 18)}" fill="${p.sw}"></path>${ball(1036, 986, 30, p.sw)}` : '';
+  const inner = `<img src="assets/natural-fullbleed.jpg" alt="Player hitting a forehand at the net" style="position:absolute;left:0;top:0;width:1080px;height:1350px;object-fit:cover">
+    <svg width="1080" height="1350" viewBox="0 0 1080 1350" style="position:absolute;left:0;top:0" aria-hidden="true"><path d="${below(1080, 1350, 1330, 1034)}" fill="${p.field}"></path>${extra}</svg>
+    <img src="assets/logo-final-navy.png" alt="Estancia SkyCourts" style="position:absolute;left:72px;top:72px;width:380px;height:auto">
+    <div style="position:absolute;left:72px;top:200px;font-family:var(--display);font-size:128px;line-height:.95;letter-spacing:.06em;text-transform:uppercase;color:#2C4159">Open<br>Play</div>${details(p.fieldInk)}`;
+  return `<figure>${frame(inner, p.field)}<figcaption>${p.cap}</figcaption></figure>`;
+}).join('');
+document.getElementById('polos').innerHTML = [['navy', 'Court Navy'], ['travertine', 'Travertine'], ['teak', 'Teak']].map(([k, n]) =>
+  `<figure><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#F2EFEA"><img src="assets/polo-${k}-front.jpg" alt="${n} polo, front" style="width:100%;height:auto;display:block"><img src="assets/polo-${k}-back.jpg" alt="${n} polo, back" style="width:100%;height:auto;display:block"></div><figcaption><b>${n}.</b>${k === 'navy' ? ' Default for all staff.' : k === 'travertine' ? ' Café and front desk, if a lighter option is wanted.' : ' Optional, for events.'}</figcaption></figure>`).join('');
+
+function fit() { document.querySelectorAll('.frame').forEach(fr => { fr.querySelector('.canvas').style.transform = `scale(${fr.clientWidth / 1080})`; }); }
+window.addEventListener('resize', fit); fit();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+</script>
+</body>
+</html>
