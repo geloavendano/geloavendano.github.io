@@ -58,7 +58,7 @@ figcaption b { color: var(--ink); font-weight: 600; }
 /* logo construction */
 .clear { position: relative; background: var(--travertine); padding: 56px; display: flex; justify-content: center; }
 .clear .box { position: relative; outline: 1.5px dashed rgba(44,65,89,0.55); width: min(640px, 100%); container-type: inline-size; }
-.clear .box .pad { padding: 4.38cqi; }
+.clear .box .pad { padding: 4.13cqi; }
 .clear .box img { width: 100%; height: auto; display: block; }
 .clear .x { position: absolute; font-family: var(--mono); font-size: 12px; color: var(--navy); background: var(--travertine); padding: 0 4px; }
 .donts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
@@ -192,7 +192,7 @@ footer { max-width: 1240px; margin: 0 auto; padding: 32px max(24px, env(safe-are
           <span class="x" style="left: 50%; bottom: -9px; transform: translateX(-50%)">x</span>
         </div>
       </div>
-      <p>Keep a margin of <b>x</b> on every side, where <b>x</b> is the diameter of the ball (about 4.8% of the logo’s width). Nothing else goes inside that space: no text, edges, folds or busy photo detail.</p>
+      <p>Keep a margin of <b>x</b> on every side, where <b>x</b> is the diameter of the ball (about 4.5% of the logo’s width). Nothing else goes inside that space: no text, edges, folds or busy photo detail.</p>
 
       <h3>Minimum size</h3>
       <ul class="rules">
@@ -216,16 +216,28 @@ footer { max-width: 1240px; margin: 0 auto; padding: 32px max(24px, env(safe-are
     <section id="mark" aria-labelledby="h-mark">
       <div class="eyebrow">03 · Logomark &amp; icons</div>
       <h2 id="h-mark">Logomark &amp; icons</h2>
-      <p class="lede">The ball and swoosh, lifted out of the logo, for places where the full logo can’t be read.</p>
+      <p class="lede">Two approved logomarks, both lifted straight from the master logo file, for places where the full logo can’t be read.</p>
+      <h3>A · Ball and swoosh</h3>
       <div class="grid2">
-        <figure><div class="panel" style="background: var(--linen); border: 1px solid var(--rule)"><img src="assets/mark-navy.svg" alt="Logomark: ball and S-swoosh" style="width: min(420px, 80%)"></div><figcaption><b>Logomark.</b> Taken directly from the master logo file. For merchandise, embroidery, patterns and sign details. Minimum 12 mm / 48 px wide.</figcaption></figure>
+        <figure><div class="panel" style="background: var(--linen); border: 1px solid var(--rule); flex: 1"><img src="assets/mark-navy.svg" alt="Logomark A: ball and S-swoosh" style="width: min(400px, 80%)"></div><figcaption><b>Logomark A.</b> The lighter of the two: the swoosh and ball on their own. Best large and as a detail: patterns, sign rails, the back of merchandise. Minimum 25 mm / 96 px wide.</figcaption></figure>
         <figure><div class="icons" style="justify-content: center; flex: 1">
           <div class="it"><img src="assets/avatar-navy.svg" width="150" height="150" alt="Avatar, navy">Navy</div>
           <div class="it"><img src="assets/avatar-travertine.svg" width="150" height="150" alt="Avatar, travertine">Travertine</div>
           <div class="it"><img src="assets/avatar-midnight.svg" width="72" height="72" alt="Avatar, midnight">72 px</div>
           <div class="it"><img src="assets/avatar-navy.svg" width="40" height="40" alt="">40 px</div>
-        </div><figcaption><b>Social avatar.</b> The ball is enlarged and the swoosh thickened so both survive at profile size. Navy is the default.</figcaption></figure>
+        </div><figcaption><b>Avatar A.</b> The ball is enlarged and the swoosh thickened so both survive at profile size.</figcaption></figure>
       </div>
+      <h3>B · O, ball and swoosh</h3>
+      <div class="grid2">
+        <figure><div class="panel" style="background: var(--linen); border: 1px solid var(--rule); flex: 1"><img src="assets/markb-navy.svg" alt="Logomark B: the O with the swoosh through it and the ball above" style="width: min(340px, 70%)"></div><figcaption><b>Logomark B.</b> The centrepiece of the logo: the O with the swoosh running through it and the ball above. Easier to recognise at small sizes. Use for embroidery, stamps and small placements. Minimum 12 mm / 48 px wide.</figcaption></figure>
+        <figure><div class="icons" style="justify-content: center; flex: 1">
+          <div class="it"><img src="assets/avatar-b-navy.svg" width="150" height="150" alt="Avatar, navy">Navy</div>
+          <div class="it"><img src="assets/avatar-b-travertine.svg" width="150" height="150" alt="Avatar, travertine">Travertine</div>
+          <div class="it"><img src="assets/avatar-b-midnight.svg" width="72" height="72" alt="Avatar, midnight">72 px</div>
+          <div class="it"><img src="assets/avatar-b-navy.svg" width="40" height="40" alt="">40 px</div>
+        </div><figcaption><b>Avatar B.</b> Centred on the O, not on the whole shape, so the mark sits visually centred in the circle.</figcaption></figure>
+      </div>
+      <p>Logomark B is always centred on the centre of the O. When placing it in a circle, square or badge, line up the O with the middle of the frame and let the ball and swoosh extend from it. The downloadable files are already framed this way.</p>
       <div class="icons">
         <div class="it"><img src="assets/favicon-navy.svg" width="120" height="120" alt="App icon, navy">120</div>
         <div class="it"><img src="assets/favicon-navy.svg" width="48" height="48" alt="">48</div>
@@ -377,7 +389,7 @@ footer { max-width: 1240px; margin: 0 auto; padding: 32px max(24px, env(safe-are
       <h2 id="h-files">Downloads</h2>
       <h3>Logo</h3>
       <p>Every logo file has the clear space built in: a transparent margin of one ball-width on each side. Place the file as it is and nothing will crowd the logo.</p>
-      <a class="dlbtn" href="downloads/estancia-skycourts-logo-files.zip" download>Download all logo files <span>ZIP · 0.7 MB</span></a>
+      <a class="dlbtn" href="downloads/estancia-skycourts-logo-files.zip" download>Download all logo &amp; avatar files <span>ZIP · 0.7 MB</span></a>
       <div class="files">
         <a href="downloads/logo/estancia-skycourts-logo-navy.svg" download>Logo · Court Navy <span>SVG</span></a>
         <a href="downloads/logo/estancia-skycourts-logo-linen.svg" download>Logo · Linen <span>SVG</span></a>
@@ -389,10 +401,14 @@ footer { max-width: 1240px; margin: 0 auto; padding: 32px max(24px, env(safe-are
         <a href="downloads/logo/estancia-skycourts-logo-linen-3000.png" download>Logo · Linen <span>PNG 3000</span></a>
         <a href="downloads/logo/estancia-skycourts-logo-gold-3000.png" download>Logo · Lamplight Gold <span>PNG 3000</span></a>
         <a href="downloads/logo/estancia-skycourts-logo-travertine-3000.png" download>Logo · Travertine <span>PNG 3000</span></a>
-        <a href="downloads/logo/estancia-skycourts-logomark-navy.svg" download>Logomark · Court Navy <span>SVG</span></a>
-        <a href="downloads/logo/estancia-skycourts-logomark-linen.svg" download>Logomark · Linen <span>SVG</span></a>
-        <a href="downloads/logo/estancia-skycourts-logomark-gold.svg" download>Logomark · Lamplight Gold <span>SVG</span></a>
-        <a href="downloads/logo/estancia-skycourts-logomark-estgold.svg" download>Logomark · Estancia Gold <span>SVG</span></a>
+        <a href="downloads/logo/estancia-skycourts-logomark-a-navy.svg" download>Logomark A · Court Navy <span>SVG</span></a>
+        <a href="downloads/logo/estancia-skycourts-logomark-a-linen.svg" download>Logomark A · Linen <span>SVG</span></a>
+        <a href="downloads/logo/estancia-skycourts-logomark-a-gold.svg" download>Logomark A · Lamplight Gold <span>SVG</span></a>
+        <a href="downloads/logo/estancia-skycourts-logomark-a-estgold.svg" download>Logomark A · Estancia Gold <span>SVG</span></a>
+        <a href="downloads/logo/estancia-skycourts-logomark-b-navy.svg" download>Logomark B · Court Navy <span>SVG</span></a>
+        <a href="downloads/logo/estancia-skycourts-logomark-b-linen.svg" download>Logomark B · Linen <span>SVG</span></a>
+        <a href="downloads/logo/estancia-skycourts-logomark-b-gold.svg" download>Logomark B · Lamplight Gold <span>SVG</span></a>
+        <a href="downloads/logo/estancia-skycourts-logomark-b-estgold.svg" download>Logomark B · Estancia Gold <span>SVG</span></a>
       </div>
       <p>The SVG files are the masters: use them for print, signage, embroidery and the web. Use the PNGs (transparent, 3000 px wide) only where SVG isn’t accepted.</p>
 
@@ -412,10 +428,12 @@ footer { max-width: 1240px; margin: 0 auto; padding: 32px max(24px, env(safe-are
       </div>
       <p>For other sizes, scale the closest file to the full width of the artwork. Don’t stretch it to a different ratio: the curve must keep its shape.</p>
 
-      <h3>Icons</h3>
+      <h3>Avatars &amp; icons</h3>
       <div class="files">
-        <a href="assets/avatar-navy.svg" download>Social avatar · Navy <span>SVG</span></a>
-        <a href="assets/avatar-travertine.svg" download>Social avatar · Travertine <span>SVG</span></a>
+        <a href="downloads/avatar/estancia-skycourts-avatar-a-navy.svg" download>Avatar A · Navy <span>SVG</span></a>
+        <a href="downloads/avatar/estancia-skycourts-avatar-a-travertine.svg" download>Avatar A · Travertine <span>SVG</span></a>
+        <a href="downloads/avatar/estancia-skycourts-avatar-b-navy.svg" download>Avatar B · Navy <span>SVG</span></a>
+        <a href="downloads/avatar/estancia-skycourts-avatar-b-travertine.svg" download>Avatar B · Travertine <span>SVG</span></a>
         <a href="assets/favicon-navy.svg" download>App icon · Navy <span>SVG</span></a>
         <a href="assets/favicon-navy-small.svg" download>Favicon 16–32 px · Navy <span>SVG</span></a>
       </div>
